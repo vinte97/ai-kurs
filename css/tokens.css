@@ -1,0 +1,24 @@
+:root {
+  --color-navy: #102445;
+  --color-deep: #091428;
+  --color-blue: #2878ff;
+  --color-cyan: #36d6f2;
+  --color-violet: #8b5cf6;
+  --color-paper: #f7faff;
+  --color-white: #ffffff;
+  --color-ink: #14233b;
+  --color-muted: #64748b;
+  --color-line: #d7e2f0;
+  --color-ok: #0c5c42;
+  --space-1: 0.5rem;
+  --space-2: 0.75rem;
+  --space-3: 1rem;
+  --space-4: 1.5rem;
+  --space-5: 2rem;
+  --radius: 14px;
+  --sidebar: 270px;
+  --content: 1040px;
+  --shadow: 0 8px 24px rgba(16, 36, 69, 0.08);
+  --font: "Segoe UI", "Helvetica Neue", sans-serif;
+  --focus: #2878ff;
+}

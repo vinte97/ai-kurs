@@ -4,28 +4,84 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>День 4</title>
+<link rel="stylesheet" href="css/tokens.css">
 <link rel="stylesheet" href="css/site.css">
 </head>
 <body>
 <a class="skip" href="#content">К содержанию</a>
 <button class="menu-button" type="button" aria-expanded="false" aria-controls="site-nav">Меню</button>
 <nav id="site-nav" class="nav" aria-label="Разделы">
-  <p class="brand">Курс по ИИ</p>
+  <p class="brand">ИИ для руководителей</p>
   <a href="index.html">Главная</a>
   <a href="prepare.html">Подготовка</a>
   <a href="day1.html">День 1</a>
   <a href="day2.html">День 2</a>
   <a href="day3.html">День 3</a>
   <a href="day4.html" aria-current="page">День 4</a>
+  <div class="subnav"><a href="day4.html#overview">Обзор</a><a href="day4.html#theory">Теория</a><a href="day4.html#tasks">Задания</a><a href="day4.html#prompts">Промпты</a><a href="day4.html#materials">Материалы</a><a href="day4.html#check">Проверка результатов</a></div>
   <a href="extra.html">Дополнительно</a>
 </nav>
 <main id="content">
-  <h1>День 4</h1>
-  <p class="lead">Материалы этого дня откроются на занятии.</p>
-  <p>Сейчас здесь нет заданий, запросов и файлов.</p>
-  <p><a class="btn" href="prepare.html">Подготовить компьютер</a></p>
+
+<p class="note">День 4</p>
+<h1>День 4. Свой помощник</h1>
+<p class="lead">Сегодня вы соберёте короткое правило помощника и оставите решение себе.</p>
+<section id="overview"><h2>Чему научимся</h2><ul><li>Выберете одну роль и впишете её название.</li><li>Назовёте, какие файлы помощник может видеть.</li><li>Отделите то, что остаётся человеку.</li></ul></section>
+<section id="theory"><h2>Теория</h2><p>Помощник готовит черновик. Подпись, платёж и кадровое решение остаются у вас.</p><p>В запрос кладут только тот файл роли, который вы открыли.</p><p>На защите достаточно показать один случай, где правило остановило лишнее действие.</p></section>
+<section id="materials"><h2>Материалы дня</h2>
+<article class="file-card">
+  <h3>Карточка одной роли</h3>
+  <p>Пример правила помощника. Своё название роли вы вписываете сами.</p>
+  <p>Тип: Текстовый файл</p>
+  <a class="btn" href="files/den4-rol.txt" download>Скачать</a>
+</article>
+</section>
+<section id="tasks"><h2>Задания</h2>
+<article class="exercise" id="task-helper">
+  <h3>Задание 1. Правило помощника</h3>
+  <p><strong>Что будем делать.</strong> Соберём правило одной роли и оставим решение человеку.</p>
+  <p><strong>Что понадобится.</strong></p>
+  <ul><li>Программа WorkAI.</li><li>Файл «Карточка одной роли».</li></ul>
+  <ol><li>Скачайте карточку роли.</li><li>В скобках напишите название роли своими словами.</li><li>Скопируйте запрос, вставьте его в WorkAI и добавьте файл.</li><li>Отправьте запрос.</li><li>Прочитайте, какие решения остались вам.</li></ol>
+  
+<article class="prompt-card" id="prompt-d4-helper">
+  <h3>Правило помощника</h3>
+  <p>Запрос собирает правило роли и оставляет решение человеку.</p>
+  <pre id="text-d4-helper" class="prompt-text">По приложенной карточке собери правило помощника.
+Роль: [напишите название роли].
+Напиши, что он готовит, какие файлы может видеть и чего не делает.
+Отдельно перечисли, какие решения остаются человеку: подпись, платёж, кадровое решение, письмо клиенту.</pre>
+  <p><button class="btn copy-prompt" type="button" data-copy-for="text-d4-helper">Скопировать запрос</button>
+  <button class="btn secondary toggle-prompt" type="button" data-toggle-for="text-d4-helper">Скрыть</button></p>
+  <p id="text-d4-helper-status" class="copy-status" role="status"></p>
+  
+  <h4>Какие файлы нужны</h4>
+  <ul><li><a href="files/den4-rol.txt" download>Карточка одной роли</a></li></ul>
+  <details>
+    <summary>Как использовать</summary>
+    <ol><li>Впишите название роли вместо текста в скобках.</li><li>Скопируйте запрос, вставьте его в WorkAI и добавьте карточку.</li><li>Отправьте запрос.</li></ol>
+  </details>
+  <p><strong>Ожидаемый результат.</strong> Короткое правило и список решений, которые остаются вам.</p>
+  <p><strong>Как проверить.</strong></p>
+  <ul><li>Подпись, платёж и кадровое решение остаются человеку.</li><li>Файлы не шире приложенной карточки.</li><li>Название роли написано вами.</li></ul>
+  <div class="hint"><strong>Подсказка.</strong> <p>Если роль в скобках не заменена, запрос ещё не ваш.</p></div>
+  <a class="btn secondary" href="files/den4-rol.txt" download>Скачать материал</a><a class="btn secondary" href="files/den4-rol.txt">Открыть учебный документ</a>
+</article>
+
+  <details>
+    <summary>Не получилось?</summary>
+    <p>Если в ответе остались квадратные скобки, впишите название роли и отправьте снова.</p>
+  </details>
+</article>
+</section>
+<section id="prompts"><h2>Готовые запросы</h2><p>Полный текст запроса стоит внутри задания. Ниже ссылки на те же карточки.</p><ul><li><a href="#prompt-d4-helper">Правило помощника</a></li></ul></section>
+<section id="check"><h2>Проверка</h2><ul><li>В правиле есть подпись, платёж и кадровое решение как действия человека.</li><li>Список файлов не шире приложенного файла.</li><li>Название роли вписано вами, а не оставлено в скобках.</li></ul></section>
+<section id="extra"><h2>Дополнительная практика</h2><p>Попросите помощника отказаться от просьбы отправить платёж и сохраните этот отказ.</p></section>
+
 </main>
 <script src="js/config.js"></script>
+<script src="js/steps.js"></script>
 <script src="js/portal.js"></script>
+
 </body>
 </html>

@@ -4,28 +4,85 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>День 2</title>
+<link rel="stylesheet" href="css/tokens.css">
 <link rel="stylesheet" href="css/site.css">
 </head>
 <body>
 <a class="skip" href="#content">К содержанию</a>
 <button class="menu-button" type="button" aria-expanded="false" aria-controls="site-nav">Меню</button>
 <nav id="site-nav" class="nav" aria-label="Разделы">
-  <p class="brand">Курс по ИИ</p>
+  <p class="brand">ИИ для руководителей</p>
   <a href="index.html">Главная</a>
   <a href="prepare.html">Подготовка</a>
   <a href="day1.html">День 1</a>
   <a href="day2.html" aria-current="page">День 2</a>
+  <div class="subnav"><a href="day2.html#overview">Обзор</a><a href="day2.html#theory">Теория</a><a href="day2.html#tasks">Задания</a><a href="day2.html#prompts">Промпты</a><a href="day2.html#materials">Материалы</a><a href="day2.html#check">Проверка результатов</a></div>
   <a href="day3.html">День 3</a>
   <a href="day4.html">День 4</a>
   <a href="extra.html">Дополнительно</a>
 </nav>
 <main id="content">
-  <h1>День 2</h1>
-  <p class="lead">Материалы этого дня откроются на занятии.</p>
-  <p>Сейчас здесь нет заданий, запросов и файлов.</p>
-  <p><a class="btn" href="prepare.html">Подготовить компьютер</a></p>
+
+<p class="note">День 2</p>
+<h1>День 2. Две цифры рядом</h1>
+<p class="lead">Сегодня вы научитесь не выбирать «правильную» цифру, пока не ясно, откуда она взялась.</p>
+<section id="overview"><h2>Чему научимся</h2><ul><li>Сравните две суммы из одного файла.</li><li>Назовёте дату каждого среза.</li><li>Сформулируете вопрос, а не победителя.</li></ul></section>
+<section id="theory"><h2>Теория</h2><p>Две разные суммы могут стоять рядом и обе быть из документов.</p><p>Сначала смотрят дату и то, что входит в сумму.</p><p>Если это не сказано, пишут «нужно сверить», а не угадывают.</p></section>
+<section id="materials"><h2>Материалы дня</h2>
+<article class="file-card">
+  <h3>Две суммы из учебных отчётов</h3>
+  <p>Файл с двумя срезами выручки. Его прикладывают к запросу.</p>
+  <p>Тип: Текстовый файл</p>
+  <a class="btn" href="files/den2-cifry.txt" download>Скачать</a>
+</article>
+</section>
+<section id="tasks"><h2>Задания</h2>
+<article class="exercise" id="task-two-numbers">
+  <h3>Задание 1. Почему две суммы</h3>
+  <p><strong>Что будем делать.</strong> Объясним, почему рядом стоят 40,5 и 39,8, и не выберем победителя.</p>
+  <p><strong>Что понадобится.</strong></p>
+  <ul><li>Программа WorkAI.</li><li>Файл «Две суммы из учебных отчётов».</li></ul>
+  <ol><li>Скачайте файл с двумя суммами.</li><li>В скобках оставьте эту пару или впишите свою.</li><li>Скопируйте запрос, вставьте его в WorkAI и добавьте файл.</li><li>Отправьте запрос.</li><li>Проверьте, что в ответе нет одной «верной» цифры.</li></ol>
+  
+<article class="prompt-card" id="prompt-d2-numbers">
+  <h3>Почему две суммы</h3>
+  <p>Запрос объясняет расхождение и не выбирает победителя.</p>
+  <pre id="text-d2-numbers" class="prompt-text">Объясни, почему в приложенном файле рядом стоят выручка [40,5 и 39,8].
+Не выбирай одну цифру.
+Для каждой суммы укажи дату среза и чем отличаются условия.
+Если это не сказано в файле, пиши «нужно сверить».
+Итог — какой вопрос задать, а не какая цифра верная.</pre>
+  <p><button class="btn copy-prompt" type="button" data-copy-for="text-d2-numbers">Скопировать запрос</button>
+  <button class="btn secondary toggle-prompt" type="button" data-toggle-for="text-d2-numbers">Скрыть</button></p>
+  <p id="text-d2-numbers-status" class="copy-status" role="status"></p>
+  
+  <h4>Какие файлы нужны</h4>
+  <ul><li><a href="files/den2-cifry.txt" download>Две суммы из учебных отчётов</a></li></ul>
+  <details>
+    <summary>Как использовать</summary>
+    <ol><li>В скобках оставьте пару или впишите свою.</li><li>Скопируйте запрос и вставьте его в WorkAI.</li><li>Добавьте файл с суммами.</li><li>Отправьте запрос.</li></ol>
+  </details>
+  <p><strong>Ожидаемый результат.</strong> Короткое сравнение двух сумм и вопрос для сверки.</p>
+  <p><strong>Как проверить.</strong></p>
+  <ul><li>Ни одна сумма не названа единственно верной.</li><li>У суммы есть дата.</li><li>В конце есть вопрос.</li></ul>
+  <div class="hint"><strong>Подсказка.</strong> <p>Если ответ советует сразу взять 39,8, это не готовый результат.</p></div>
+  <a class="btn secondary" href="files/den2-cifry.txt" download>Скачать материал</a><a class="btn secondary" href="files/den2-cifry.txt">Открыть учебный документ</a>
+</article>
+
+  <details>
+    <summary>Не получилось?</summary>
+    <p>Если ответ выбирает одну сумму, допишите в конце «не выбирай победителя» и отправьте снова.</p>
+  </details>
+</article>
+</section>
+<section id="prompts"><h2>Готовые запросы</h2><p>Полный текст запроса стоит внутри задания. Ниже ссылки на те же карточки.</p><ul><li><a href="#prompt-d2-numbers">Почему две суммы</a></li></ul></section>
+<section id="check"><h2>Проверка</h2><ul><li>Ни одна сумма не названа единственно верной.</li><li>У каждой суммы есть дата среза.</li><li>В конце есть вопрос, а не приказ выбрать цифру.</li></ul></section>
+<section id="extra"><h2>Дополнительная практика</h2><p>В скобках запроса допишите третью пару цифр из своей работы и посмотрите, чего для неё не хватает в файле.</p></section>
+
 </main>
 <script src="js/config.js"></script>
+<script src="js/steps.js"></script>
 <script src="js/portal.js"></script>
+
 </body>
 </html>

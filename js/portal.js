@@ -6,6 +6,7 @@
       navButton.setAttribute("aria-expanded", open ? "true" : "false");
     });
   }
+  initPrompts();
 
   var root = document.getElementById("wizard");
   if (!root || !window.TRACKS) return;
@@ -122,13 +123,13 @@
       });
     }
     if (!compact) {
-      var yes = el("button", "btn", "Да, всё получилось");
+      var yes = el("button", "btn", "Получилось");
       yes.type = "button";
       if (!step.choice) {
         yes.addEventListener("click", function () { markDone(step); });
         card.appendChild(yes);
       }
-      var no = el("button", "btn secondary", "Нет, нужна помощь");
+      var no = el("button", "btn secondary", "Нужна помощь");
       no.type = "button";
       var opened = false;
       no.addEventListener("click", function () {
@@ -275,6 +276,55 @@
       root.appendChild(el("p", "ok", previous.praise));
     }
     root.appendChild(renderStep(step, position, list.length, false));
+  }
+
+  function initPrompts() {
+    document.querySelectorAll(".copy-prompt").forEach(function (button) {
+      var original = button.textContent;
+      button.addEventListener("click", function () {
+        var node = document.getElementById(button.getAttribute("data-copy-for"));
+        var status = document.getElementById(node.id + "-status");
+        var text = node.textContent.replace(/\s+$/, "");
+        function ok() {
+          button.textContent = "Скопировано!";
+          button.classList.add("is-copied");
+          status.textContent = "";
+          window.setTimeout(function () {
+            button.textContent = original;
+            button.classList.remove("is-copied");
+          }, 2000);
+        }
+        function fail() {
+          var range = document.createRange();
+          range.selectNodeContents(node);
+          var selection = window.getSelection();
+          selection.removeAllRanges();
+          selection.addRange(range);
+          button.textContent = original;
+          button.classList.remove("is-copied");
+          status.textContent = "Автокопирование не сработало. Текст выделен. Нажмите Ctrl+C или Cmd+C.";
+        }
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(text).then(ok, function () {
+            try {
+              if (document.execCommand("copy")) ok();
+              else fail();
+            } catch (e) {
+              fail();
+            }
+          });
+        } else {
+          fail();
+        }
+      });
+    });
+    document.querySelectorAll(".toggle-prompt").forEach(function (button) {
+      button.addEventListener("click", function () {
+        var node = document.getElementById(button.getAttribute("data-toggle-for"));
+        var hidden = node.classList.toggle("is-collapsed");
+        button.textContent = hidden ? "Показать полностью" : "Скрыть";
+      });
+    });
   }
 
   draw();

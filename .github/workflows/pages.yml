@@ -19,10 +19,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Public pages only
-        run: |
-          mkdir -p _site
-          cp index.html prepare.html day1.html day2.html day3.html day4.html extra.html .nojekyll site.config.json _site/
-          cp -R css js qr _site/
+        run: python3 tools/build_site.py --out _site
       - uses: actions/upload-pages-artifact@v3
         with:
           path: _site

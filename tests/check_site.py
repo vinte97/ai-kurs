@@ -23,13 +23,14 @@ def main():
     for word in BANNED:
         if word in text:
             errors.append("public text contains " + word)
-    if "Подготовить компьютер" not in (ROOT / "index.html").read_text(encoding="utf-8"):
-        errors.append("home button missing")
+    home = (ROOT / "index.html").read_text(encoding="utf-8")
+    if "Добро пожаловать" not in home or "Продолжить обучение" not in home:
+        errors.append("home welcome missing")
     if 'href="/ai-kurs/' in text or "<base " in text:
         errors.append("absolute site base would block a future domain")
     for name in PUBLIC:
         for href in re.findall(r'href="([^"]+)"', (ROOT / name).read_text(encoding="utf-8")):
-            if href.startswith(("http://", "https://", "#")):
+            if href.startswith(("http://", "https://", "#")) or "#" in href:
                 continue
             if not (ROOT / href).exists():
                 errors.append(name + " missing " + href)

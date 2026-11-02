@@ -4,28 +4,84 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>День 3</title>
+<link rel="stylesheet" href="css/tokens.css">
 <link rel="stylesheet" href="css/site.css">
 </head>
 <body>
 <a class="skip" href="#content">К содержанию</a>
 <button class="menu-button" type="button" aria-expanded="false" aria-controls="site-nav">Меню</button>
 <nav id="site-nav" class="nav" aria-label="Разделы">
-  <p class="brand">Курс по ИИ</p>
+  <p class="brand">ИИ для руководителей</p>
   <a href="index.html">Главная</a>
   <a href="prepare.html">Подготовка</a>
   <a href="day1.html">День 1</a>
   <a href="day2.html">День 2</a>
   <a href="day3.html" aria-current="page">День 3</a>
+  <div class="subnav"><a href="day3.html#overview">Обзор</a><a href="day3.html#theory">Теория</a><a href="day3.html#tasks">Задания</a><a href="day3.html#prompts">Промпты</a><a href="day3.html#materials">Материалы</a><a href="day3.html#check">Проверка результатов</a></div>
   <a href="day4.html">День 4</a>
   <a href="extra.html">Дополнительно</a>
 </nav>
 <main id="content">
-  <h1>День 3</h1>
-  <p class="lead">Материалы этого дня откроются на занятии.</p>
-  <p>Сейчас здесь нет заданий, запросов и файлов.</p>
-  <p><a class="btn" href="prepare.html">Подготовить компьютер</a></p>
+
+<p class="note">День 3</p>
+<h1>День 3. Что можно только читать</h1>
+<p class="lead">Сегодня вы разложите действия: что можно читать, что нельзя менять и что нельзя переносить в чат.</p>
+<section id="overview"><h2>Чему научимся</h2><ul><li>Прочитаете короткие правила из файла.</li><li>Соберёте таблицу из четырёх столбцов.</li><li>Оставите платёж и письмо человеку.</li></ul></section>
+<section id="theory"><h2>Теория</h2><p>ИИ можно попросить разложить правила. Решение всё равно принимает человек.</p><p>Оклад, пароль и причину увольнения в учебный чат не переносят.</p><p>Адрес учебной системы и ключ на сайте курса не написаны. Их даёт преподаватель отдельно.</p></section>
+<section id="materials"><h2>Материалы дня</h2>
+<article class="file-card">
+  <h3>Короткие правила границ</h3>
+  <p>Опора для таблицы: что читать, что не менять, что не переносить.</p>
+  <p>Тип: Текстовый файл</p>
+  <a class="btn" href="files/den3-granicy.txt" download>Скачать</a>
+</article>
+</section>
+<section id="tasks"><h2>Задания</h2>
+<article class="exercise" id="task-limits">
+  <h3>Задание 1. Таблица границ</h3>
+  <p><strong>Что будем делать.</strong> Разложим действия по правилам из файла.</p>
+  <p><strong>Что понадобится.</strong></p>
+  <ul><li>Программа WorkAI.</li><li>Файл «Короткие правила границ».</li></ul>
+  <ol><li>Скачайте файл с правилами.</li><li>В скобках впишите одну свою строку или оставьте пример.</li><li>Скопируйте запрос, вставьте его в WorkAI и добавьте файл.</li><li>Отправьте запрос.</li><li>Проверьте четыре столбца по списку ниже.</li></ol>
+  
+<article class="prompt-card" id="prompt-d3-limits">
+  <h3>Таблица границ</h3>
+  <p>Запрос собирает таблицу по файлу правил.</p>
+  <pre id="text-d3-limits" class="prompt-text">Составь таблицу по приложенному файлу.
+Строки: статус проекта, остаток склада, поручение, письмо клиенту, платёж, оклад, [ваша строка].
+Столбцы: читать свободно, менять нельзя, только после человека, нельзя никогда.
+Оклад и пароль в учебный чат не переноси.</pre>
+  <p><button class="btn copy-prompt" type="button" data-copy-for="text-d3-limits">Скопировать запрос</button>
+  <button class="btn secondary toggle-prompt" type="button" data-toggle-for="text-d3-limits">Скрыть</button></p>
+  <p id="text-d3-limits-status" class="copy-status" role="status"></p>
+  
+  <h4>Какие файлы нужны</h4>
+  <ul><li><a href="files/den3-granicy.txt" download>Короткие правила границ</a></li></ul>
+  <details>
+    <summary>Как использовать</summary>
+    <ol><li>В скобках впишите свою строку или оставьте пример.</li><li>Скопируйте запрос, вставьте его в WorkAI и добавьте файл.</li><li>Отправьте запрос.</li></ol>
+  </details>
+  <p><strong>Ожидаемый результат.</strong> Одна таблица. У каждой строки один понятный столбец.</p>
+  <p><strong>Как проверить.</strong></p>
+  <ul><li>Оклад стоит в «нельзя никогда».</li><li>Платёж и письмо не стоят как свободное действие.</li><li>Своя строка не осталась в скобках.</li></ul>
+  <div class="hint"><strong>Подсказка.</strong> <p>Ключ и адрес учебной системы в этот запрос не вставляют.</p></div>
+  <a class="btn secondary" href="files/den3-granicy.txt" download>Скачать материал</a><a class="btn secondary" href="files/den3-granicy.txt">Открыть учебный документ</a>
+</article>
+
+  <details>
+    <summary>Не получилось?</summary>
+    <p>Если столбцы смешались, попросите «верни четыре столбца» и отправьте снова.</p>
+  </details>
+</article>
+</section>
+<section id="prompts"><h2>Готовые запросы</h2><p>Полный текст запроса стоит внутри задания. Ниже ссылки на те же карточки.</p><ul><li><a href="#prompt-d3-limits">Таблица границ</a></li></ul></section>
+<section id="check"><h2>Проверка</h2><ul><li>Оклад и пароль стоят в столбце «нельзя никогда».</li><li>Письмо и платёж не стоят как действие, которое можно сделать самому.</li><li>Таблица понятна без длинного текста вокруг.</li></ul></section>
+<section id="extra"><h2>Дополнительная практика</h2><p>Добавьте в скобках свою строку, например «отпуск сотрудника», и поставьте её в подходящий столбец.</p></section>
+
 </main>
 <script src="js/config.js"></script>
+<script src="js/steps.js"></script>
 <script src="js/portal.js"></script>
+
 </body>
 </html>

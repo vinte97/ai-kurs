@@ -4,13 +4,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Дополнительно</title>
+<link rel="stylesheet" href="css/tokens.css">
 <link rel="stylesheet" href="css/site.css">
 </head>
 <body>
 <a class="skip" href="#content">К содержанию</a>
 <button class="menu-button" type="button" aria-expanded="false" aria-controls="site-nav">Меню</button>
 <nav id="site-nav" class="nav" aria-label="Разделы">
-  <p class="brand">Курс по ИИ</p>
+  <p class="brand">ИИ для руководителей</p>
   <a href="index.html">Главная</a>
   <a href="prepare.html">Подготовка</a>
   <a href="day1.html">День 1</a>
@@ -20,56 +21,149 @@
   <a href="extra.html" aria-current="page">Дополнительно</a>
 </nav>
 <main id="content">
-  <h1>Дополнительно</h1>
-  <p>Короткие ответы. Если ваш случай другой, напишите преподавателю.</p>
 
+<h1>Дополнительно</h1>
+<section id="library"><h2>Библиотека запросов</h2><p>Те же тексты, что внутри открытых дней.</p>
+<article class="prompt-card" id="prompt-d1-letter">
+  <h3>Письмо о переносе совещания</h3>
+  <p>Готовый запрос для короткого письма коллегам.</p>
+  <pre id="text-d1-letter" class="prompt-text">Ты — помощник руководителя.
+Контекст: еженедельное совещание переносится со среды на четверг.
+Подготовь короткое вежливое письмо сотрудникам.
+Формат: тема письма и основной текст.
+Не придумывай время и место проведения.
+Проверь, чтобы письмо сообщало новую дату и не содержало сведений, которых нет в условии.</pre>
+  <p><button class="btn copy-prompt" type="button" data-copy-for="text-d1-letter">Скопировать запрос</button>
+  <button class="btn secondary toggle-prompt" type="button" data-toggle-for="text-d1-letter">Скрыть</button></p>
+  <p id="text-d1-letter-status" class="copy-status" role="status"></p>
+  
+  <h4>Какие файлы нужны</h4>
+  <p>Отдельный файл не нужен.</p>
   <details>
-    <summary>Файл не скачался</summary>
-    <ol>
-      <li>Проверьте, что интернет включён.</li>
-      <li>Нажмите кнопку загрузки ещё раз.</li>
-      <li>Подождите, пока полоска загрузки дойдёт до конца.</li>
-    </ol>
+    <summary>Как использовать</summary>
+    <ol><li>Нажмите «Скопировать запрос».</li><li>Откройте программу WorkAI.</li><li>Нажмите на поле для ввода сообщения и вставьте скопированный текст.</li><li>Отправьте запрос кнопкой рядом с полем.</li></ol>
   </details>
+  <p><strong>Ожидаемый результат.</strong> Небольшое письмо, которое можно проверить и доработать перед отправкой.</p>
+  <p><strong>Как проверить.</strong></p>
+  <ul><li>Указан перенос совещания.</li><li>Тон письма вежливый.</li><li>Время и место не выдуманы.</li></ul>
+  <div class="hint"><strong>Подсказка.</strong> <p>Если в письме появились часы или кабинет, которых не было в запросе, удалите их перед отправкой людям.</p></div>
+  
+</article>
+
+<article class="prompt-card" id="prompt-d1-check">
+  <h3>Проверка чужого ответа</h3>
+  <p>Запрос сравнивает готовый ответ с тремя учебными записями.</p>
+  <pre id="text-d1-check" class="prompt-text">Проверь готовый ответ по приложенному файлу. [Напишите, какой вопрос вы проверяете.]
+Для каждой существенной фразы напиши: есть в записях или «в записях нет».
+Ничего не добавляй от себя: ни часов простоя, ни штрафа, ни новых фамилий.</pre>
+  <p><button class="btn copy-prompt" type="button" data-copy-for="text-d1-check">Скопировать запрос</button>
+  <button class="btn secondary toggle-prompt" type="button" data-toggle-for="text-d1-check">Скрыть</button></p>
+  <p id="text-d1-check-status" class="copy-status" role="status"></p>
+  
+<pre id="text-d1-check-short" class="prompt-text" hidden>Проверь готовый ответ по приложенному файлу. Для каждой фразы напиши: есть в записях или «в записях нет». Ничего не добавляй от себя.</pre>
+<p><button class="btn secondary copy-prompt" type="button" data-copy-for="text-d1-check-short">Скопировать короткую версию</button></p>
+<p id="text-d1-check-short-status" class="copy-status" role="status"></p>
+
+  <h4>Какие файлы нужны</h4>
+  <ul><li><a href="files/den1-zapiski.txt" download>Учебные записи к проверке ответа</a></li></ul>
   <details>
-    <summary>Не могу найти скачанный файл</summary>
-    <ol>
-      <li>Откройте папку «Загрузки». На Mac английский пункт называется Downloads.</li>
-      <li>Посмотрите самый верхний файл в списке.</li>
-      <li>Если папки не видно, вернитесь на страницу «Подготовка» и откройте шаг про папку.</li>
-    </ol>
+    <summary>Как использовать</summary>
+    <ol><li>Сначала замените текст в квадратных скобках.</li><li>Скопируйте запрос и вставьте его в WorkAI.</li><li>Добавьте скачанный файл к запросу.</li><li>Отправьте запрос.</li></ol>
   </details>
+  <p><strong>Ожидаемый результат.</strong> Список фраз. У каждой есть пометка «есть в записях» или «в записях нет».</p>
+  <p><strong>Как проверить.</strong></p>
+  <ul><li>Шести часов простоя в ответе нет как факта.</li><li>Штраф помечен как то, чего в записях нет.</li><li>Новых фамилий нет.</li></ul>
+  <div class="hint"><strong>Подсказка.</strong> <p>Короткая версия без скобок нужна, только если свой вопрос вы уже написали в задании отдельно.</p></div>
+  <a class="btn secondary" href="files/den1-zapiski.txt" download>Скачать материал</a><a class="btn secondary" href="files/den1-zapiski.txt">Открыть учебный документ</a>
+</article>
+
+<article class="prompt-card" id="prompt-d2-numbers">
+  <h3>Почему две суммы</h3>
+  <p>Запрос объясняет расхождение и не выбирает победителя.</p>
+  <pre id="text-d2-numbers" class="prompt-text">Объясни, почему в приложенном файле рядом стоят выручка [40,5 и 39,8].
+Не выбирай одну цифру.
+Для каждой суммы укажи дату среза и чем отличаются условия.
+Если это не сказано в файле, пиши «нужно сверить».
+Итог — какой вопрос задать, а не какая цифра верная.</pre>
+  <p><button class="btn copy-prompt" type="button" data-copy-for="text-d2-numbers">Скопировать запрос</button>
+  <button class="btn secondary toggle-prompt" type="button" data-toggle-for="text-d2-numbers">Скрыть</button></p>
+  <p id="text-d2-numbers-status" class="copy-status" role="status"></p>
+  
+  <h4>Какие файлы нужны</h4>
+  <ul><li><a href="files/den2-cifry.txt" download>Две суммы из учебных отчётов</a></li></ul>
   <details>
-    <summary>Не открывается установочный файл</summary>
-    <ol>
-      <li>Проверьте, что файл полностью скачался.</li>
-      <li>Откройте его ещё раз двойным нажатием.</li>
-      <li>Если компьютер сообщает, что установка запрещена, обратитесь к преподавателю или системному администратору.</li>
-    </ol>
+    <summary>Как использовать</summary>
+    <ol><li>В скобках оставьте пару или впишите свою.</li><li>Скопируйте запрос и вставьте его в WorkAI.</li><li>Добавьте файл с суммами.</li><li>Отправьте запрос.</li></ol>
   </details>
+  <p><strong>Ожидаемый результат.</strong> Короткое сравнение двух сумм и вопрос для сверки.</p>
+  <p><strong>Как проверить.</strong></p>
+  <ul><li>Ни одна сумма не названа единственно верной.</li><li>У суммы есть дата.</li><li>В конце есть вопрос.</li></ul>
+  <div class="hint"><strong>Подсказка.</strong> <p>Если ответ советует сразу взять 39,8, это не готовый результат.</p></div>
+  <a class="btn secondary" href="files/den2-cifry.txt" download>Скачать материал</a><a class="btn secondary" href="files/den2-cifry.txt">Открыть учебный документ</a>
+</article>
+
+<article class="prompt-card" id="prompt-d3-limits">
+  <h3>Таблица границ</h3>
+  <p>Запрос собирает таблицу по файлу правил.</p>
+  <pre id="text-d3-limits" class="prompt-text">Составь таблицу по приложенному файлу.
+Строки: статус проекта, остаток склада, поручение, письмо клиенту, платёж, оклад, [ваша строка].
+Столбцы: читать свободно, менять нельзя, только после человека, нельзя никогда.
+Оклад и пароль в учебный чат не переноси.</pre>
+  <p><button class="btn copy-prompt" type="button" data-copy-for="text-d3-limits">Скопировать запрос</button>
+  <button class="btn secondary toggle-prompt" type="button" data-toggle-for="text-d3-limits">Скрыть</button></p>
+  <p id="text-d3-limits-status" class="copy-status" role="status"></p>
+  
+  <h4>Какие файлы нужны</h4>
+  <ul><li><a href="files/den3-granicy.txt" download>Короткие правила границ</a></li></ul>
   <details>
-    <summary>Windows показывает синее окно</summary>
-    <p>Нажмите «Подробнее», затем «Выполнить в любом случае». Защиту компьютера при этом не отключают.</p>
-    <p>Если окно говорит про интеллектуальный контроль приложений, остановитесь и напишите преподавателю. Эту функцию сами не выключайте.</p>
+    <summary>Как использовать</summary>
+    <ol><li>В скобках впишите свою строку или оставьте пример.</li><li>Скопируйте запрос, вставьте его в WorkAI и добавьте файл.</li><li>Отправьте запрос.</li></ol>
   </details>
+  <p><strong>Ожидаемый результат.</strong> Одна таблица. У каждой строки один понятный столбец.</p>
+  <p><strong>Как проверить.</strong></p>
+  <ul><li>Оклад стоит в «нельзя никогда».</li><li>Платёж и письмо не стоят как свободное действие.</li><li>Своя строка не осталась в скобках.</li></ul>
+  <div class="hint"><strong>Подсказка.</strong> <p>Ключ и адрес учебной системы в этот запрос не вставляют.</p></div>
+  <a class="btn secondary" href="files/den3-granicy.txt" download>Скачать материал</a><a class="btn secondary" href="files/den3-granicy.txt">Открыть учебный документ</a>
+</article>
+
+<article class="prompt-card" id="prompt-d4-helper">
+  <h3>Правило помощника</h3>
+  <p>Запрос собирает правило роли и оставляет решение человеку.</p>
+  <pre id="text-d4-helper" class="prompt-text">По приложенной карточке собери правило помощника.
+Роль: [напишите название роли].
+Напиши, что он готовит, какие файлы может видеть и чего не делает.
+Отдельно перечисли, какие решения остаются человеку: подпись, платёж, кадровое решение, письмо клиенту.</pre>
+  <p><button class="btn copy-prompt" type="button" data-copy-for="text-d4-helper">Скопировать запрос</button>
+  <button class="btn secondary toggle-prompt" type="button" data-toggle-for="text-d4-helper">Скрыть</button></p>
+  <p id="text-d4-helper-status" class="copy-status" role="status"></p>
+  
+  <h4>Какие файлы нужны</h4>
+  <ul><li><a href="files/den4-rol.txt" download>Карточка одной роли</a></li></ul>
   <details>
-    <summary>Я закрыл не ту вкладку</summary>
-    <p>Вернитесь на сайт курса. Откройте «Подготовка». Ваши отметки сохраняются в этом браузере.</p>
+    <summary>Как использовать</summary>
+    <ol><li>Впишите название роли вместо текста в скобках.</li><li>Скопируйте запрос, вставьте его в WorkAI и добавьте карточку.</li><li>Отправьте запрос.</li></ol>
   </details>
-  <h2>Код для телефона</h2>
-  <p>Наведите камеру на код.</p>
-  <p><img class="qr" src="qr/home.svg" alt="Код главной страницы"><br>Главная страница</p>
-  <p><img class="qr" src="qr/prepare.svg" alt="Код страницы подготовки"><br>Страница «Подготовка»</p>
-  <h2>Помощь</h2>
-  <p id="contacts">Если застряли, напишите преподавателю тем способом, которым вас пригласили на курс.</p>
-  <p><a class="btn" href="prepare.html">Вернуться к подготовке</a></p>
+  <p><strong>Ожидаемый результат.</strong> Короткое правило и список решений, которые остаются вам.</p>
+  <p><strong>Как проверить.</strong></p>
+  <ul><li>Подпись, платёж и кадровое решение остаются человеку.</li><li>Файлы не шире приложенной карточки.</li><li>Название роли написано вами.</li></ul>
+  <div class="hint"><strong>Подсказка.</strong> <p>Если роль в скобках не заменена, запрос ещё не ваш.</p></div>
+  <a class="btn secondary" href="files/den4-rol.txt" download>Скачать материал</a><a class="btn secondary" href="files/den4-rol.txt">Открыть учебный документ</a>
+</article>
+</section>
+<section id="glossary"><h2>Словарь</h2><dl><dt>Запрос</dt><dd>Текст, который вы отправляете ИИ. На сайте его можно скопировать целиком.</dd><dt>WorkAI</dt><dd>Программа, в которой вы разговариваете с ИИ на занятиях.</dd><dt>Буфер обмена</dt><dd>Место, куда попадает текст после кнопки «Скопировать запрос», пока вы его не вставите.</dd><dt>Папка «Загрузки»</dt><dd>Место, куда браузер обычно сохраняет скачанный файл.</dd><dt>Двойное нажатие</dt><dd>Два быстрых нажатия подряд по одному значку. Так открывают файл.</dd></dl></section>
+<section id="faq"><h2>Частые вопросы</h2><details><summary>Куда вставлять запрос?</summary><p>В поле сообщения в программе WorkAI. Затем нажмите кнопку отправки рядом с этим полем.</p></details><details><summary>Файл не скачался</summary><p>Проверьте интернет, нажмите «Скачать» ещё раз и дождитесь конца загрузки.</p></details><details><summary>Не открывается установочный файл</summary><p>Проверьте, что файл скачался целиком, и откройте его ещё раз. Если компьютер пишет, что установка запрещена, обратитесь к преподавателю. Защиту сами не отключайте.</p></details></section>
+<section id="links"><h2>Полезные ссылки</h2><ul><li><a href="https://workai.su/download">Страница загрузки WorkAI</a></li><li><a href="https://git-scm.com/download/win">Страница Git для Windows</a></li><li><a href="https://www.python.org/downloads/windows/">Страница Python для Windows</a></li><li><a href="https://www.python.org/downloads/macos/">Страница Python для Mac</a></li></ul></section>
+<section id="memo"><h2>Памятка по файлам</h2>
+<p>Скачанный файл обычно лежит в папке «Загрузки». На Mac английское название этой папки — Downloads.</p>
+<p>Откройте файл двойным нажатием: два быстрых нажатия подряд.</p>
+<p><a class="btn" href="qr/home.svg">Код главной страницы</a> <a class="btn secondary" href="qr/prepare.svg">Код подготовки</a></p>
+</section>
+<section id="more"><h2>Дополнительные задания</h2><p>Они стоят в конце открытого дня, в блоке «Дополнительная практика».</p></section>
+
 </main>
 <script src="js/config.js"></script>
+<script src="js/steps.js"></script>
 <script src="js/portal.js"></script>
-<script>
-if (window.SITE && window.SITE.contacts) {
-  document.getElementById("contacts").textContent = window.SITE.contacts;
-}
-</script>
+
 </body>
 </html>
