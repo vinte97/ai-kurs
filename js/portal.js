@@ -137,6 +137,13 @@
     list.appendChild(field("Что сделать", step.do));
     list.appendChild(field("Где нажать", step.where));
     list.appendChild(field("Что вы увидите", step.see));
+    if (step.image) {
+      var shot = document.createElement("img");
+      shot.className = "step-shot";
+      shot.src = step.image;
+      shot.alt = step.imageAlt || "Снимок страницы";
+      list.lastChild.querySelector("dd").appendChild(shot);
+    }
     list.appendChild(field("Как проверить", step.check));
     card.appendChild(list);
     var link = actionLink(step);

@@ -29,7 +29,9 @@ window.TRACKS = {
         "Если страница не открывается, напишите преподавателю."
       ],
       action: { href: "https://workai.su/download", label: "Открыть страницу загрузки" },
-      shot: "w-open"
+      shot: "w-open",
+      image: "images/workai-download.png",
+      imageAlt: "Страница загрузки WorkAI для Windows. Кнопка называется Windows (.exe)."
     },
     {
       id: "w-click",
@@ -44,6 +46,8 @@ window.TRACKS = {
         "Если загрузка не началась, нажмите «Windows (.exe)» ещё раз.",
         "Если браузер спрашивает, куда сохранить файл, выберите папку «Загрузки» и подтвердите."
       ],
+      image: "images/workai-download.png",
+      imageAlt: "Страница загрузки WorkAI для Windows. Нажимать нужно Windows (.exe).",
       shot: "w-click"
     },
     {
@@ -183,7 +187,9 @@ window.TRACKS = {
       ],
       action: { href: "https://git-scm.com/download/win", label: "Открыть страницу Git" },
       skip: true,
-      shot: "g-open"
+      shot: "g-open",
+      image: "images/git-win.png",
+      imageAlt: "Страница Git для Windows. Синяя ссылка называется Click here to download."
     },
     {
       id: "g-click",
@@ -198,7 +204,9 @@ window.TRACKS = {
         "Если преподаватель отдельно сказал, что компьютер на процессоре ARM, нажмите Git for Windows/ARM64 Setup.",
         "Дождитесь конца загрузки, как с предыдущим файлом."
       ],
-      shot: "g-click"
+      shot: "g-click",
+      image: "images/git-win.png",
+      imageAlt: "Страница Git для Windows. Нажимать нужно Click here to download."
     },
     {
       id: "g-search",
@@ -269,7 +277,9 @@ window.TRACKS = {
       ],
       action: { href: "https://www.python.org/downloads/windows/", label: "Открыть страницу Python" },
       skip: true,
-      shot: "p-open"
+      shot: "p-open",
+      image: "images/python-win.png",
+      imageAlt: "Страница Python для Windows. В списке Stable Releases первая ссылка Windows installer (64-bit)."
     },
     {
       id: "p-click",
@@ -284,7 +294,9 @@ window.TRACKS = {
         "Не нажимайте ARM64, если преподаватель этого отдельно не просил.",
         "Дождитесь конца загрузки."
       ],
-      shot: "p-click"
+      shot: "p-click",
+      image: "images/python-win.png",
+      imageAlt: "Страница Python для Windows. Нажимать нужно первую ссылку Windows installer (64-bit)."
     },
     {
       id: "p-run",
@@ -424,7 +436,9 @@ window.TRACKS = {
       check: "Вы видите заголовок «Скачать WorkAI».",
       help: ["Если страница не открылась, проверьте интернет и нажмите кнопку ещё раз."],
       action: { href: "https://workai.su/download", label: "Открыть страницу загрузки" },
-      shot: "m-open"
+      shot: "m-open",
+      image: "images/workai-mac.png",
+      imageAlt: "Страница загрузки WorkAI для Mac. Две кнопки: macOS Apple Silicon и macOS Intel."
     },
     {
       id: "m-click",
@@ -439,7 +453,9 @@ window.TRACKS = {
         "Не нажимайте Windows и Linux.",
         "Дождитесь, пока загрузка закончится. Кружок или полоска должны остановиться."
       ],
-      shot: "m-click"
+      shot: "m-click",
+      image: "images/workai-mac.png",
+      imageAlt: "Страница загрузки WorkAI для Mac. Выберите одну кнопку: Apple Silicon или Intel."
     },
     {
       id: "m-finder",
@@ -520,7 +536,9 @@ window.TRACKS = {
       help: ["Если страница не открылась, нажмите кнопку ещё раз."],
       action: { href: "https://www.python.org/downloads/macos/", label: "Открыть страницу Python" },
       skip: true,
-      shot: "mp-open"
+      shot: "mp-open",
+      image: "images/python-mac.png",
+      imageAlt: "Страница Python для Mac. В списке Stable Releases первая ссылка macOS installer."
     },
     {
       id: "mp-click",
@@ -534,7 +552,9 @@ window.TRACKS = {
         "Не выбирайте старые версии ниже по странице.",
         "Дождитесь конца загрузки."
       ],
-      shot: "mp-click"
+      shot: "mp-click",
+      image: "images/python-mac.png",
+      imageAlt: "Страница Python для Mac. Нажимать нужно первую ссылку macOS installer."
     },
     {
       id: "mp-run",

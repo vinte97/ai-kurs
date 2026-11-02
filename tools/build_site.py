@@ -389,7 +389,7 @@ def build(phase, out):
     (out / "js").mkdir(exist_ok=True)
     (out / "js" / "config.js").write_text(config_js(config, phase), encoding="utf-8")
     (out / "js" / "prompts.js").write_text(prompts_js(course, phase), encoding="utf-8")
-    for folder in ("css", "qr"):
+    for folder in ("css", "qr", "images"):
         target = out / folder
         if target.resolve() != (ROOT / folder).resolve():
             if target.exists():

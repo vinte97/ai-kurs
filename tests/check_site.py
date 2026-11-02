@@ -36,6 +36,9 @@ def main():
             errors.append("code is visible on the home page")
     if 'href="/ai-kurs/' in text or "<base " in text:
         errors.append("absolute site base would block a future domain")
+    for path in re.findall(r"images/[A-Za-z0-9._-]+", (ROOT / "js" / "steps.js").read_text(encoding="utf-8")):
+        if not (ROOT / path).is_file():
+            errors.append("missing screenshot " + path)
     for name in PUBLIC:
         for href in re.findall(r'href="([^"]+)"', (ROOT / name).read_text(encoding="utf-8")):
             if href.startswith(("http://", "https://", "#")) or "#" in href:
