@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Дополнительно</title>
+<link rel="stylesheet" href="css/site.css">
+</head>
+<body>
+<a class="skip" href="#content">К содержанию</a>
+<button class="menu-button" type="button" aria-expanded="false" aria-controls="site-nav">Меню</button>
+<nav id="site-nav" class="nav" aria-label="Разделы">
+  <p class="brand">Курс по ИИ</p>
+  <a href="index.html">Главная</a>
+  <a href="prepare.html">Подготовка</a>
+  <a href="day1.html">День 1</a>
+  <a href="day2.html">День 2</a>
+  <a href="day3.html">День 3</a>
+  <a href="day4.html">День 4</a>
+  <a href="extra.html" aria-current="page">Дополнительно</a>
+</nav>
+<main id="content">
+  <h1>Дополнительно</h1>
+  <p>Короткие ответы. Если ваш случай другой, напишите преподавателю.</p>
+
+  <details>
+    <summary>Файл не скачался</summary>
+    <ol>
+      <li>Проверьте, что интернет включён.</li>
+      <li>Нажмите кнопку загрузки ещё раз.</li>
+      <li>Подождите, пока полоска загрузки дойдёт до конца.</li>
+    </ol>
+  </details>
+  <details>
+    <summary>Не могу найти скачанный файл</summary>
+    <ol>
+      <li>Откройте папку «Загрузки». На Mac английский пункт называется Downloads.</li>
+      <li>Посмотрите самый верхний файл в списке.</li>
+      <li>Если папки не видно, вернитесь на страницу «Подготовка» и откройте шаг про папку.</li>
+    </ol>
+  </details>
+  <details>
+    <summary>Не открывается установочный файл</summary>
+    <ol>
+      <li>Проверьте, что файл полностью скачался.</li>
+      <li>Откройте его ещё раз двойным нажатием.</li>
+      <li>Если компьютер сообщает, что установка запрещена, обратитесь к преподавателю или системному администратору.</li>
+    </ol>
+  </details>
+  <details>
+    <summary>Windows показывает синее окно</summary>
+    <p>Нажмите «Подробнее», затем «Выполнить в любом случае». Защиту компьютера при этом не отключают.</p>
+    <p>Если окно говорит про интеллектуальный контроль приложений, остановитесь и напишите преподавателю. Эту функцию сами не выключайте.</p>
+  </details>
+  <details>
+    <summary>Я закрыл не ту вкладку</summary>
+    <p>Вернитесь на сайт курса. Откройте «Подготовка». Ваши отметки сохраняются в этом браузере.</p>
+  </details>
+  <h2>Код для телефона</h2>
+  <p>Наведите камеру на код.</p>
+  <p><img class="qr" src="qr/home.svg" alt="Код главной страницы"><br>Главная страница</p>
+  <p><img class="qr" src="qr/prepare.svg" alt="Код страницы подготовки"><br>Страница «Подготовка»</p>
+  <h2>Помощь</h2>
+  <p id="contacts">Если застряли, напишите преподавателю тем способом, которым вас пригласили на курс.</p>
+  <p><a class="btn" href="prepare.html">Вернуться к подготовке</a></p>
+</main>
+<script src="js/config.js"></script>
+<script src="js/portal.js"></script>
+<script>
+if (window.SITE && window.SITE.contacts) {
+  document.getElementById("contacts").textContent = window.SITE.contacts;
+}
+</script>
+</body>
+</html>
