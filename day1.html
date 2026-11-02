@@ -4,133 +4,36 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>День 1</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;700&amp;display=swap">
 <link rel="stylesheet" href="css/tokens.css">
 <link rel="stylesheet" href="css/site.css">
 </head>
 <body>
 <a class="skip" href="#content">К содержанию</a>
 <button class="menu-button" type="button" aria-expanded="false" aria-controls="site-nav">Меню</button>
+<div class="nav-backdrop" hidden></div>
 <nav id="site-nav" class="nav" aria-label="Разделы">
+  <button class="nav-close" type="button">Закрыть</button>
   <p class="brand">ИИ для руководителей</p>
-  <a href="index.html">Главная</a>
-  <a href="prepare.html">Подготовка</a>
-  <a href="day1.html" aria-current="page">День 1</a>
-  <div class="subnav"><a href="day1.html#overview">Обзор</a><a href="day1.html#theory">Теория</a><a href="day1.html#tasks">Задания</a><a href="day1.html#prompts">Промпты</a><a href="day1.html#materials">Материалы</a><a href="day1.html#check">Проверка результатов</a></div>
-  <a href="day2.html">День 2</a>
-  <a href="day3.html">День 3</a>
-  <a href="day4.html">День 4</a>
-  <a href="extra.html">Дополнительно</a>
+  <a href="index.html"><svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11 12 4l8 7v9H4z"></path></svg><span>Главная</span></a>
+  <a href="prepare.html"><svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4h12v4H6zm0 6h12v10H6z"></path></svg><span>Подготовка</span></a>
+  <p class="nav-soon"><svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5h14v14H5z"></path></svg><span>День 1</span><small>Позже</small></p>
+  <p class="nav-soon"><svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5h14v14H5z"></path></svg><span>День 2</span><small>Позже</small></p>
+  <p class="nav-soon"><svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5h14v14H5z"></path></svg><span>День 3</span><small>Позже</small></p>
+  <p class="nav-soon"><svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5h14v14H5z"></path></svg><span>День 4</span><small>Позже</small></p>
+  <a href="extra.html"><svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 7h14M5 12h14M5 17h14"></path></svg><span>Дополнительно</span></a>
 </nav>
 <main id="content">
 
-<p class="note">День 1</p>
 <h1>День 1. Знакомство с ИИ и WorkAI</h1>
-<p class="lead">Сегодня вы научитесь разговаривать с ИИ, работать с простыми документами и проверять результат.</p>
-<section id="overview"><h2>Чему научимся</h2><ul><li>Откроете программу WorkAI и отправите готовый запрос.</li><li>Получите письмо и проверите его по короткому списку.</li><li>Отличите то, что есть в файле, от того, что добавлено само.</li><li>Измените в запросе одно условие своими словами.</li></ul></section>
-<section id="theory"><h2>Теория</h2><p>Запрос — это текст, который вы отправляете ИИ.</p><p>Готовый запрос можно скопировать целиком. Переписывать его не нужно.</p><p>Ответ ИИ читают до того, как отправить его людям.</p><p>Если в условии нет времени и места, в письме их тоже не должно появиться.</p></section>
-<section id="materials"><h2>Материалы дня</h2>
-<article class="file-card">
-  <h3>Памятка. Как вставить запрос</h3>
-  <p>Короткая последовательность: скопировать, открыть WorkAI, вставить, отправить.</p>
-  <p>Тип: Текстовый файл</p>
-  <a class="btn" href="files/kak-vstavit.txt" download>Скачать</a>
-</article>
-
-<article class="file-card">
-  <h3>Учебные записи к проверке ответа</h3>
-  <p>Три короткие записи. По ним видно, чего в источнике нет.</p>
-  <p>Тип: Текстовый файл</p>
-  <a class="btn" href="files/den1-zapiski.txt" download>Скачать</a>
-</article>
-</section>
-<section id="tasks"><h2>Задания</h2>
-<article class="exercise" id="task-letter">
-  <h3>Задание 1. Напишем письмо с помощью ИИ</h3>
-  <p><strong>Что будем делать.</strong> Попросим ИИ подготовить письмо коллегам о переносе совещания.</p>
-  <p><strong>Что понадобится.</strong></p>
-  <ul><li>Открытая программа WorkAI.</li></ul>
-  <ol><li>Нажмите кнопку «Скопировать запрос».</li><li>Перейдите в WorkAI.</li><li>Нажмите на поле для ввода сообщения и вставьте скопированный текст.</li><li>Отправьте запрос.</li><li>Прочитайте полученное письмо.</li></ol>
-  
-<article class="prompt-card" id="prompt-d1-letter">
-  <h3>Письмо о переносе совещания</h3>
-  <p>Готовый запрос для короткого письма коллегам.</p>
-  <pre id="text-d1-letter" class="prompt-text">Ты — помощник руководителя.
-Контекст: еженедельное совещание переносится со среды на четверг.
-Подготовь короткое вежливое письмо сотрудникам.
-Формат: тема письма и основной текст.
-Не придумывай время и место проведения.
-Проверь, чтобы письмо сообщало новую дату и не содержало сведений, которых нет в условии.</pre>
-  <p><button class="btn copy-prompt" type="button" data-copy-for="text-d1-letter">Скопировать запрос</button>
-  <button class="btn secondary toggle-prompt" type="button" data-toggle-for="text-d1-letter">Скрыть</button></p>
-  <p id="text-d1-letter-status" class="copy-status" role="status"></p>
-  
-  <h4>Какие файлы нужны</h4>
-  <p>Отдельный файл не нужен.</p>
-  <details>
-    <summary>Как использовать</summary>
-    <ol><li>Нажмите «Скопировать запрос».</li><li>Откройте программу WorkAI.</li><li>Нажмите на поле для ввода сообщения и вставьте скопированный текст.</li><li>Отправьте запрос кнопкой рядом с полем.</li></ol>
-  </details>
-  <p><strong>Ожидаемый результат.</strong> Небольшое письмо, которое можно проверить и доработать перед отправкой.</p>
-  <p><strong>Как проверить.</strong></p>
-  <ul><li>Указан перенос совещания.</li><li>Тон письма вежливый.</li><li>Время и место не выдуманы.</li></ul>
-  <div class="hint"><strong>Подсказка.</strong> <p>Если в письме появились часы или кабинет, которых не было в запросе, удалите их перед отправкой людям.</p></div>
-  
-</article>
-
-  <details>
-    <summary>Не получилось?</summary>
-    <p>Если письма нет, откройте памятку «Как вставить запрос» и повторите вставку. Не дописывайте время и место сами.</p>
-  </details>
-</article>
-
-<article class="exercise" id="task-check-notes">
-  <h3>Задание 2. Проверьте чужой ответ</h3>
-  <p><strong>Что будем делать.</strong> Сравним готовый ответ с учебными записями и вычеркнем то, чего в них нет.</p>
-  <p><strong>Что понадобится.</strong></p>
-  <ul><li>Программа WorkAI.</li><li>Файл «Учебные записи к проверке ответа».</li></ul>
-  <ol><li>Скачайте файл с записями и откройте его.</li><li>В запросе замените текст в квадратных скобках своим вопросом.</li><li>Скопируйте запрос и вставьте его в WorkAI.</li><li>Добавьте скачанный файл к запросу.</li><li>Отправьте запрос и сверьте пометки со списком проверки.</li></ol>
-  
-<article class="prompt-card" id="prompt-d1-check">
-  <h3>Проверка чужого ответа</h3>
-  <p>Запрос сравнивает готовый ответ с тремя учебными записями.</p>
-  <pre id="text-d1-check" class="prompt-text">Проверь готовый ответ по приложенному файлу. [Напишите, какой вопрос вы проверяете.]
-Для каждой существенной фразы напиши: есть в записях или «в записях нет».
-Ничего не добавляй от себя: ни часов простоя, ни штрафа, ни новых фамилий.</pre>
-  <p><button class="btn copy-prompt" type="button" data-copy-for="text-d1-check">Скопировать запрос</button>
-  <button class="btn secondary toggle-prompt" type="button" data-toggle-for="text-d1-check">Скрыть</button></p>
-  <p id="text-d1-check-status" class="copy-status" role="status"></p>
-  
-<pre id="text-d1-check-short" class="prompt-text" hidden>Проверь готовый ответ по приложенному файлу. Для каждой фразы напиши: есть в записях или «в записях нет». Ничего не добавляй от себя.</pre>
-<p><button class="btn secondary copy-prompt" type="button" data-copy-for="text-d1-check-short">Скопировать короткую версию</button></p>
-<p id="text-d1-check-short-status" class="copy-status" role="status"></p>
-
-  <h4>Какие файлы нужны</h4>
-  <ul><li><a href="files/den1-zapiski.txt" download>Учебные записи к проверке ответа</a></li></ul>
-  <details>
-    <summary>Как использовать</summary>
-    <ol><li>Сначала замените текст в квадратных скобках.</li><li>Скопируйте запрос и вставьте его в WorkAI.</li><li>Добавьте скачанный файл к запросу.</li><li>Отправьте запрос.</li></ol>
-  </details>
-  <p><strong>Ожидаемый результат.</strong> Список фраз. У каждой есть пометка «есть в записях» или «в записях нет».</p>
-  <p><strong>Как проверить.</strong></p>
-  <ul><li>Шести часов простоя в ответе нет как факта.</li><li>Штраф помечен как то, чего в записях нет.</li><li>Новых фамилий нет.</li></ul>
-  <div class="hint"><strong>Подсказка.</strong> <p>Короткая версия без скобок нужна, только если свой вопрос вы уже написали в задании отдельно.</p></div>
-  <a class="btn secondary" href="files/den1-zapiski.txt" download>Скачать материал</a><a class="btn secondary" href="files/den1-zapiski.txt">Открыть учебный документ</a>
-</article>
-
-  <details>
-    <summary>Не получилось?</summary>
-    <p>Если ответ подтверждает штраф, отправьте запрос ещё раз и оставьте фразу «в записях нет».</p>
-  </details>
-</article>
-</section>
-<section id="prompts"><h2>Готовые запросы</h2><p>Полный текст запроса стоит внутри задания. Ниже ссылки на те же карточки.</p><ul><li><a href="#prompt-d1-letter">Письмо о переносе совещания</a></li><li><a href="#prompt-d1-check">Проверка чужого ответа</a></li></ul></section>
-<section id="check"><h2>Проверка</h2><ul><li>Письмо сообщает, что совещание перенесено.</li><li>Тон письма вежливый.</li><li>Время и место не выдуманы.</li><li>Во втором задании штраф не назван фактом из записи А.</li></ul></section>
-<section id="extra"><h2>Дополнительная практика</h2><p>В запросе письма замените слово «четверг» на другой день недели. Отправьте запрос ещё раз и проверьте, что в письме именно ваш день.</p></section>
+<p class="lead">Материалы этого дня ещё не открыты.</p>
+<p>Сейчас здесь нет заданий, запросов и файлов.</p>
+<p><a class="btn" href="prepare.html">Подготовить компьютер</a></p>
 
 </main>
 <script src="js/config.js"></script>
+<script src="js/prompts.js"></script>
 <script src="js/steps.js"></script>
 <script src="js/portal.js"></script>
-
 </body>
 </html>

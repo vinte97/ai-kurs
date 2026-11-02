@@ -1,12 +1,34 @@
 (function () {
   var navButton = document.querySelector(".menu-button");
+  var nav = document.getElementById("site-nav");
+  var backdrop = document.querySelector(".nav-backdrop");
+  var closer = document.querySelector(".nav-close");
+  function setMenu(open) {
+    var was = document.body.classList.contains("nav-open");
+    document.body.classList.toggle("nav-open", open);
+    if (navButton) navButton.setAttribute("aria-expanded", open ? "true" : "false");
+    if (backdrop) backdrop.hidden = !open;
+    if (open && closer) closer.focus();
+    if (!open && was && navButton) navButton.focus();
+  }
   if (navButton) {
     navButton.addEventListener("click", function () {
-      var open = document.body.classList.toggle("nav-open");
-      navButton.setAttribute("aria-expanded", open ? "true" : "false");
+      setMenu(!document.body.classList.contains("nav-open"));
+    });
+  }
+  if (closer) closer.addEventListener("click", function () { setMenu(false); });
+  if (backdrop) backdrop.addEventListener("click", function () { setMenu(false); });
+  document.addEventListener("keydown", function (event) {
+    if (event.key === "Escape") setMenu(false);
+  });
+  if (nav) {
+    nav.addEventListener("click", function (event) {
+      if (event.target.closest("a")) setMenu(false);
     });
   }
   initPrompts();
+  initTasks();
+  initFilters();
 
   var root = document.getElementById("wizard");
   if (!root || !window.TRACKS) return;
@@ -66,10 +88,17 @@
     return wrap;
   }
 
-  function shotBox(step) {
-    var box = el("p", "missing", "Снимка этого окна пока нет. Смотрите на название в тексте. Снимок не заменён другой картинкой.");
-    box.setAttribute("data-shot", step.shot || "");
-    return box;
+  function stageName(step) {
+    return step.group === "chip" ? "workai" : step.group;
+  }
+
+  function stageList() {
+    var seen = [];
+    steps().forEach(function (item) {
+      var name = stageName(item);
+      if (seen.indexOf(name) < 0) seen.push(name);
+    });
+    return seen;
   }
 
   function actionLink(step) {
@@ -100,7 +129,8 @@
 
   function renderStep(step, position, total, compact) {
     var card = el("article", "card");
-    card.appendChild(el("h2", "", "Шаг " + position + " из " + total + ". " + step.title));
+    var stage = stageList().indexOf(stageName(step)) + 1;
+    card.appendChild(el("h2", "", "Шаг " + stage + " из " + stageList().length + ". " + step.title));
     if (step.why) card.appendChild(el("p", "", step.why));
     var list = document.createElement("dl");
     list.appendChild(field("Что сделать", step.do));
@@ -110,7 +140,6 @@
     card.appendChild(list);
     var link = actionLink(step);
     if (link) card.appendChild(link);
-    if (step.shot) card.appendChild(shotBox(step));
     if (step.choice && !compact) {
       step.choice.forEach(function (item) {
         var button = el("button", "btn", item.label);
@@ -123,7 +152,23 @@
       });
     }
     if (!compact) {
-      var yes = el("button", "btn", "Получилось");
+      var back = el("button", "btn secondary", "Назад");
+      back.type = "button";
+      back.addEventListener("click", function () {
+        var list = steps();
+        var place = indexOf(step.id);
+        if (place <= 0) {
+          state.os = "";
+          save();
+          draw();
+          return;
+        }
+        delete state.done[list[place - 1].id];
+        save();
+        draw();
+      });
+      card.appendChild(back);
+      var yes = el("button", "btn", "Получилось, дальше");
       yes.type = "button";
       if (!step.choice) {
         yes.addEventListener("click", function () { markDone(step); });
@@ -167,8 +212,17 @@
     brief.type = "button";
     detailed.addEventListener("click", function () { state.mode = "detailed"; save(); draw(); });
     brief.addEventListener("click", function () { state.mode = "brief"; save(); draw(); });
+    var change = el("button", "btn secondary", "Сменить компьютер");
+    change.type = "button";
+    change.addEventListener("click", function () {
+      state.os = "";
+      state.unknown = false;
+      save();
+      draw();
+    });
     bar.appendChild(detailed);
     bar.appendChild(brief);
+    bar.appendChild(change);
     return bar;
   }
 
@@ -207,7 +261,7 @@
     if (last && last.praise && state.done[last.id] === true) {
       root.appendChild(el("p", "ok", last.praise));
     }
-    root.appendChild(el("h1", "", "Ваш компьютер готов к занятиям"));
+    root.appendChild(el("h1", "", "Компьютер готов к занятиям"));
     root.appendChild(el("p", "ok", "Отметки сохранены на этом устройстве. Регистрация не нужна."));
     root.appendChild(el("p", "", "Отметки ставите вы сами. Они не заменяют проверку. Настоящая проверка такая: окно WorkAI открылось. Для Git и Python проверка — сообщение установщика, что установка закончилась."));
     var list = document.createElement("ul");
@@ -280,49 +334,86 @@
 
   function initPrompts() {
     document.querySelectorAll(".copy-prompt").forEach(function (button) {
-      var original = button.textContent;
+      var original = "Скопировать запрос";
       button.addEventListener("click", function () {
-        var node = document.getElementById(button.getAttribute("data-copy-for"));
-        var status = document.getElementById(node.id + "-status");
-        var text = node.textContent.replace(/\s+$/, "");
+        var id = button.getAttribute("data-prompt-id");
+        var record = window.COURSE_PROMPTS && window.COURSE_PROMPTS[id];
+        var status = document.getElementById("status-" + id);
+        var node = document.getElementById("text-" + id);
         function ok() {
           button.textContent = "Скопировано!";
           button.classList.add("is-copied");
-          status.textContent = "";
+          if (status) status.textContent = "";
           window.setTimeout(function () {
             button.textContent = original;
             button.classList.remove("is-copied");
           }, 2000);
         }
         function fail() {
-          var range = document.createRange();
-          range.selectNodeContents(node);
-          var selection = window.getSelection();
-          selection.removeAllRanges();
-          selection.addRange(range);
+          if (node) {
+            var range = document.createRange();
+            range.selectNodeContents(node);
+            var selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+          }
           button.textContent = original;
           button.classList.remove("is-copied");
-          status.textContent = "Автокопирование не сработало. Текст выделен. Нажмите Ctrl+C или Cmd+C.";
+          if (status) status.textContent = "Не удалось скопировать. Выделите текст запроса и скопируйте его вручную.";
+        }
+        if (!record || typeof record.promptText !== "string") {
+          fail();
+          return;
+        }
+        var text = record.promptText;
+        function fallback() {
+          var area = document.createElement("textarea");
+          area.value = text;
+          document.body.appendChild(area);
+          area.select();
+          var copied = false;
+          try { copied = document.execCommand("copy"); } catch (e) { copied = false; }
+          area.remove();
+          if (copied) ok();
+          else fail();
         }
         if (navigator.clipboard && navigator.clipboard.writeText) {
-          navigator.clipboard.writeText(text).then(ok, function () {
-            try {
-              if (document.execCommand("copy")) ok();
-              else fail();
-            } catch (e) {
-              fail();
-            }
-          });
+          navigator.clipboard.writeText(text).then(ok, fallback);
         } else {
-          fail();
+          fallback();
         }
       });
     });
-    document.querySelectorAll(".toggle-prompt").forEach(function (button) {
+  }
+
+  function initTasks() {
+    var key = "aikurs-tasks-v1";
+    var saved = {};
+    try { saved = JSON.parse(localStorage.getItem(key) || "{}") || {}; } catch (e) { saved = {}; }
+    document.querySelectorAll(".task-done").forEach(function (button) {
+      var id = button.getAttribute("data-task-id");
+      var stateNode = button.parentNode.querySelector(".task-state");
+      function paint() {
+        if (!saved[id]) return;
+        button.textContent = "Отмечено";
+        if (stateNode) stateNode.textContent = "Вы отметили задание сами. Это не проверка компьютера.";
+      }
+      paint();
       button.addEventListener("click", function () {
-        var node = document.getElementById(button.getAttribute("data-toggle-for"));
-        var hidden = node.classList.toggle("is-collapsed");
-        button.textContent = hidden ? "Показать полностью" : "Скрыть";
+        saved[id] = true;
+        try { localStorage.setItem(key, JSON.stringify(saved)); } catch (e) {}
+        paint();
+      });
+    });
+  }
+
+  function initFilters() {
+    document.querySelectorAll(".filter").forEach(function (button) {
+      button.addEventListener("click", function () {
+        var topic = button.getAttribute("data-filter");
+        document.querySelectorAll(".prompt-card").forEach(function (card) {
+          card.hidden = Boolean(topic) && card.getAttribute("data-topic") !== topic;
+        });
       });
     });
   }

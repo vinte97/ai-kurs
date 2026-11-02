@@ -4,41 +4,37 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>ИИ для руководителей</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;700&amp;display=swap">
 <link rel="stylesheet" href="css/tokens.css">
 <link rel="stylesheet" href="css/site.css">
 </head>
 <body>
 <a class="skip" href="#content">К содержанию</a>
 <button class="menu-button" type="button" aria-expanded="false" aria-controls="site-nav">Меню</button>
+<div class="nav-backdrop" hidden></div>
 <nav id="site-nav" class="nav" aria-label="Разделы">
+  <button class="nav-close" type="button">Закрыть</button>
   <p class="brand">ИИ для руководителей</p>
-  <a href="index.html" aria-current="page">Главная</a>
-  <a href="prepare.html">Подготовка</a>
-  <a href="day1.html">День 1</a>
-  <a href="day2.html">День 2</a>
-  <a href="day3.html">День 3</a>
-  <a href="day4.html">День 4</a>
-  <a href="extra.html">Дополнительно</a>
+  <a href="index.html" aria-current="page"><svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11 12 4l8 7v9H4z"></path></svg><span>Главная</span></a>
+  <a href="prepare.html"><svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4h12v4H6zm0 6h12v10H6z"></path></svg><span>Подготовка</span></a>
+  <p class="nav-soon"><svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5h14v14H5z"></path></svg><span>День 1</span><small>Позже</small></p>
+  <p class="nav-soon"><svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5h14v14H5z"></path></svg><span>День 2</span><small>Позже</small></p>
+  <p class="nav-soon"><svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5h14v14H5z"></path></svg><span>День 3</span><small>Позже</small></p>
+  <p class="nav-soon"><svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5h14v14H5z"></path></svg><span>День 4</span><small>Позже</small></p>
+  <a href="extra.html"><svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 7h14M5 12h14M5 17h14"></path></svg><span>Дополнительно</span></a>
 </nav>
 <main id="content">
 
-<h1>Добро пожаловать на курс „ИИ для руководителей“.</h1>
-<p class="lead">Здесь находятся все инструкции, задания и материалы для наших занятий.</p>
-<p><a class="btn" href="day4.html">Продолжить обучение</a></p>
-<div class="day-map">
-<a class="day-card" href="day1.html"><h2>День 1. Знакомство с ИИ и WorkAI</h2><p>Сегодня вы научитесь разговаривать с ИИ, работать с простыми документами и проверять результат.</p><p class="note">Можно открыть</p></a>
-
-<a class="day-card" href="day2.html"><h2>День 2. Две цифры рядом</h2><p>Сегодня вы научитесь не выбирать «правильную» цифру, пока не ясно, откуда она взялась.</p><p class="note">Можно открыть</p></a>
-
-<a class="day-card" href="day3.html"><h2>День 3. Что можно только читать</h2><p>Сегодня вы разложите действия: что можно читать, что нельзя менять и что нельзя переносить в чат.</p><p class="note">Можно открыть</p></a>
-
-<a class="day-card" href="day4.html"><h2>День 4. Свой помощник</h2><p>Сегодня вы соберёте короткое правило помощника и оставите решение себе.</p><p class="note">Можно открыть</p></a>
-</div>
+<h1>ИИ для руководителей</h1>
+<p class="lead">Практический курс: научитесь работать с ИИ, документами, данными и собственными помощниками.</p>
+<p>Все инструкции, файлы и задания находятся здесь. Начните с подготовки компьютера.</p>
+<p><a class="btn" href="prepare.html">Подготовить компьютер</a></p>
+<div class="day-map"><article class="day-card"><h2>День 1. Знакомство и первые задания</h2><p>Обзор программы. Задания откроются в день занятия.</p></article><article class="day-card"><h2>День 2. Документы и анализ</h2><p>Обзор программы. Задания откроются в день занятия.</p></article><article class="day-card"><h2>День 3. Агенты и инструменты</h2><p>Обзор программы. Задания откроются в день занятия.</p></article><article class="day-card"><h2>День 4. Собственный ИИ-помощник</h2><p>Обзор программы. Задания откроются в день занятия.</p></article></div>
 
 </main>
 <script src="js/config.js"></script>
+<script src="js/prompts.js"></script>
 <script src="js/steps.js"></script>
 <script src="js/portal.js"></script>
-
 </body>
 </html>

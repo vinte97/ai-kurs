@@ -19,6 +19,6 @@
   --sidebar: 270px;
   --content: 1040px;
   --shadow: 0 8px 24px rgba(16, 36, 69, 0.08);
-  --font: "Segoe UI", "Helvetica Neue", sans-serif;
+  --font: Manrope, "Segoe UI", sans-serif;
   --focus: #2878ff;
 }

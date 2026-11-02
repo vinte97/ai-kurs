@@ -6,23 +6,22 @@ import shutil
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-PHASES = ["precourse", "day-1", "day-2", "day-3", "day-4"]
+PHASES = ["pre-course", "precourse", "day-1", "day-2", "day-3", "day-4"]
 NAV = [
-    ("index.html", "Главная"),
-    ("prepare.html", "Подготовка"),
-    ("day1.html", "День 1"),
-    ("day2.html", "День 2"),
-    ("day3.html", "День 3"),
-    ("day4.html", "День 4"),
-    ("extra.html", "Дополнительно"),
+    ("index.html", "Главная", "home"),
+    ("prepare.html", "Подготовка", "prep"),
+    ("day1.html", "День 1", "day"),
+    ("day2.html", "День 2", "day"),
+    ("day3.html", "День 3", "day"),
+    ("day4.html", "День 4", "day"),
+    ("extra.html", "Дополнительно", "more"),
 ]
 SUB = [
     ("overview", "Обзор"),
-    ("theory", "Теория"),
     ("tasks", "Задания"),
-    ("prompts", "Промпты"),
     ("materials", "Материалы"),
-    ("check", "Проверка результатов"),
+    ("prompts", "Промпты"),
+    ("check", "Проверка"),
 ]
 
 
@@ -30,10 +29,27 @@ def esc(value):
     return html.escape(str(value), quote=True)
 
 
+def normalize(phase):
+    if phase in ("pre-course", "precourse", "", None):
+        return "pre-course"
+    return phase
+
+
 def open_day(phase, number):
-    if phase == "precourse":
+    phase = normalize(phase)
+    if phase == "pre-course":
         return False
     return number <= int(phase.split("-")[1])
+
+
+def icon(kind):
+    paths = {
+        "home": "M4 11 12 4l8 7v9H4z",
+        "prep": "M6 4h12v4H6zm0 6h12v10H6z",
+        "day": "M5 5h14v14H5z",
+        "more": "M5 7h14M5 12h14M5 17h14",
+    }
+    return '<svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="%s"></path></svg>' % paths[kind]
 
 
 def load():
@@ -42,28 +58,37 @@ def load():
     return course, config
 
 
-def shell(title, current, body, phase_note=""):
+def shell(title, current, body, phase):
     links = []
-    for href, label in NAV:
+    for href, label, kind in NAV:
+        day_number = int(href[3]) if href.startswith("day") else 0
+        mark = icon(kind)
+        if day_number and not open_day(phase, day_number):
+            links.append('<p class="nav-soon">%s<span>%s</span><small>Позже</small></p>' % (mark, esc(label)))
+            continue
         current_attr = ' aria-current="page"' if href == current else ""
-        links.append('<a href="%s"%s>%s</a>' % (href, current_attr, esc(label)))
-        if current.startswith("day") and href == current:
+        links.append('<a href="%s"%s>%s<span>%s</span></a>' % (href, current_attr, mark, esc(label)))
+        if current.startswith("day") and href == current and open_day(phase, day_number):
             links.append('<div class="subnav">%s</div>' % "".join(
                 '<a href="%s#%s">%s</a>' % (current, item, esc(name)) for item, name in SUB
             ))
+    font = "https://fonts.googleapis.com/css2?family=Manrope:wght@500;700&amp;display=swap"
     return """<!DOCTYPE html>
 <html lang="ru">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>%s</title>
+<link rel="stylesheet" href="%s">
 <link rel="stylesheet" href="css/tokens.css">
 <link rel="stylesheet" href="css/site.css">
 </head>
 <body>
 <a class="skip" href="#content">К содержанию</a>
 <button class="menu-button" type="button" aria-expanded="false" aria-controls="site-nav">Меню</button>
+<div class="nav-backdrop" hidden></div>
 <nav id="site-nav" class="nav" aria-label="Разделы">
+  <button class="nav-close" type="button">Закрыть</button>
   <p class="brand">ИИ для руководителей</p>
   %s
 </nav>
@@ -71,104 +96,84 @@ def shell(title, current, body, phase_note=""):
 %s
 </main>
 <script src="js/config.js"></script>
+<script src="js/prompts.js"></script>
 <script src="js/steps.js"></script>
 <script src="js/portal.js"></script>
-%s
 </body>
 </html>
-""" % (esc(title), "\n  ".join(links), body, phase_note)
+""" % (esc(title), font, "\n  ".join(links), body)
 
 
 def prompt_card(course, prompt):
-    materials = course["materials"]
-    lines = []
-    for key in prompt["requiredMaterials"]:
-        item = materials[key]
-        lines.append('<li><a href="%s" download>%s</a></li>' % (esc(item["file"]), esc(item["title"])))
-    material_html = "<ul>%s</ul>" % "".join(lines) if lines else "<p>Отдельный файл не нужен.</p>"
-    steps = "".join("<li>%s</li>" % esc(step) for step in prompt["instructions"])
     checks = "".join("<li>%s</li>" % esc(step) for step in prompt["acceptanceCriteria"])
-    hints = "".join("<p>%s</p>" % esc(step) for step in prompt["hints"])
+    hint = esc(prompt["hints"][0]) if prompt["hints"] else ""
     text_id = "text-" + prompt["id"]
-    short = ""
-    if prompt.get("shortText"):
-        short_id = text_id + "-short"
-        short = """
-<pre id="%s" class="prompt-text" hidden>%s</pre>
-<p><button class="btn secondary copy-prompt" type="button" data-copy-for="%s">Скопировать короткую версию</button></p>
-<p id="%s-status" class="copy-status" role="status"></p>
-""" % (short_id, esc(prompt["shortText"]), short_id, short_id)
-    file_buttons = ""
-    for key in prompt["requiredMaterials"]:
-        item = materials[key]
-        file_buttons += '<a class="btn secondary" href="%s" download>Скачать материал</a>' % esc(item["file"])
-        file_buttons += '<a class="btn secondary" href="%s">Открыть учебный документ</a>' % esc(item["file"])
     return """
-<article class="prompt-card" id="prompt-%s">
+<article class="prompt-card" id="prompt-%s" data-topic="%s">
   <h3>%s</h3>
   <p>%s</p>
   <pre id="%s" class="prompt-text">%s</pre>
-  <p><button class="btn copy-prompt" type="button" data-copy-for="%s">Скопировать запрос</button>
-  <button class="btn secondary toggle-prompt" type="button" data-toggle-for="%s">Скрыть</button></p>
-  <p id="%s-status" class="copy-status" role="status"></p>
-  %s
-  <h4>Какие файлы нужны</h4>
-  %s
-  <details>
-    <summary>Как использовать</summary>
-    <ol>%s</ol>
-  </details>
+  <p><button class="btn copy-prompt" type="button" data-prompt-id="%s">Скопировать запрос</button></p>
+  <p id="status-%s" class="copy-status" role="status"></p>
+  <p>Перейдите в WorkAI, вставьте запрос в поле сообщения и отправьте его.</p>
   <p><strong>Ожидаемый результат.</strong> %s</p>
   <p><strong>Как проверить.</strong></p>
   <ul>%s</ul>
-  <div class="hint"><strong>Подсказка.</strong> %s</div>
-  %s
+  <p class="hint"><strong>Подсказка.</strong> %s</p>
 </article>
 """ % (
         esc(prompt["id"]),
+        esc(prompt.get("topic", "")),
         esc(prompt["title"]),
         esc(prompt["description"]),
         text_id,
         esc(prompt["promptText"]),
-        text_id,
-        text_id,
-        text_id,
-        short,
-        material_html,
-        steps,
+        esc(prompt["id"]),
+        esc(prompt["id"]),
         esc(prompt["expectedResult"]),
         checks,
-        hints,
-        file_buttons,
+        hint,
     )
 
 
-def exercise_block(course, exercise_id):
+def exercise_block(course, exercise_id, next_step):
     exercise = course["exercises"][exercise_id]
     prompt = next(item for item in course["prompts"] if item["id"] == exercise["promptId"])
     needs = "".join("<li>%s</li>" % esc(item) for item in exercise["needs"])
     steps = "".join("<li>%s</li>" % esc(item) for item in exercise["steps"])
+    files = []
+    for key in prompt["requiredMaterials"]:
+        item = course["materials"][key]
+        files.append('<a class="btn secondary" href="%s" download>Скачать</a> <a class="btn secondary" href="%s">Открыть</a>' % (esc(item["file"]), esc(item["file"])))
+    file_html = "<p>%s</p>" % " ".join(files) if files else "<p>Отдельный файл для этого задания не нужен.</p>"
     return """
 <article class="exercise" id="task-%s">
+  <p class="note">Около %d минут</p>
   <h3>%s</h3>
-  <p><strong>Что будем делать.</strong> %s</p>
+  <p><strong>Что делаем.</strong> %s</p>
   <p><strong>Что понадобится.</strong></p>
   <ul>%s</ul>
+  <p><strong>Материалы.</strong></p>
+  %s
+  <p><strong>Последовательность.</strong></p>
   <ol>%s</ol>
   %s
-  <details>
-    <summary>Не получилось?</summary>
-    <p>%s</p>
-  </details>
+  <p><button class="btn secondary task-done" type="button" data-task-id="%s">Готово</button>
+  <span class="task-state" role="status"></span></p>
+  <p><a class="btn" href="%s">%s</a></p>
 </article>
 """ % (
         esc(exercise_id),
+        int(exercise["minutes"]),
         esc(exercise["title"]),
         esc(exercise["goal"]),
         needs,
+        file_html,
         steps,
         prompt_card(course, prompt),
-        esc(exercise["fail"]),
+        esc(exercise_id),
+        esc(next_step[0]),
+        esc(next_step[1]),
     )
 
 
@@ -180,37 +185,47 @@ def day_page(course, phase, day):
 <p>Сейчас здесь нет заданий, запросов и файлов.</p>
 <p><a class="btn" href="prepare.html">Подготовить компьютер</a></p>
 """ % (day["number"], esc(day["title"]))
-        return shell("День %d" % day["number"], "day%d.html" % day["number"], body)
+        return shell("День %d" % day["number"], "day%d.html" % day["number"], body, phase)
     outcomes = "".join("<li>%s</li>" % esc(item) for item in day["outcomes"])
     theory = "".join("<p>%s</p>" % esc(item) for item in day["theory"])
     files = []
     for key in day["materials"]:
         item = course["materials"][key]
+        source = ROOT / "content" / item["file"]
+        size = source.stat().st_size if source.exists() else 0
         files.append("""
 <article class="file-card">
   <h3>%s</h3>
   <p>%s</p>
-  <p>Тип: %s</p>
+  <p>Тип: %s. Размер: %d байт.</p>
   <a class="btn" href="%s" download>Скачать</a>
+  <a class="btn secondary" href="%s">Открыть</a>
 </article>
-""" % (esc(item["title"]), esc(item["why"]), esc(item["type"]), esc(item["file"])))
-    exercises = [exercise_block(course, key) for key in day["exerciseIds"]]
+""" % (esc(item["title"]), esc(item["why"]), esc(item["type"]), size, esc(item["file"]), esc(item["file"])))
+    ids = day["exerciseIds"]
+    exercises = []
+    for index, key in enumerate(ids):
+        if index + 1 < len(ids):
+            nxt = ("#task-" + ids[index + 1], "Следующее задание")
+        else:
+            nxt = ("#check", "Перейти к проверке")
+        exercises.append(exercise_block(course, key, nxt))
     prompt_links = []
-    for key in day["exerciseIds"]:
+    for key in ids:
         prompt_id = course["exercises"][key]["promptId"]
         prompt = next(item for item in course["prompts"] if item["id"] == prompt_id)
         prompt_links.append('<li><a href="#prompt-%s">%s</a></li>' % (esc(prompt_id), esc(prompt["title"])))
     checks = "".join("<li>%s</li>" % esc(item) for item in day["checks"])
     body = """
-<p class="note">День %d</p>
+<p class="crumb"><a href="index.html">Главная</a> → День %d → Практика</p>
 <h1>День %d. %s</h1>
 <p class="lead">%s</p>
 <section id="overview"><h2>Чему научимся</h2><ul>%s</ul></section>
-<section id="theory"><h2>Теория</h2>%s</section>
-<section id="materials"><h2>Материалы дня</h2>%s</section>
+<section id="theory"><h2>Коротко о дне</h2>%s</section>
+<section id="materials"><h2>Материалы</h2>%s</section>
 <section id="tasks"><h2>Задания</h2>%s</section>
-<section id="prompts"><h2>Готовые запросы</h2><p>Полный текст запроса стоит внутри задания. Ниже ссылки на те же карточки.</p><ul>%s</ul></section>
-<section id="check"><h2>Проверка</h2><ul>%s</ul></section>
+<section id="prompts"><h2>Промпты</h2><p>Полный текст стоит внутри задания. Здесь только ссылки на те же карточки.</p><ul>%s</ul></section>
+<section id="check"><h2>Проверка</h2><ul>%s</ul><p><a class="btn secondary" href="index.html">На главную</a></p></section>
 <section id="extra"><h2>Дополнительная практика</h2><p>%s</p></section>
 """ % (
         day["number"],
@@ -219,58 +234,87 @@ def day_page(course, phase, day):
         esc(day["lead"]),
         outcomes,
         theory,
-        "".join(files),
+        "".join(files) or "<p>Отдельных файлов в этот день нет.</p>",
         "".join(exercises),
         "".join(prompt_links),
         checks,
         esc(day["extra"]),
     )
-    return shell("День %d" % day["number"], "day%d.html" % day["number"], body)
+    return shell("День %d" % day["number"], "day%d.html" % day["number"], body, phase)
 
 
 def home(course, phase):
-    if phase == "precourse":
+    phase = normalize(phase)
+    if phase == "pre-course":
         label, href = "Подготовить компьютер", "prepare.html"
-    elif phase == "day-1":
-        label, href = "Перейти к первому занятию", "day1.html"
     else:
         label, href = "Продолжить обучение", "day%d.html" % int(phase.split("-")[1])
     cards = []
+    titles = {
+        1: "Знакомство и первые задания",
+        2: "Документы и анализ",
+        3: "Агенты и инструменты",
+        4: "Собственный ИИ-помощник",
+    }
     for day in course["days"]:
-        state = "Можно открыть" if open_day(phase, day["number"]) else "Пока закрыт"
-        cards.append("""
-<a class="day-card" href="day%d.html"><h2>День %d. %s</h2><p>%s</p><p class="note">%s</p></a>
-""" % (day["number"], day["number"], esc(day["title"]), esc(day["lead"]), state))
+        opened = open_day(phase, day["number"])
+        title = "День %d. %s" % (day["number"], titles[day["number"]])
+        if opened:
+            cards.append('<a class="day-card" href="day%d.html"><h2>%s</h2><p>Можно открыть</p></a>' % (day["number"], esc(title)))
+        else:
+            cards.append('<article class="day-card"><h2>%s</h2><p>Обзор программы. Задания откроются в день занятия.</p></article>' % esc(title))
     body = """
-<h1>Добро пожаловать на курс „ИИ для руководителей“.</h1>
-<p class="lead">Здесь находятся все инструкции, задания и материалы для наших занятий.</p>
+<h1>ИИ для руководителей</h1>
+<p class="lead">Практический курс: научитесь работать с ИИ, документами, данными и собственными помощниками.</p>
+<p>Все инструкции, файлы и задания находятся здесь. Начните с подготовки компьютера.</p>
 <p><a class="btn" href="%s">%s</a></p>
 <div class="day-map">%s</div>
 """ % (href, esc(label), "".join(cards))
-    return shell("ИИ для руководителей", "index.html", body)
+    return shell("ИИ для руководителей", "index.html", body, phase)
 
 
-def prepare():
+def prepare(phase):
     body = """
-<h1>Подготовка</h1>
+<p class="crumb"><a href="index.html">Главная</a> → Подготовка</p>
+<h1>Подготовим ваш компьютер к занятиям</h1>
+<p class="lead">Мы покажем все действия по порядку. Если что-то не получится, вы увидите подсказку.</p>
 <div id="wizard"></div>
 <noscript>
   <p>Для пошаговой подготовки включите скрипты в браузере.</p>
   <p><a href="https://workai.su/download">Страница загрузки WorkAI</a></p>
 </noscript>
 """
-    return shell("Подготовка", "prepare.html", body)
+    return shell("Подготовка", "prepare.html", body, phase)
 
 
 def extra(course, phase):
     prompts = [item for item in course["prompts"] if open_day(phase, item["day"])]
-    library = "".join(prompt_card(course, item) for item in prompts) or "<p>Запросы откроются вместе с занятием.</p>"
+    groups = []
+    for number in (1, 2, 3, 4):
+        chunk = [item for item in prompts if item["day"] == number]
+        if not chunk:
+            continue
+        groups.append("<h3>День %d</h3>%s" % (number, "".join(prompt_card(course, item) for item in chunk)))
+    library = "".join(groups) or "<p>Готовые запросы откроются вместе с занятием.</p>"
+    filters = ""
+    if prompts:
+        filters = """
+<p class="filters" role="group" aria-label="Тема">
+<button class="btn secondary filter" type="button" data-filter="">Все</button>
+<button class="btn secondary filter" type="button" data-filter="Письма">Письма</button>
+<button class="btn secondary filter" type="button" data-filter="Документы">Документы</button>
+<button class="btn secondary filter" type="button" data-filter="Анализ">Анализ</button>
+<button class="btn secondary filter" type="button" data-filter="Управление">Управление</button>
+<button class="btn secondary filter" type="button" data-filter="Агенты">Агенты</button>
+</p>
+"""
     glossary = "".join("<dt>%s</dt><dd>%s</dd>" % (esc(item["term"]), esc(item["text"])) for item in course["glossary"])
     faq = "".join("<details><summary>%s</summary><p>%s</p></details>" % (esc(item["q"]), esc(item["a"])) for item in course["faq"])
     links = "".join('<li><a href="%s">%s</a></li>' % (esc(item["href"]), esc(item["title"])) for item in course["links"])
     body = """
+<p class="crumb"><a href="index.html">Главная</a> → Дополнительно</p>
 <h1>Дополнительно</h1>
-<section id="library"><h2>Библиотека запросов</h2><p>Те же тексты, что внутри открытых дней.</p>%s</section>
+<section id="library"><h2>Готовые запросы</h2><p>Те же тексты, что внутри открытых дней. Здесь они собраны вместе.</p>%s%s</section>
 <section id="glossary"><h2>Словарь</h2><dl>%s</dl></section>
 <section id="faq"><h2>Частые вопросы</h2>%s</section>
 <section id="links"><h2>Полезные ссылки</h2><ul>%s</ul></section>
@@ -279,9 +323,8 @@ def extra(course, phase):
 <p>Откройте файл двойным нажатием: два быстрых нажатия подряд.</p>
 <p><a class="btn" href="qr/home.svg">Код главной страницы</a> <a class="btn secondary" href="qr/prepare.svg">Код подготовки</a></p>
 </section>
-<section id="more"><h2>Дополнительные задания</h2><p>Они стоят в конце открытого дня, в блоке «Дополнительная практика».</p></section>
-""" % (library, glossary, faq, links)
-    return shell("Дополнительно", "extra.html", body)
+""" % (filters, library, glossary, faq, links)
+    return shell("Дополнительно", "extra.html", body, phase)
 
 
 def config_js(config, phase):
@@ -295,14 +338,21 @@ def config_js(config, phase):
     return "window.SITE = %s;\n" % json.dumps(data, ensure_ascii=False, indent=2)
 
 
+def prompts_js(course, phase):
+    open_prompts = [item for item in course["prompts"] if open_day(phase, item["day"])]
+    payload = {item["id"]: {"promptText": item["promptText"]} for item in open_prompts}
+    return "window.COURSE_PROMPTS = %s;\n" % json.dumps(payload, ensure_ascii=False, indent=2)
+
+
 def build(phase, out):
     course, config = load()
-    if phase not in PHASES:
+    phase = normalize(phase)
+    if phase not in ("pre-course", "day-1", "day-2", "day-3", "day-4"):
         raise SystemExit("unknown phase")
     out.mkdir(parents=True, exist_ok=True)
     pages = {
         "index.html": home(course, phase),
-        "prepare.html": prepare(),
+        "prepare.html": prepare(phase),
         "extra.html": extra(course, phase),
     }
     for day in course["days"]:
@@ -311,6 +361,7 @@ def build(phase, out):
         (out / name).write_text(text, encoding="utf-8")
     (out / "js").mkdir(exist_ok=True)
     (out / "js" / "config.js").write_text(config_js(config, phase), encoding="utf-8")
+    (out / "js" / "prompts.js").write_text(prompts_js(course, phase), encoding="utf-8")
     for folder in ("css", "qr"):
         target = out / folder
         if target.resolve() != (ROOT / folder).resolve():
@@ -328,15 +379,12 @@ def build(phase, out):
     for day in course["days"]:
         if open_day(phase, day["number"]):
             allowed.update(day["materials"])
-    if phase != "precourse":
-        allowed.add("kak-vstavit")
-    for key in allowed:
+    for key in sorted(allowed):
         source = ROOT / "content" / course["materials"][key]["file"]
         dest = out / course["materials"][key]["file"]
         dest.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy(source, dest)
-    marker = out / ".nojekyll"
-    marker.write_text("", encoding="utf-8")
+    (out / ".nojekyll").write_text("", encoding="utf-8")
     print("built", phase, "->", out)
 
 
@@ -346,7 +394,7 @@ def main():
     parser.add_argument("--out", default=".")
     args = parser.parse_args()
     _, config = load()
-    phase = args.phase or config.get("phase") or "precourse"
+    phase = args.phase or config.get("phase") or "pre-course"
     build(phase, (ROOT / args.out).resolve() if not Path(args.out).is_absolute() else Path(args.out))
 
 
