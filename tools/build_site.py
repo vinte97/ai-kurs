@@ -63,33 +63,57 @@ def shell(title, current, body, phase):
     for href, label, kind in NAV:
         day_number = int(href[3]) if href.startswith("day") else 0
         mark = icon(kind)
-        if day_number and not open_day(phase, day_number):
-            links.append('<p class="nav-soon">%s<span>%s</span><small>Позже</small></p>' % (mark, esc(label)))
-            continue
         current_attr = ' aria-current="page"' if href == current else ""
+        if day_number:
+            shown = open_day(phase, day_number)
+            if shown:
+                links.append('<a data-day="%d" href="%s"%s>%s<span>%s</span></a>' % (day_number, href, current_attr, mark, esc(label)))
+            links.append('<p class="nav-soon" data-day-soon="%d">%s<span>%s</span><small>Позже</small></p>' % (day_number, mark, esc(label)))
+            if shown and current == href:
+                links.append('<div class="subnav" data-day="%d">%s</div>' % (day_number, "".join(
+                    '<a href="%s#%s">%s</a>' % (current, item, esc(name)) for item, name in SUB
+                )))
+            continue
         links.append('<a href="%s"%s>%s<span>%s</span></a>' % (href, current_attr, mark, esc(label)))
-        if current.startswith("day") and href == current and open_day(phase, day_number):
-            links.append('<div class="subnav">%s</div>' % "".join(
-                '<a href="%s#%s">%s</a>' % (current, item, esc(name)) for item, name in SUB
-            ))
+    page_attr = ' data-page="%s"' % current[3] if current.startswith("day") else ""
+    boot = """<script>
+try {
+  var n = parseInt(localStorage.getItem("aikurs-open-day") || "0", 10);
+  if (!(n >= 1 && n <= 4)) n = 0;
+  document.documentElement.setAttribute("data-open", String(n));
+} catch (e) {
+  document.documentElement.setAttribute("data-open", "0");
+}
+</script>"""
     font = "https://fonts.googleapis.com/css2?family=Manrope:wght@500;700&amp;display=swap"
+    code_box = """
+<div class="nav-code">
+  <button class="nav-code-open" id="code-open" type="button" aria-expanded="false" aria-controls="code-form">Введите код</button>
+  <form id="code-form" hidden>
+    <input id="code-input" aria-label="Код" inputmode="numeric" autocomplete="off" maxlength="8">
+    <button class="btn" type="submit">Открыть</button>
+    <p id="code-status" role="status"></p>
+  </form>
+</div>"""
     return """<!DOCTYPE html>
 <html lang="ru">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+%s
 <title>%s</title>
 <link rel="stylesheet" href="%s">
 <link rel="stylesheet" href="css/tokens.css">
 <link rel="stylesheet" href="css/site.css">
 </head>
-<body>
+<body%s>
 <a class="skip" href="#content">К содержанию</a>
 <button class="menu-button" type="button" aria-expanded="false" aria-controls="site-nav">Меню</button>
 <div class="nav-backdrop" hidden></div>
 <nav id="site-nav" class="nav" aria-label="Разделы">
   <button class="nav-close" type="button">Закрыть</button>
   <p class="brand">ИИ для руководителей</p>
+  %s
   %s
 </nav>
 <main id="content">
@@ -101,7 +125,7 @@ def shell(title, current, body, phase):
 <script src="js/portal.js"></script>
 </body>
 </html>
-""" % (esc(title), font, "\n  ".join(links), body)
+""" % (boot, esc(title), font, page_attr, "\n  ".join(links), code_box, body)
 
 
 def prompt_card(course, prompt):
@@ -217,6 +241,11 @@ def day_page(course, phase, day):
         prompt_links.append('<li><a href="#prompt-%s">%s</a></li>' % (esc(prompt_id), esc(prompt["title"])))
     checks = "".join("<li>%s</li>" % esc(item) for item in day["checks"])
     body = """
+<div class="day-lock">
+  <h1>День %d ещё закрыт</h1>
+  <p>Откройте меню и нажмите «Введите код».</p>
+</div>
+<div class="lesson">
 <p class="crumb"><a href="index.html">Главная</a> → День %d → Практика</p>
 <h1>День %d. %s</h1>
 <p class="lead">%s</p>
@@ -227,7 +256,9 @@ def day_page(course, phase, day):
 <section id="prompts"><h2>Промпты</h2><p>Полный текст стоит внутри задания. Здесь только ссылки на те же карточки.</p><ul>%s</ul></section>
 <section id="check"><h2>Проверка</h2><ul>%s</ul><p><a class="btn secondary" href="index.html">На главную</a></p></section>
 <section id="extra"><h2>Дополнительная практика</h2><p>%s</p></section>
+</div>
 """ % (
+        day["number"],
         day["number"],
         day["number"],
         esc(day["title"]),
@@ -244,11 +275,6 @@ def day_page(course, phase, day):
 
 
 def home(course, phase):
-    phase = normalize(phase)
-    if phase == "pre-course":
-        label, href = "Подготовить компьютер", "prepare.html"
-    else:
-        label, href = "Продолжить обучение", "day%d.html" % int(phase.split("-")[1])
     cards = []
     titles = {
         1: "Знакомство и первые задания",
@@ -257,19 +283,19 @@ def home(course, phase):
         4: "Собственный ИИ-помощник",
     }
     for day in course["days"]:
-        opened = open_day(phase, day["number"])
         title = "День %d. %s" % (day["number"], titles[day["number"]])
-        if opened:
-            cards.append('<a class="day-card" href="day%d.html"><h2>%s</h2><p>Можно открыть</p></a>' % (day["number"], esc(title)))
-        else:
-            cards.append('<article class="day-card"><h2>%s</h2><p>Обзор программы. Задания откроются в день занятия.</p></article>' % esc(title))
+        number = day["number"]
+        if open_day(phase, number):
+            cards.append('<a class="day-card" data-day="%d" href="day%d.html"><h2>%s</h2><p>Можно открыть</p></a>' % (number, number, esc(title)))
+        cards.append('<article class="day-card" data-day-soon="%d"><h2>%s</h2><p>Обзор программы. Задания откроются в день занятия.</p></article>' % (number, esc(title)))
     body = """
 <h1>ИИ для руководителей</h1>
 <p class="lead">Практический курс: научитесь работать с ИИ, документами, данными и собственными помощниками.</p>
 <p>Все инструкции, файлы и задания находятся здесь. Начните с подготовки компьютера.</p>
-<p><a class="btn" href="%s">%s</a></p>
+<p><a class="btn only-locked" href="prepare.html">Подготовить компьютер</a>
+<a class="btn only-open" id="continue-link" href="day1.html">Продолжить обучение</a></p>
 <div class="day-map">%s</div>
-""" % (href, esc(label), "".join(cards))
+""" % "".join(cards)
     return shell("ИИ для руководителей", "index.html", body, phase)
 
 
@@ -294,7 +320,7 @@ def extra(course, phase):
         chunk = [item for item in prompts if item["day"] == number]
         if not chunk:
             continue
-        groups.append("<h3>День %d</h3>%s" % (number, "".join(prompt_card(course, item) for item in chunk)))
+        groups.append('<div data-day="%d"><h3>День %d</h3>%s</div>' % (number, number, "".join(prompt_card(course, item) for item in chunk)))
     library = "".join(groups) or "<p>Готовые запросы откроются вместе с занятием.</p>"
     filters = ""
     if prompts:
@@ -334,6 +360,7 @@ def config_js(config, phase):
         "futureDomain": config.get("futureDomain", ""),
         "phase": phase,
         "contacts": config.get("contacts", ""),
+        "codes": config.get("codes", {}),
     }
     return "window.SITE = %s;\n" % json.dumps(data, ensure_ascii=False, indent=2)
 

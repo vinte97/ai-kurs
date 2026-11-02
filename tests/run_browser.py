@@ -8,6 +8,7 @@ from playwright.sync_api import sync_playwright
 
 ROOT = Path(__file__).resolve().parents[1]
 course = json.loads((ROOT / "content" / "course.json").read_text(encoding="utf-8"))
+codes = json.loads((ROOT / "site.config.json").read_text(encoding="utf-8"))["codes"]
 letter = next(item["promptText"] for item in course["prompts"] if item["id"] == "d1-letter")
 BASE = "http://127.0.0.1:4181"
 failures = []
@@ -49,10 +50,20 @@ def main():
             page.get_by_role("button", name="Получилось, дальше").click()
             page.reload()
             check("A progress", "Это инструкция для Mac." not in page.locator("#wizard").inner_text())
-            closed_nav = page.locator("nav a[href='day1.html']").count()
-            page.goto(BASE + "/day1.html")
-            closed_text = page.locator("main").inner_text()
-            check("D closed", closed_nav == 0 and "ещё не открыты" in closed_text and letter not in closed_text)
+            page.goto(BASE + "/")
+            check("D hidden", page.locator("nav a[href='day1.html']").is_hidden())
+            page.get_by_role("button", name="Введите код").click()
+            page.get_by_label("Код").fill("0000")
+            page.locator("#code-form").get_by_role("button", name="Открыть").click()
+            check("D bad", "не подошёл" in page.locator("#code-status").inner_text())
+            page.get_by_label("Код").fill(codes["2"])
+            page.locator("#code-form").get_by_role("button", name="Открыть").click()
+            check("D days", page.locator("nav a[href='day1.html']").is_visible() and page.locator("nav a[href='day2.html']").is_visible() and page.locator("nav a[href='day3.html']").is_hidden())
+            check("D note", "1–2" in page.locator("#code-status").inner_text())
+            page.goto(BASE + "/day3.html")
+            check("D later", page.locator(".lesson").is_hidden() and page.locator(".day-lock").is_visible())
+            page.reload()
+            check("D keep", page.locator(".day-lock").is_visible())
             phone = browser.new_page(viewport={"width": 375, "height": 800})
             phone.goto(BASE + "/")
             menu = phone.get_by_role("button", name="Меню")
@@ -71,6 +82,7 @@ def main():
             context = browser.new_context()
             context.grant_permissions(["clipboard-read", "clipboard-write"])
             copied_page = context.new_page()
+            copied_page.add_init_script("localStorage.setItem('aikurs-open-day','1')")
             copied_page.goto(day_base + "/day1.html#task-letter")
             copied_page.locator("#prompt-d1-letter").get_by_role("button", name="Скопировать запрос").click()
             copied_page.locator("#prompt-d1-letter").get_by_role("button", name="Скопировано!").wait_for()
@@ -90,6 +102,7 @@ def main():
                 """Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText: () => Promise.reject(new Error('denied')) } });
                 document.execCommand = () => false;"""
             )
+            fail_page.add_init_script("localStorage.setItem('aikurs-open-day','1')")
             fail_page.goto(day_base + "/day1.html")
             fail_page.locator("#prompt-d1-letter").get_by_role("button", name="Скопировать запрос").click()
             status = fail_page.locator("#status-d1-letter").inner_text()
@@ -105,7 +118,7 @@ def main():
             check("C files", files_ok and "kak-vstavit.txt" in names and "den2-sdelki.txt" not in names and "files/kak-vstavit.txt" in day_html)
             day_js = (day / "js" / "prompts.js").read_text(encoding="utf-8")
             public_js = (ROOT / "js" / "prompts.js").read_text(encoding="utf-8")
-            check("D split", "d1-letter" in day_js and "d2-deals" not in day_js and "promptText" not in public_js)
+            check("D split", "d1-letter" in day_js and "d2-deals" not in day_js and "d4-helper" in public_js)
             browser.close()
     finally:
         server.terminate()

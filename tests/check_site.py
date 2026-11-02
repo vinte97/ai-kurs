@@ -26,11 +26,14 @@ def main():
     home = (ROOT / "index.html").read_text(encoding="utf-8")
     if "ИИ для руководителей" not in home or "Подготовить компьютер" not in home:
         errors.append("home start missing")
-    if "Продолжить обучение" in home or 'href="day1.html"' in home:
-        errors.append("pre-course home still opens a lesson")
-    prompts = (ROOT / "js" / "prompts.js").read_text(encoding="utf-8")
-    if "promptText" in prompts or "еженедельного совещания" in text:
-        errors.append("closed prompt is in the public build")
+    if "Введите код" not in home or 'id="code-form"' not in home:
+        errors.append("code field missing")
+    config = (ROOT / "js" / "config.js").read_text(encoding="utf-8")
+    for number in ("4817", "2639", "7054", "9182"):
+        if number not in config:
+            errors.append("code missing from config")
+        if number in home:
+            errors.append("code is visible on the home page")
     if 'href="/ai-kurs/' in text or "<base " in text:
         errors.append("absolute site base would block a future domain")
     for name in PUBLIC:

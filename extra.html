@@ -3,6 +3,15 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<script>
+try {
+  var n = parseInt(localStorage.getItem("aikurs-open-day") || "0", 10);
+  if (!(n >= 1 && n <= 4)) n = 0;
+  document.documentElement.setAttribute("data-open", String(n));
+} catch (e) {
+  document.documentElement.setAttribute("data-open", "0");
+}
+</script>
 <title>Дополнительно</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;700&amp;display=swap">
 <link rel="stylesheet" href="css/tokens.css">
@@ -17,17 +26,219 @@
   <p class="brand">ИИ для руководителей</p>
   <a href="index.html"><svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11 12 4l8 7v9H4z"></path></svg><span>Главная</span></a>
   <a href="prepare.html"><svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4h12v4H6zm0 6h12v10H6z"></path></svg><span>Подготовка</span></a>
-  <p class="nav-soon"><svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5h14v14H5z"></path></svg><span>День 1</span><small>Позже</small></p>
-  <p class="nav-soon"><svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5h14v14H5z"></path></svg><span>День 2</span><small>Позже</small></p>
-  <p class="nav-soon"><svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5h14v14H5z"></path></svg><span>День 3</span><small>Позже</small></p>
-  <p class="nav-soon"><svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5h14v14H5z"></path></svg><span>День 4</span><small>Позже</small></p>
+  <a data-day="1" href="day1.html"><svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5h14v14H5z"></path></svg><span>День 1</span></a>
+  <p class="nav-soon" data-day-soon="1"><svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5h14v14H5z"></path></svg><span>День 1</span><small>Позже</small></p>
+  <a data-day="2" href="day2.html"><svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5h14v14H5z"></path></svg><span>День 2</span></a>
+  <p class="nav-soon" data-day-soon="2"><svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5h14v14H5z"></path></svg><span>День 2</span><small>Позже</small></p>
+  <a data-day="3" href="day3.html"><svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5h14v14H5z"></path></svg><span>День 3</span></a>
+  <p class="nav-soon" data-day-soon="3"><svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5h14v14H5z"></path></svg><span>День 3</span><small>Позже</small></p>
+  <a data-day="4" href="day4.html"><svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5h14v14H5z"></path></svg><span>День 4</span></a>
+  <p class="nav-soon" data-day-soon="4"><svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5h14v14H5z"></path></svg><span>День 4</span><small>Позже</small></p>
   <a href="extra.html" aria-current="page"><svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 7h14M5 12h14M5 17h14"></path></svg><span>Дополнительно</span></a>
+  
+<div class="nav-code">
+  <button class="nav-code-open" id="code-open" type="button" aria-expanded="false" aria-controls="code-form">Введите код</button>
+  <form id="code-form" hidden>
+    <input id="code-input" aria-label="Код" inputmode="numeric" autocomplete="off" maxlength="8">
+    <button class="btn" type="submit">Открыть</button>
+    <p id="code-status" role="status"></p>
+  </form>
+</div>
 </nav>
 <main id="content">
 
 <p class="crumb"><a href="index.html">Главная</a> → Дополнительно</p>
 <h1>Дополнительно</h1>
-<section id="library"><h2>Готовые запросы</h2><p>Те же тексты, что внутри открытых дней. Здесь они собраны вместе.</p><p>Готовые запросы откроются вместе с занятием.</p></section>
+<section id="library"><h2>Готовые запросы</h2><p>Те же тексты, что внутри открытых дней. Здесь они собраны вместе.</p>
+<p class="filters" role="group" aria-label="Тема">
+<button class="btn secondary filter" type="button" data-filter="">Все</button>
+<button class="btn secondary filter" type="button" data-filter="Письма">Письма</button>
+<button class="btn secondary filter" type="button" data-filter="Документы">Документы</button>
+<button class="btn secondary filter" type="button" data-filter="Анализ">Анализ</button>
+<button class="btn secondary filter" type="button" data-filter="Управление">Управление</button>
+<button class="btn secondary filter" type="button" data-filter="Агенты">Агенты</button>
+</p>
+<div data-day="1"><h3>День 1</h3>
+<article class="prompt-card" id="prompt-d1-letter" data-topic="Письма">
+  <h3>Попросим ИИ написать деловое письмо</h3>
+  <p>Первый запрос: короткое письмо о переносе совещания.</p>
+  <pre id="text-d1-letter" class="prompt-text">Ты — помощник руководителя.
+Нужно подготовить письмо сотрудникам о переносе еженедельного совещания со среды на четверг.
+Напиши короткое и вежливое письмо.
+Укажи тему письма и основной текст.
+Не придумывай время и место совещания.
+Проверь, чтобы из письма было понятно, что изменилось.</pre>
+  <p><button class="btn copy-prompt" type="button" data-prompt-id="d1-letter">Скопировать запрос</button></p>
+  <p id="status-d1-letter" class="copy-status" role="status"></p>
+  <p>Перейдите в WorkAI, вставьте запрос в поле сообщения и отправьте его.</p>
+  <p><strong>Ожидаемый результат.</strong> Готовый черновик делового письма.</p>
+  <p><strong>Как проверить.</strong></p>
+  <ul><li>Письмо короткое.</li><li>Указана новая дата.</li><li>Не выдуманы время и место.</li></ul>
+  <p class="hint"><strong>Подсказка.</strong> Если в письме появились часы или кабинет, уберите их перед отправкой людям.</p>
+</article>
+
+<article class="prompt-card" id="prompt-d1-refine" data-topic="Письма">
+  <h3>Уточним роль, контекст и ограничения</h3>
+  <p>Тот же смысл, но запрос разложен на части. Одно условие вы меняете сами.</p>
+  <pre id="text-d1-refine" class="prompt-text">Роль: ты — помощник руководителя.
+Контекст: [напишите, какое совещание и на какой день оно переносится].
+Формат: тема письма и короткий текст.
+Ограничения: не придумывай время, место и фамилии.
+Проверка: в письме видно, что изменилось, и нет сведений, которых нет в условии.</pre>
+  <p><button class="btn copy-prompt" type="button" data-prompt-id="d1-refine">Скопировать запрос</button></p>
+  <p id="status-d1-refine" class="copy-status" role="status"></p>
+  <p>Перейдите в WorkAI, вставьте запрос в поле сообщения и отправьте его.</p>
+  <p><strong>Ожидаемый результат.</strong> Второе письмо. Его можно сравнить с первым.</p>
+  <p><strong>Как проверить.</strong></p>
+  <ul><li>В запросе не осталось квадратных скобок.</li><li>Письмо короче или точнее первого.</li><li>Новых фактов нет.</li></ul>
+  <p class="hint"><strong>Подсказка.</strong> Эти пять строк и есть РКФОП простыми словами.</p>
+</article>
+
+<article class="prompt-card" id="prompt-d1-safety" data-topic="Управление">
+  <h3>Разделим, что можно отправлять</h3>
+  <p>Запрос без ваших настоящих документов. Примеры уже внутри текста.</p>
+  <pre id="text-d1-safety" class="prompt-text">Разложи три примера. Ничего не додумывай.
+1. Дата совещания: четверг.
+2. Номер паспорта сотрудника: 1234 567890.
+3. Телефон коллеги, который он просил не пересылать.
+Для каждого напиши: можно включить в учебный запрос, сначала спросить человека или нельзя отправлять.</pre>
+  <p><button class="btn copy-prompt" type="button" data-prompt-id="d1-safety">Скопировать запрос</button></p>
+  <p id="status-d1-safety" class="copy-status" role="status"></p>
+  <p>Перейдите в WorkAI, вставьте запрос в поле сообщения и отправьте его.</p>
+  <p><strong>Ожидаемый результат.</strong> Три пометки. Паспорт и чужой телефон не отмечены как свободные для отправки.</p>
+  <p><strong>Как проверить.</strong></p>
+  <ul><li>Дата совещания не стоит в одном ряду с паспортом.</li><li>Паспорт помечен как то, что отправлять нельзя.</li><li>В ответе нет совета спрятать данные обходным способом.</li></ul>
+  <p class="hint"><strong>Подсказка.</strong> Если захотите проверить свой пример, берите выдуманный, не настоящий.</p>
+</article>
+
+<article class="prompt-card" id="prompt-d1-document" data-topic="Документы">
+  <h3>Сверим ответ с файлом</h3>
+  <p>Запрос для файла с тремя записями. Штраф в источнике не подтверждён.</p>
+  <pre id="text-d1-document" class="prompt-text">Проверь готовый ответ по приложенному файлу.
+Для каждой существенной фразы напиши: есть в записях или «в записях нет».
+Ничего не добавляй: ни часов простоя, ни штрафа, ни новых фамилий.</pre>
+  <p><button class="btn copy-prompt" type="button" data-prompt-id="d1-document">Скопировать запрос</button></p>
+  <p id="status-d1-document" class="copy-status" role="status"></p>
+  <p>Перейдите в WorkAI, вставьте запрос в поле сообщения и отправьте его.</p>
+  <p><strong>Ожидаемый результат.</strong> Список фраз с пометкой, есть ли они в файле.</p>
+  <p><strong>Как проверить.</strong></p>
+  <ul><li>Штраф помечен как то, чего в записях нет.</li><li>Новых фамилий нет.</li><li>У пометки есть опора на файл.</li></ul>
+  <p class="hint"><strong>Подсказка.</strong> Без приложенного файла это задание не выполнено.</p>
+</article>
+</div><div data-day="2"><h3>День 2</h3>
+<article class="prompt-card" id="prompt-d2-deals" data-topic="Анализ">
+  <h3>Не путаем статус сделки и оплату</h3>
+  <p>Запрос по учебному файлу: 42 закрытые сделки, 31 оплата, 6 отмен, 5 в ожидании.</p>
+  <pre id="text-d2-deals" class="prompt-text">По приложенному файлу объясни четыре числа: 42 закрытые сделки, 31 оплата, 6 отмен, 5 сделок в ожидании оплаты.
+Не называй 42 сделки полученными деньгами.
+Напиши, что в файле подтверждено и какого факта не хватает.
+Если причина расхождения не названа, так и напиши.</pre>
+  <p><button class="btn copy-prompt" type="button" data-prompt-id="d2-deals">Скопировать запрос</button></p>
+  <p id="status-d2-deals" class="copy-status" role="status"></p>
+  <p>Перейдите в WorkAI, вставьте запрос в поле сообщения и отправьте его.</p>
+  <p><strong>Ожидаемый результат.</strong> Короткое объяснение четырёх чисел и один открытый вопрос.</p>
+  <p><strong>Как проверить.</strong></p>
+  <ul><li>Все четыре числа есть в ответе.</li><li>42 не названы оплатами.</li><li>Есть вопрос или пометка «в файле этого нет».</li></ul>
+  <p class="hint"><strong>Подсказка.</strong> Файл учебный. Это не отчёт реальной компании.</p>
+</article>
+</div><div data-day="3"><h3>День 3</h3>
+<article class="prompt-card" id="prompt-d3-ping" data-topic="Агенты">
+  <h3>Проверим, что лаборатория отвечает</h3>
+  <p>Инструмент lab_ping. Это проверка связи, не чтение писем.</p>
+  <pre id="text-d3-ping" class="prompt-text">Проверь связь с учебной лабораторией.
+Используй инструмент lab_ping.
+Адрес и ключ в этот запрос не добавляй: они уже подключены преподавателем.
+Если служба отказала, приведи текст отказа и остановись.</pre>
+  <p><button class="btn copy-prompt" type="button" data-prompt-id="d3-ping">Скопировать запрос</button></p>
+  <p id="status-d3-ping" class="copy-status" role="status"></p>
+  <p>Перейдите в WorkAI, вставьте запрос в поле сообщения и отправьте его.</p>
+  <p><strong>Ожидаемый результат.</strong> Короткий ответ, что связь есть, либо текст отказа.</p>
+  <p><strong>Как проверить.</strong></p>
+  <ul><li>В запросе нет адреса и ключа.</li><li>Назван инструмент lab_ping.</li><li>Отказ не предлагается обойти.</li></ul>
+  <p class="hint"><strong>Подсказка.</strong> Если лаборатория ещё не подключена, это задание делает преподаватель вместе с вами.</p>
+</article>
+
+<article class="prompt-card" id="prompt-d3-mail" data-topic="Агенты">
+  <h3>Покажем список писем</h3>
+  <p>Инструмент mail_list. Только список, без отправки.</p>
+  <pre id="text-d3-mail" class="prompt-text">Покажи список писем учебной лаборатории.
+Используй инструмент mail_list.
+Ничего не отправляй и не меняй.
+Если списка нет, напиши, что вернула служба.</pre>
+  <p><button class="btn copy-prompt" type="button" data-prompt-id="d3-mail">Скопировать запрос</button></p>
+  <p id="status-d3-mail" class="copy-status" role="status"></p>
+  <p>Перейдите в WorkAI, вставьте запрос в поле сообщения и отправьте его.</p>
+  <p><strong>Ожидаемый результат.</strong> Список писем или сообщение, что список пуст.</p>
+  <p><strong>Как проверить.</strong></p>
+  <ul><li>Письмо никому не отправлено.</li><li>Назван инструмент mail_list.</li></ul>
+  <p class="hint"><strong>Подсказка.</strong> Если открылся не список, а черновик ответа, остановитесь.</p>
+</article>
+
+<article class="prompt-card" id="prompt-d3-read" data-topic="Агенты">
+  <h3>Прочитаем одно письмо</h3>
+  <p>Инструмент mail_read. Номер письма вы вписываете сами.</p>
+  <pre id="text-d3-read" class="prompt-text">Прочитай одно письмо учебной лаборатории.
+Используй инструмент mail_read.
+Письмо: [номер или название, которое дал преподаватель].
+Не пиши ответ отправителю и не отправляй ничего.</pre>
+  <p><button class="btn copy-prompt" type="button" data-prompt-id="d3-read">Скопировать запрос</button></p>
+  <p id="status-d3-read" class="copy-status" role="status"></p>
+  <p>Перейдите в WorkAI, вставьте запрос в поле сообщения и отправьте его.</p>
+  <p><strong>Ожидаемый результат.</strong> Текст одного письма или отказ прочитать его.</p>
+  <p><strong>Как проверить.</strong></p>
+  <ul><li>Скобки заменены данными преподавателя.</li><li>Ответ отправителю не создан.</li><li>Назван инструмент mail_read.</li></ul>
+  <p class="hint"><strong>Подсказка.</strong> Не подставляйте чужое настоящее письмо, если преподаватель его не дал.</p>
+</article>
+
+<article class="prompt-card" id="prompt-d3-note" data-topic="Агенты">
+  <h3>Найдём заметку</h3>
+  <p>Инструмент notes_get. При отказе сохраняем текст отказа.</p>
+  <pre id="text-d3-note" class="prompt-text">Найди учебную заметку.
+Используй инструмент notes_get.
+Название: [название, которое дал преподаватель].
+Если служба отказала, приведи текст отказа и не повторяй запрос.</pre>
+  <p><button class="btn copy-prompt" type="button" data-prompt-id="d3-note">Скопировать запрос</button></p>
+  <p id="status-d3-note" class="copy-status" role="status"></p>
+  <p>Перейдите в WorkAI, вставьте запрос в поле сообщения и отправьте его.</p>
+  <p><strong>Ожидаемый результат.</strong> Текст заметки или точный текст отказа.</p>
+  <p><strong>Как проверить.</strong></p>
+  <ul><li>Назван инструмент notes_get.</li><li>Отказ не предлагается обойти.</li><li>Запрос не повторён много раз.</li></ul>
+  <p class="hint"><strong>Подсказка.</strong> Имя действия для создания заметки на этом сайте не указано: его показывает преподаватель.</p>
+</article>
+</div><div data-day="4"><h3>День 4</h3>
+<article class="prompt-card" id="prompt-d4-helper" data-topic="Управление">
+  <h3>Соберём правило помощника</h3>
+  <p>Роль вы называете сами. Файл ограничивает, что можно видеть.</p>
+  <pre id="text-d4-helper" class="prompt-text">По приложенной карточке собери правило помощника.
+Роль: [напишите название роли].
+Напиши, что он готовит, какие файлы может видеть и чего не делает.
+Подпись, платёж и кадровое решение оставь человеку.
+Программу для этого писать не нужно.</pre>
+  <p><button class="btn copy-prompt" type="button" data-prompt-id="d4-helper">Скопировать запрос</button></p>
+  <p id="status-d4-helper" class="copy-status" role="status"></p>
+  <p>Перейдите в WorkAI, вставьте запрос в поле сообщения и отправьте его.</p>
+  <p><strong>Ожидаемый результат.</strong> Короткое правило и список решений, которые остаются вам.</p>
+  <p><strong>Как проверить.</strong></p>
+  <ul><li>Название роли написано вами.</li><li>Платёж и кадровое решение остаются человеку.</li><li>Файлы не шире приложенной карточки.</li></ul>
+  <p class="hint"><strong>Подсказка.</strong> Если скобки остались, запрос ещё не ваш.</p>
+</article>
+
+<article class="prompt-card" id="prompt-d4-test" data-topic="Управление">
+  <h3>Проверим, что помощник отказывается</h3>
+  <p>Проверочный запрос. Ожидаем отказ, а не выполненный платёж.</p>
+  <pre id="text-d4-test" class="prompt-text">Проверь правило помощника.
+Я прошу отправить платёж поставщику сегодня.
+Если правило этого не позволяет, откажись и напиши, какое решение остаётся человеку.
+Не составляй платёжное поручение.</pre>
+  <p><button class="btn copy-prompt" type="button" data-prompt-id="d4-test">Скопировать запрос</button></p>
+  <p id="status-d4-test" class="copy-status" role="status"></p>
+  <p>Перейдите в WorkAI, вставьте запрос в поле сообщения и отправьте его.</p>
+  <p><strong>Ожидаемый результат.</strong> Отказ и напоминание, что платёж остаётся человеку.</p>
+  <p><strong>Как проверить.</strong></p>
+  <ul><li>Платёж не описан как уже отправленный.</li><li>Есть отказ или остановка.</li><li>Нет просьбы обойти правило.</li></ul>
+  <p class="hint"><strong>Подсказка.</strong> Удачный отказ — это правильный результат этого задания.</p>
+</article>
+</div></section>
 <section id="glossary"><h2>Словарь</h2><dl><dt>Запрос</dt><dd>Текст, который вы отправляете ИИ. На сайте его копируют целиком.</dd><dt>WorkAI</dt><dd>Программа на компьютере, в которой вы разговариваете с ИИ. Сайт курса её не заменяет.</dd><dt>РКФОП</dt><dd>Пять частей запроса: роль, контекст, формат, ограничения, проверка и приёмка.</dd><dt>Лаборатория «СеверПром»</dt><dd>Учебная служба, которую преподаватель подключает в программе на третьем дне. Адрес и ключ на этом сайте не хранятся.</dd><dt>Папка «Загрузки»</dt><dd>Место, куда браузер обычно кладёт скачанный файл.</dd></dl></section>
 <section id="faq"><h2>Частые вопросы</h2><details><summary>Куда вставлять запрос?</summary><p>В поле сообщения в программе WorkAI. Затем нажмите кнопку отправки рядом с этим полем.</p></details><details><summary>Где браузер, а где программа?</summary><p>Браузер — окно, в котором открыт этот сайт. WorkAI — отдельная программа. Её запускают с компьютера, не из вкладки сайта.</p></details><details><summary>Не удаётся установить программу</summary><p>Если компьютер организации запрещает установку, не отключайте защиту. Напишите преподавателю или системному администратору.</p></details></section>
 <section id="links"><h2>Полезные ссылки</h2><ul><li><a href="https://workai.su/download">Страница загрузки WorkAI</a></li><li><a href="https://git-scm.com/download/win">Страница Git для Windows</a></li><li><a href="https://www.python.org/downloads/windows/">Страница Python для Windows</a></li><li><a href="https://www.python.org/downloads/macos/">Страница Python для Mac</a></li></ul></section>

@@ -3,12 +3,21 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<script>
+try {
+  var n = parseInt(localStorage.getItem("aikurs-open-day") || "0", 10);
+  if (!(n >= 1 && n <= 4)) n = 0;
+  document.documentElement.setAttribute("data-open", String(n));
+} catch (e) {
+  document.documentElement.setAttribute("data-open", "0");
+}
+</script>
 <title>День 1</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;700&amp;display=swap">
 <link rel="stylesheet" href="css/tokens.css">
 <link rel="stylesheet" href="css/site.css">
 </head>
-<body>
+<body data-page="1">
 <a class="skip" href="#content">К содержанию</a>
 <button class="menu-button" type="button" aria-expanded="false" aria-controls="site-nav">Меню</button>
 <div class="nav-backdrop" hidden></div>
@@ -17,18 +26,191 @@
   <p class="brand">ИИ для руководителей</p>
   <a href="index.html"><svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11 12 4l8 7v9H4z"></path></svg><span>Главная</span></a>
   <a href="prepare.html"><svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4h12v4H6zm0 6h12v10H6z"></path></svg><span>Подготовка</span></a>
-  <p class="nav-soon"><svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5h14v14H5z"></path></svg><span>День 1</span><small>Позже</small></p>
-  <p class="nav-soon"><svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5h14v14H5z"></path></svg><span>День 2</span><small>Позже</small></p>
-  <p class="nav-soon"><svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5h14v14H5z"></path></svg><span>День 3</span><small>Позже</small></p>
-  <p class="nav-soon"><svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5h14v14H5z"></path></svg><span>День 4</span><small>Позже</small></p>
+  <a data-day="1" href="day1.html" aria-current="page"><svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5h14v14H5z"></path></svg><span>День 1</span></a>
+  <p class="nav-soon" data-day-soon="1"><svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5h14v14H5z"></path></svg><span>День 1</span><small>Позже</small></p>
+  <div class="subnav" data-day="1"><a href="day1.html#overview">Обзор</a><a href="day1.html#tasks">Задания</a><a href="day1.html#materials">Материалы</a><a href="day1.html#prompts">Промпты</a><a href="day1.html#check">Проверка</a></div>
+  <a data-day="2" href="day2.html"><svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5h14v14H5z"></path></svg><span>День 2</span></a>
+  <p class="nav-soon" data-day-soon="2"><svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5h14v14H5z"></path></svg><span>День 2</span><small>Позже</small></p>
+  <a data-day="3" href="day3.html"><svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5h14v14H5z"></path></svg><span>День 3</span></a>
+  <p class="nav-soon" data-day-soon="3"><svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5h14v14H5z"></path></svg><span>День 3</span><small>Позже</small></p>
+  <a data-day="4" href="day4.html"><svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5h14v14H5z"></path></svg><span>День 4</span></a>
+  <p class="nav-soon" data-day-soon="4"><svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5h14v14H5z"></path></svg><span>День 4</span><small>Позже</small></p>
   <a href="extra.html"><svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 7h14M5 12h14M5 17h14"></path></svg><span>Дополнительно</span></a>
+  
+<div class="nav-code">
+  <button class="nav-code-open" id="code-open" type="button" aria-expanded="false" aria-controls="code-form">Введите код</button>
+  <form id="code-form" hidden>
+    <input id="code-input" aria-label="Код" inputmode="numeric" autocomplete="off" maxlength="8">
+    <button class="btn" type="submit">Открыть</button>
+    <p id="code-status" role="status"></p>
+  </form>
+</div>
 </nav>
 <main id="content">
 
+<div class="day-lock">
+  <h1>День 1 ещё закрыт</h1>
+  <p>Откройте меню и нажмите «Введите код».</p>
+</div>
+<div class="lesson">
+<p class="crumb"><a href="index.html">Главная</a> → День 1 → Практика</p>
 <h1>День 1. Знакомство с ИИ и WorkAI</h1>
-<p class="lead">Материалы этого дня ещё не открыты.</p>
-<p>Сейчас здесь нет заданий, запросов и файлов.</p>
-<p><a class="btn" href="prepare.html">Подготовить компьютер</a></p>
+<p class="lead">Сегодня вы научитесь отличать обычный разговор с ИИ от работы с файлом, беречь чужие данные и улучшать запрос.</p>
+<section id="overview"><h2>Чему научимся</h2><ul><li>Откроете WorkAI и отправите готовый запрос.</li><li>Увидите, чем письмо до уточнения отличается от письма после уточнения.</li><li>Поймёте, какие сведения в запрос класть нельзя.</li><li>Соберёте запрос из пяти частей: роль, контекст, формат, ограничения и проверка.</li></ul></section>
+<section id="theory"><h2>Коротко о дне</h2><p>WorkAI — это программа на компьютере. Сайт курса её не заменяет.</p><p>Запрос — текст, который вы отправляете ИИ. Его можно скопировать, а не переписывать.</p><p>Обычный разговор не видит ваши файлы. Если нужна опора на документ, файл добавляют к запросу отдельно.</p><p>В запрос не кладут пароли, номера документов и чужие личные сведения.</p><p>Пять частей запроса называют РКФОП: роль, контекст, формат, ограничения, проверка и приёмка.</p></section>
+<section id="materials"><h2>Материалы</h2>
+<article class="file-card">
+  <h3>Памятка. Как вставить запрос</h3>
+  <p>Куда нажать в WorkAI после копирования запроса.</p>
+  <p>Тип: Текстовый файл. Размер: 716 байт.</p>
+  <a class="btn" href="files/kak-vstavit.txt" download>Скачать</a>
+  <a class="btn secondary" href="files/kak-vstavit.txt">Открыть</a>
+</article>
+
+<article class="file-card">
+  <h3>Учебные записи для сравнения</h3>
+  <p>Короткий документ: по нему видно, чего в источнике нет.</p>
+  <p>Тип: Текстовый файл. Размер: 648 байт.</p>
+  <a class="btn" href="files/den1-zapiski.txt" download>Скачать</a>
+  <a class="btn secondary" href="files/den1-zapiski.txt">Открыть</a>
+</article>
+</section>
+<section id="tasks"><h2>Задания</h2>
+<article class="exercise" id="task-letter">
+  <p class="note">Около 15 минут</p>
+  <h3>Задание 1. Подготовьте письмо коллегам</h3>
+  <p><strong>Что делаем.</strong> Мы попросим ИИ написать письмо о переносе совещания.</p>
+  <p><strong>Что понадобится.</strong></p>
+  <ul><li>Открытая программа WorkAI.</li></ul>
+  <p><strong>Материалы.</strong></p>
+  <p>Отдельный файл для этого задания не нужен.</p>
+  <p><strong>Последовательность.</strong></p>
+  <ol><li>Откройте WorkAI.</li><li>Нажмите «Скопировать запрос».</li><li>Вставьте скопированный текст в поле сообщения WorkAI.</li><li>Отправьте сообщение.</li><li>Прочитайте результат.</li></ol>
+  
+<article class="prompt-card" id="prompt-d1-letter" data-topic="Письма">
+  <h3>Попросим ИИ написать деловое письмо</h3>
+  <p>Первый запрос: короткое письмо о переносе совещания.</p>
+  <pre id="text-d1-letter" class="prompt-text">Ты — помощник руководителя.
+Нужно подготовить письмо сотрудникам о переносе еженедельного совещания со среды на четверг.
+Напиши короткое и вежливое письмо.
+Укажи тему письма и основной текст.
+Не придумывай время и место совещания.
+Проверь, чтобы из письма было понятно, что изменилось.</pre>
+  <p><button class="btn copy-prompt" type="button" data-prompt-id="d1-letter">Скопировать запрос</button></p>
+  <p id="status-d1-letter" class="copy-status" role="status"></p>
+  <p>Перейдите в WorkAI, вставьте запрос в поле сообщения и отправьте его.</p>
+  <p><strong>Ожидаемый результат.</strong> Готовый черновик делового письма.</p>
+  <p><strong>Как проверить.</strong></p>
+  <ul><li>Письмо короткое.</li><li>Указана новая дата.</li><li>Не выдуманы время и место.</li></ul>
+  <p class="hint"><strong>Подсказка.</strong> Если в письме появились часы или кабинет, уберите их перед отправкой людям.</p>
+</article>
+
+  <p><button class="btn secondary task-done" type="button" data-task-id="letter">Готово</button>
+  <span class="task-state" role="status"></span></p>
+  <p><a class="btn" href="#task-refine">Следующее задание</a></p>
+</article>
+
+<article class="exercise" id="task-refine">
+  <p class="note">Около 15 минут</p>
+  <h3>Задание 2. Уточните запрос</h3>
+  <p><strong>Что делаем.</strong> Соберём тот же запрос по частям и заменим одно условие своими словами.</p>
+  <p><strong>Что понадобится.</strong></p>
+  <ul><li>Программа WorkAI.</li><li>Письмо из первого задания, если оно ещё на экране.</li></ul>
+  <p><strong>Материалы.</strong></p>
+  <p>Отдельный файл для этого задания не нужен.</p>
+  <p><strong>Последовательность.</strong></p>
+  <ol><li>В квадратных скобках напишите свой вариант дня или формулировки.</li><li>Скопируйте запрос и вставьте его в WorkAI.</li><li>Отправьте сообщение.</li><li>Сравните новое письмо с первым.</li></ol>
+  
+<article class="prompt-card" id="prompt-d1-refine" data-topic="Письма">
+  <h3>Уточним роль, контекст и ограничения</h3>
+  <p>Тот же смысл, но запрос разложен на части. Одно условие вы меняете сами.</p>
+  <pre id="text-d1-refine" class="prompt-text">Роль: ты — помощник руководителя.
+Контекст: [напишите, какое совещание и на какой день оно переносится].
+Формат: тема письма и короткий текст.
+Ограничения: не придумывай время, место и фамилии.
+Проверка: в письме видно, что изменилось, и нет сведений, которых нет в условии.</pre>
+  <p><button class="btn copy-prompt" type="button" data-prompt-id="d1-refine">Скопировать запрос</button></p>
+  <p id="status-d1-refine" class="copy-status" role="status"></p>
+  <p>Перейдите в WorkAI, вставьте запрос в поле сообщения и отправьте его.</p>
+  <p><strong>Ожидаемый результат.</strong> Второе письмо. Его можно сравнить с первым.</p>
+  <p><strong>Как проверить.</strong></p>
+  <ul><li>В запросе не осталось квадратных скобок.</li><li>Письмо короче или точнее первого.</li><li>Новых фактов нет.</li></ul>
+  <p class="hint"><strong>Подсказка.</strong> Эти пять строк и есть РКФОП простыми словами.</p>
+</article>
+
+  <p><button class="btn secondary task-done" type="button" data-task-id="refine">Готово</button>
+  <span class="task-state" role="status"></span></p>
+  <p><a class="btn" href="#task-safety">Следующее задание</a></p>
+</article>
+
+<article class="exercise" id="task-safety">
+  <p class="note">Около 10 минут</p>
+  <h3>Задание 3. Что нельзя класть в запрос</h3>
+  <p><strong>Что делаем.</strong> Разделим сведения на те, что можно отправить, и те, что нельзя.</p>
+  <p><strong>Что понадобится.</strong></p>
+  <ul><li>Программа WorkAI.</li></ul>
+  <p><strong>Материалы.</strong></p>
+  <p>Отдельный файл для этого задания не нужен.</p>
+  <p><strong>Последовательность.</strong></p>
+  <ol><li>Скопируйте запрос.</li><li>Вставьте его в WorkAI и отправьте.</li><li>Проверьте, что паспорт и чужой телефон помечены как то, что отправлять нельзя.</li></ol>
+  
+<article class="prompt-card" id="prompt-d1-safety" data-topic="Управление">
+  <h3>Разделим, что можно отправлять</h3>
+  <p>Запрос без ваших настоящих документов. Примеры уже внутри текста.</p>
+  <pre id="text-d1-safety" class="prompt-text">Разложи три примера. Ничего не додумывай.
+1. Дата совещания: четверг.
+2. Номер паспорта сотрудника: 1234 567890.
+3. Телефон коллеги, который он просил не пересылать.
+Для каждого напиши: можно включить в учебный запрос, сначала спросить человека или нельзя отправлять.</pre>
+  <p><button class="btn copy-prompt" type="button" data-prompt-id="d1-safety">Скопировать запрос</button></p>
+  <p id="status-d1-safety" class="copy-status" role="status"></p>
+  <p>Перейдите в WorkAI, вставьте запрос в поле сообщения и отправьте его.</p>
+  <p><strong>Ожидаемый результат.</strong> Три пометки. Паспорт и чужой телефон не отмечены как свободные для отправки.</p>
+  <p><strong>Как проверить.</strong></p>
+  <ul><li>Дата совещания не стоит в одном ряду с паспортом.</li><li>Паспорт помечен как то, что отправлять нельзя.</li><li>В ответе нет совета спрятать данные обходным способом.</li></ul>
+  <p class="hint"><strong>Подсказка.</strong> Если захотите проверить свой пример, берите выдуманный, не настоящий.</p>
+</article>
+
+  <p><button class="btn secondary task-done" type="button" data-task-id="safety">Готово</button>
+  <span class="task-state" role="status"></span></p>
+  <p><a class="btn" href="#task-document">Следующее задание</a></p>
+</article>
+
+<article class="exercise" id="task-document">
+  <p class="note">Около 20 минут</p>
+  <h3>Задание 4. Сверьте ответ с документом</h3>
+  <p><strong>Что делаем.</strong> Добавим файл и оставим только то, что в нём есть.</p>
+  <p><strong>Что понадобится.</strong></p>
+  <ul><li>Программа WorkAI.</li><li>Файл «Учебные записи для сравнения».</li></ul>
+  <p><strong>Материалы.</strong></p>
+  <p><a class="btn secondary" href="files/den1-zapiski.txt" download>Скачать</a> <a class="btn secondary" href="files/den1-zapiski.txt">Открыть</a></p>
+  <p><strong>Последовательность.</strong></p>
+  <ol><li>Скачайте файл и откройте его.</li><li>Скопируйте запрос, вставьте его в WorkAI.</li><li>Добавьте скачанный файл к запросу.</li><li>Отправьте запрос и сверьте пометки со списком проверки.</li></ol>
+  
+<article class="prompt-card" id="prompt-d1-document" data-topic="Документы">
+  <h3>Сверим ответ с файлом</h3>
+  <p>Запрос для файла с тремя записями. Штраф в источнике не подтверждён.</p>
+  <pre id="text-d1-document" class="prompt-text">Проверь готовый ответ по приложенному файлу.
+Для каждой существенной фразы напиши: есть в записях или «в записях нет».
+Ничего не добавляй: ни часов простоя, ни штрафа, ни новых фамилий.</pre>
+  <p><button class="btn copy-prompt" type="button" data-prompt-id="d1-document">Скопировать запрос</button></p>
+  <p id="status-d1-document" class="copy-status" role="status"></p>
+  <p>Перейдите в WorkAI, вставьте запрос в поле сообщения и отправьте его.</p>
+  <p><strong>Ожидаемый результат.</strong> Список фраз с пометкой, есть ли они в файле.</p>
+  <p><strong>Как проверить.</strong></p>
+  <ul><li>Штраф помечен как то, чего в записях нет.</li><li>Новых фамилий нет.</li><li>У пометки есть опора на файл.</li></ul>
+  <p class="hint"><strong>Подсказка.</strong> Без приложенного файла это задание не выполнено.</p>
+</article>
+
+  <p><button class="btn secondary task-done" type="button" data-task-id="document">Готово</button>
+  <span class="task-state" role="status"></span></p>
+  <p><a class="btn" href="#check">Перейти к проверке</a></p>
+</article>
+</section>
+<section id="prompts"><h2>Промпты</h2><p>Полный текст стоит внутри задания. Здесь только ссылки на те же карточки.</p><ul><li><a href="#prompt-d1-letter">Попросим ИИ написать деловое письмо</a></li><li><a href="#prompt-d1-refine">Уточним роль, контекст и ограничения</a></li><li><a href="#prompt-d1-safety">Разделим, что можно отправлять</a></li><li><a href="#prompt-d1-document">Сверим ответ с файлом</a></li></ul></section>
+<section id="check"><h2>Проверка</h2><ul><li>Письмо короткое и вежливое.</li><li>Видно, что совещание перенесено со среды на четверг.</li><li>Время и место не выдуманы.</li><li>Во втором запросе вы сами заменили хотя бы одно условие.</li></ul><p><a class="btn secondary" href="index.html">На главную</a></p></section>
+<section id="extra"><h2>Дополнительная практика</h2><p>Отправьте первый и второй запросы письма подряд и сравните, что изменилось после уточнения.</p></section>
+</div>
 
 </main>
 <script src="js/config.js"></script>

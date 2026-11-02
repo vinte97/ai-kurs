@@ -3,6 +3,15 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<script>
+try {
+  var n = parseInt(localStorage.getItem("aikurs-open-day") || "0", 10);
+  if (!(n >= 1 && n <= 4)) n = 0;
+  document.documentElement.setAttribute("data-open", String(n));
+} catch (e) {
+  document.documentElement.setAttribute("data-open", "0");
+}
+</script>
 <title>ИИ для руководителей</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;700&amp;display=swap">
 <link rel="stylesheet" href="css/tokens.css">
@@ -17,19 +26,33 @@
   <p class="brand">ИИ для руководителей</p>
   <a href="index.html" aria-current="page"><svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11 12 4l8 7v9H4z"></path></svg><span>Главная</span></a>
   <a href="prepare.html"><svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4h12v4H6zm0 6h12v10H6z"></path></svg><span>Подготовка</span></a>
-  <p class="nav-soon"><svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5h14v14H5z"></path></svg><span>День 1</span><small>Позже</small></p>
-  <p class="nav-soon"><svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5h14v14H5z"></path></svg><span>День 2</span><small>Позже</small></p>
-  <p class="nav-soon"><svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5h14v14H5z"></path></svg><span>День 3</span><small>Позже</small></p>
-  <p class="nav-soon"><svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5h14v14H5z"></path></svg><span>День 4</span><small>Позже</small></p>
+  <a data-day="1" href="day1.html"><svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5h14v14H5z"></path></svg><span>День 1</span></a>
+  <p class="nav-soon" data-day-soon="1"><svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5h14v14H5z"></path></svg><span>День 1</span><small>Позже</small></p>
+  <a data-day="2" href="day2.html"><svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5h14v14H5z"></path></svg><span>День 2</span></a>
+  <p class="nav-soon" data-day-soon="2"><svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5h14v14H5z"></path></svg><span>День 2</span><small>Позже</small></p>
+  <a data-day="3" href="day3.html"><svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5h14v14H5z"></path></svg><span>День 3</span></a>
+  <p class="nav-soon" data-day-soon="3"><svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5h14v14H5z"></path></svg><span>День 3</span><small>Позже</small></p>
+  <a data-day="4" href="day4.html"><svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5h14v14H5z"></path></svg><span>День 4</span></a>
+  <p class="nav-soon" data-day-soon="4"><svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5h14v14H5z"></path></svg><span>День 4</span><small>Позже</small></p>
   <a href="extra.html"><svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 7h14M5 12h14M5 17h14"></path></svg><span>Дополнительно</span></a>
+  
+<div class="nav-code">
+  <button class="nav-code-open" id="code-open" type="button" aria-expanded="false" aria-controls="code-form">Введите код</button>
+  <form id="code-form" hidden>
+    <input id="code-input" aria-label="Код" inputmode="numeric" autocomplete="off" maxlength="8">
+    <button class="btn" type="submit">Открыть</button>
+    <p id="code-status" role="status"></p>
+  </form>
+</div>
 </nav>
 <main id="content">
 
 <h1>ИИ для руководителей</h1>
 <p class="lead">Практический курс: научитесь работать с ИИ, документами, данными и собственными помощниками.</p>
 <p>Все инструкции, файлы и задания находятся здесь. Начните с подготовки компьютера.</p>
-<p><a class="btn" href="prepare.html">Подготовить компьютер</a></p>
-<div class="day-map"><article class="day-card"><h2>День 1. Знакомство и первые задания</h2><p>Обзор программы. Задания откроются в день занятия.</p></article><article class="day-card"><h2>День 2. Документы и анализ</h2><p>Обзор программы. Задания откроются в день занятия.</p></article><article class="day-card"><h2>День 3. Агенты и инструменты</h2><p>Обзор программы. Задания откроются в день занятия.</p></article><article class="day-card"><h2>День 4. Собственный ИИ-помощник</h2><p>Обзор программы. Задания откроются в день занятия.</p></article></div>
+<p><a class="btn only-locked" href="prepare.html">Подготовить компьютер</a>
+<a class="btn only-open" id="continue-link" href="day1.html">Продолжить обучение</a></p>
+<div class="day-map"><a class="day-card" data-day="1" href="day1.html"><h2>День 1. Знакомство и первые задания</h2><p>Можно открыть</p></a><article class="day-card" data-day-soon="1"><h2>День 1. Знакомство и первые задания</h2><p>Обзор программы. Задания откроются в день занятия.</p></article><a class="day-card" data-day="2" href="day2.html"><h2>День 2. Документы и анализ</h2><p>Можно открыть</p></a><article class="day-card" data-day-soon="2"><h2>День 2. Документы и анализ</h2><p>Обзор программы. Задания откроются в день занятия.</p></article><a class="day-card" data-day="3" href="day3.html"><h2>День 3. Агенты и инструменты</h2><p>Можно открыть</p></a><article class="day-card" data-day-soon="3"><h2>День 3. Агенты и инструменты</h2><p>Обзор программы. Задания откроются в день занятия.</p></article><a class="day-card" data-day="4" href="day4.html"><h2>День 4. Собственный ИИ-помощник</h2><p>Можно открыть</p></a><article class="day-card" data-day-soon="4"><h2>День 4. Собственный ИИ-помощник</h2><p>Обзор программы. Задания откроются в день занятия.</p></article></div>
 
 </main>
 <script src="js/config.js"></script>

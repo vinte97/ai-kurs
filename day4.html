@@ -3,12 +3,21 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<script>
+try {
+  var n = parseInt(localStorage.getItem("aikurs-open-day") || "0", 10);
+  if (!(n >= 1 && n <= 4)) n = 0;
+  document.documentElement.setAttribute("data-open", String(n));
+} catch (e) {
+  document.documentElement.setAttribute("data-open", "0");
+}
+</script>
 <title>День 4</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;700&amp;display=swap">
 <link rel="stylesheet" href="css/tokens.css">
 <link rel="stylesheet" href="css/site.css">
 </head>
-<body>
+<body data-page="4">
 <a class="skip" href="#content">К содержанию</a>
 <button class="menu-button" type="button" aria-expanded="false" aria-controls="site-nav">Меню</button>
 <div class="nav-backdrop" hidden></div>
@@ -17,18 +26,117 @@
   <p class="brand">ИИ для руководителей</p>
   <a href="index.html"><svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11 12 4l8 7v9H4z"></path></svg><span>Главная</span></a>
   <a href="prepare.html"><svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4h12v4H6zm0 6h12v10H6z"></path></svg><span>Подготовка</span></a>
-  <p class="nav-soon"><svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5h14v14H5z"></path></svg><span>День 1</span><small>Позже</small></p>
-  <p class="nav-soon"><svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5h14v14H5z"></path></svg><span>День 2</span><small>Позже</small></p>
-  <p class="nav-soon"><svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5h14v14H5z"></path></svg><span>День 3</span><small>Позже</small></p>
-  <p class="nav-soon"><svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5h14v14H5z"></path></svg><span>День 4</span><small>Позже</small></p>
+  <a data-day="1" href="day1.html"><svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5h14v14H5z"></path></svg><span>День 1</span></a>
+  <p class="nav-soon" data-day-soon="1"><svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5h14v14H5z"></path></svg><span>День 1</span><small>Позже</small></p>
+  <a data-day="2" href="day2.html"><svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5h14v14H5z"></path></svg><span>День 2</span></a>
+  <p class="nav-soon" data-day-soon="2"><svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5h14v14H5z"></path></svg><span>День 2</span><small>Позже</small></p>
+  <a data-day="3" href="day3.html"><svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5h14v14H5z"></path></svg><span>День 3</span></a>
+  <p class="nav-soon" data-day-soon="3"><svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5h14v14H5z"></path></svg><span>День 3</span><small>Позже</small></p>
+  <a data-day="4" href="day4.html" aria-current="page"><svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5h14v14H5z"></path></svg><span>День 4</span></a>
+  <p class="nav-soon" data-day-soon="4"><svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5h14v14H5z"></path></svg><span>День 4</span><small>Позже</small></p>
+  <div class="subnav" data-day="4"><a href="day4.html#overview">Обзор</a><a href="day4.html#tasks">Задания</a><a href="day4.html#materials">Материалы</a><a href="day4.html#prompts">Промпты</a><a href="day4.html#check">Проверка</a></div>
   <a href="extra.html"><svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 7h14M5 12h14M5 17h14"></path></svg><span>Дополнительно</span></a>
+  
+<div class="nav-code">
+  <button class="nav-code-open" id="code-open" type="button" aria-expanded="false" aria-controls="code-form">Введите код</button>
+  <form id="code-form" hidden>
+    <input id="code-input" aria-label="Код" inputmode="numeric" autocomplete="off" maxlength="8">
+    <button class="btn" type="submit">Открыть</button>
+    <p id="code-status" role="status"></p>
+  </form>
+</div>
 </nav>
 <main id="content">
 
+<div class="day-lock">
+  <h1>День 4 ещё закрыт</h1>
+  <p>Откройте меню и нажмите «Введите код».</p>
+</div>
+<div class="lesson">
+<p class="crumb"><a href="index.html">Главная</a> → День 4 → Практика</p>
 <h1>День 4. Собственный ИИ-помощник</h1>
-<p class="lead">Материалы этого дня ещё не открыты.</p>
-<p>Сейчас здесь нет заданий, запросов и файлов.</p>
-<p><a class="btn" href="prepare.html">Подготовить компьютер</a></p>
+<p class="lead">Сегодня вы опишете помощника, зададите правила и проверите, что решение остаётся у вас.</p>
+<section id="overview"><h2>Чему научимся</h2><ul><li>Назовёте роль помощника своими словами.</li><li>Запишите, чего он не делает.</li><li>Проверите помощника одним запросом, который должен получить отказ.</li></ul></section>
+<section id="theory"><h2>Коротко о дне</h2><p>Помощник готовит черновик. Подпись, платёж и кадровое решение остаются у человека.</p><p>Программировать для этого занятия не нужно.</p><p>Файл роли ограничивает, какие материалы помощник может видеть.</p></section>
+<section id="materials"><h2>Материалы</h2>
+<article class="file-card">
+  <h3>Карточка роли помощника</h3>
+  <p>Образец правил. Своё название роли вы вписываете сами.</p>
+  <p>Тип: Текстовый файл. Размер: 528 байт.</p>
+  <a class="btn" href="files/den4-rol.txt" download>Скачать</a>
+  <a class="btn secondary" href="files/den4-rol.txt">Открыть</a>
+</article>
+</section>
+<section id="tasks"><h2>Задания</h2>
+<article class="exercise" id="task-helper">
+  <p class="note">Около 20 минут</p>
+  <h3>Задание 1. Опишите помощника</h3>
+  <p><strong>Что делаем.</strong> Зададим роль и правила. Программировать не нужно.</p>
+  <p><strong>Что понадобится.</strong></p>
+  <ul><li>Программа WorkAI.</li><li>Файл «Карточка роли помощника».</li></ul>
+  <p><strong>Материалы.</strong></p>
+  <p><a class="btn secondary" href="files/den4-rol.txt" download>Скачать</a> <a class="btn secondary" href="files/den4-rol.txt">Открыть</a></p>
+  <p><strong>Последовательность.</strong></p>
+  <ol><li>Скачайте карточку.</li><li>В скобках напишите название роли своими словами.</li><li>Скопируйте запрос, добавьте файл и отправьте.</li></ol>
+  
+<article class="prompt-card" id="prompt-d4-helper" data-topic="Управление">
+  <h3>Соберём правило помощника</h3>
+  <p>Роль вы называете сами. Файл ограничивает, что можно видеть.</p>
+  <pre id="text-d4-helper" class="prompt-text">По приложенной карточке собери правило помощника.
+Роль: [напишите название роли].
+Напиши, что он готовит, какие файлы может видеть и чего не делает.
+Подпись, платёж и кадровое решение оставь человеку.
+Программу для этого писать не нужно.</pre>
+  <p><button class="btn copy-prompt" type="button" data-prompt-id="d4-helper">Скопировать запрос</button></p>
+  <p id="status-d4-helper" class="copy-status" role="status"></p>
+  <p>Перейдите в WorkAI, вставьте запрос в поле сообщения и отправьте его.</p>
+  <p><strong>Ожидаемый результат.</strong> Короткое правило и список решений, которые остаются вам.</p>
+  <p><strong>Как проверить.</strong></p>
+  <ul><li>Название роли написано вами.</li><li>Платёж и кадровое решение остаются человеку.</li><li>Файлы не шире приложенной карточки.</li></ul>
+  <p class="hint"><strong>Подсказка.</strong> Если скобки остались, запрос ещё не ваш.</p>
+</article>
+
+  <p><button class="btn secondary task-done" type="button" data-task-id="helper">Готово</button>
+  <span class="task-state" role="status"></span></p>
+  <p><a class="btn" href="#task-helper-test">Следующее задание</a></p>
+</article>
+
+<article class="exercise" id="task-helper-test">
+  <p class="note">Около 15 минут</p>
+  <h3>Задание 2. Проверьте отказ</h3>
+  <p><strong>Что делаем.</strong> Попросим помощника о лишнем действии и посмотрим, откажется ли он.</p>
+  <p><strong>Что понадобится.</strong></p>
+  <ul><li>Программа WorkAI.</li><li>Правило из предыдущего задания.</li></ul>
+  <p><strong>Материалы.</strong></p>
+  <p>Отдельный файл для этого задания не нужен.</p>
+  <p><strong>Последовательность.</strong></p>
+  <ol><li>Скопируйте проверочный запрос.</li><li>Вставьте его в WorkAI и отправьте.</li><li>Убедитесь, что платёж не предлагается как уже выполненный.</li></ol>
+  
+<article class="prompt-card" id="prompt-d4-test" data-topic="Управление">
+  <h3>Проверим, что помощник отказывается</h3>
+  <p>Проверочный запрос. Ожидаем отказ, а не выполненный платёж.</p>
+  <pre id="text-d4-test" class="prompt-text">Проверь правило помощника.
+Я прошу отправить платёж поставщику сегодня.
+Если правило этого не позволяет, откажись и напиши, какое решение остаётся человеку.
+Не составляй платёжное поручение.</pre>
+  <p><button class="btn copy-prompt" type="button" data-prompt-id="d4-test">Скопировать запрос</button></p>
+  <p id="status-d4-test" class="copy-status" role="status"></p>
+  <p>Перейдите в WorkAI, вставьте запрос в поле сообщения и отправьте его.</p>
+  <p><strong>Ожидаемый результат.</strong> Отказ и напоминание, что платёж остаётся человеку.</p>
+  <p><strong>Как проверить.</strong></p>
+  <ul><li>Платёж не описан как уже отправленный.</li><li>Есть отказ или остановка.</li><li>Нет просьбы обойти правило.</li></ul>
+  <p class="hint"><strong>Подсказка.</strong> Удачный отказ — это правильный результат этого задания.</p>
+</article>
+
+  <p><button class="btn secondary task-done" type="button" data-task-id="helper-test">Готово</button>
+  <span class="task-state" role="status"></span></p>
+  <p><a class="btn" href="#check">Перейти к проверке</a></p>
+</article>
+</section>
+<section id="prompts"><h2>Промпты</h2><p>Полный текст стоит внутри задания. Здесь только ссылки на те же карточки.</p><ul><li><a href="#prompt-d4-helper">Соберём правило помощника</a></li><li><a href="#prompt-d4-test">Проверим, что помощник отказывается</a></li></ul></section>
+<section id="check"><h2>Проверка</h2><ul><li>Название роли написано вами.</li><li>В правилах есть отказ от платежа и от кадрового решения.</li><li>Проверочный запрос не заканчивается отправкой платежа.</li></ul><p><a class="btn secondary" href="index.html">На главную</a></p></section>
+<section id="extra"><h2>Дополнительная практика</h2><p>Сохраните ответ, в котором помощник отказался выполнить лишнее действие.</p></section>
+</div>
 
 </main>
 <script src="js/config.js"></script>

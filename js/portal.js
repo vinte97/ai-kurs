@@ -29,6 +29,7 @@
   initPrompts();
   initTasks();
   initFilters();
+  initCode();
 
   var root = document.getElementById("wizard");
   if (!root || !window.TRACKS) return;
@@ -330,6 +331,54 @@
       root.appendChild(el("p", "ok", previous.praise));
     }
     root.appendChild(renderStep(step, position, list.length, false));
+  }
+
+  function initCode() {
+    var opener = document.getElementById("code-open");
+    var form = document.getElementById("code-form");
+    var input = document.getElementById("code-input");
+    var status = document.getElementById("code-status");
+    if (!opener || !form || !input) return;
+    var messages = {
+      1: "Открыт день 1.",
+      2: "Открыты дни 1–2.",
+      3: "Открыты дни 1–3.",
+      4: "Открыты дни 1–4."
+    };
+    function apply(found) {
+      try { localStorage.setItem("aikurs-open-day", String(found)); } catch (e) {}
+      document.documentElement.setAttribute("data-open", String(found));
+      var link = document.getElementById("continue-link");
+      if (link) link.setAttribute("href", "day" + found + ".html");
+      if (status) status.textContent = messages[found];
+      input.value = "";
+    }
+    var current = parseInt(document.documentElement.getAttribute("data-open") || "0", 10);
+    if (current >= 1 && current <= 4) {
+      var link = document.getElementById("continue-link");
+      if (link) link.setAttribute("href", "day" + current + ".html");
+    }
+    opener.addEventListener("click", function () {
+      form.hidden = false;
+      opener.setAttribute("aria-expanded", "true");
+      input.focus();
+    });
+    form.addEventListener("submit", function (event) {
+      event.preventDefault();
+      var typed = String(input.value || "").replace(/\s/g, "");
+      var codes = (window.SITE && window.SITE.codes) || {};
+      var found = 0;
+      if (/^\d+$/.test(typed)) {
+        Object.keys(codes).forEach(function (day) {
+          if (String(codes[day]) === typed) found = parseInt(day, 10);
+        });
+      }
+      if (!(found >= 1 && found <= 4)) {
+        if (status) status.textContent = "Код не подошёл.";
+        return;
+      }
+      apply(found);
+    });
   }
 
   function initPrompts() {
