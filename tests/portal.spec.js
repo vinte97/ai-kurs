@@ -128,12 +128,42 @@ test('precourse build omits locked prompts and includes fonts', () => {
   await expect(page.locator('.step-assistance .help-action')).toHaveText('Не получается?');
   await page.getByRole('button', { name: 'Далее', exact: true }).click();
   await page.getByRole('button', { name: 'Далее', exact: true }).click();
-  await expect(page.locator('.step-assistance')).toContainText('Пропустить этот блок');
-  await page.getByRole('button', { name: 'Пропустить этот блок', exact: true }).click();
+  await expect(page.locator('.official a')).toHaveText('Скачать Git');
+  await page.getByRole('button', { name: 'Далее', exact: true }).click();
   await expect(page.locator('.setup-instructions')).toContainText('Stable Releases');
   await expect(page.locator('.setup-instructions')).toContainText('Windows installer (64-bit)');
   await expect(page.locator('.setup-instructions')).toContainText('Add python.exe to PATH');
   await page.getByRole('button', { name: 'Пропустить этот блок', exact: true }).click();
   await expect(page.locator('.setup-instructions')).toContainText('ИИ-курс');
   await expect(page.locator('.setup-instructions')).toContainText('Open Folder');
+});
+
+test('preparation stages open independently and revisiting preserves marks', async ({ page }) => {
+  await page.goto('/prepare.html#start');
+  await page.getByRole('button', { name: 'Начать подготовку', exact: true }).click();
+  await page.getByRole('button', { name: 'Windows', exact: true }).click();
+  const stages = page.getByRole('navigation', { name: 'Этапы подготовки', exact: true });
+  await expect(stages.getByRole('button')).toHaveCount(7);
+  await page.getByRole('button', { name: 'Далее', exact: true }).click();
+  await stages.getByRole('button', { name: '3. Git', exact: true }).click();
+  await expect(page.locator('#wizard .official a')).toHaveAttribute('href', 'https://git-scm.com/install/windows');
+  await stages.getByRole('button', { name: '4. Python', exact: true }).click();
+  await expect(page.locator('#wizard article')).toContainText('Stable Releases');
+  expect(await page.evaluate(() => JSON.parse(localStorage.getItem('aikurs-progress-v1')).done['w-workai'])).toBe(true);
+});
+
+test('Severprom button copies agent instructions without downloading in the browser', async ({ page, context }) => {
+  await context.grantPermissions(['clipboard-read', 'clipboard-write']);
+  await page.goto('/prepare.html#start');
+  await page.getByRole('button', { name: 'Начать подготовку', exact: true }).click();
+  await page.getByRole('button', { name: 'Windows', exact: true }).click();
+  await page.getByRole('button', { name: '6. СеверПром', exact: true }).click();
+  await page.getByRole('button', { name: 'Скачать СеверПром', exact: true }).click();
+  await expect(page.locator('#wizard .copy-status')).toContainText('Запрос скопирован');
+  const prompt = await page.evaluate(() => navigator.clipboard.readText());
+  expect(prompt).toBe(await page.evaluate(() => window.SEVERPROM_PROMPT));
+  expect(prompt).toContain('https://github.com/cursorstudent-course/company.git');
+  expect(prompt).toContain('Сначала спроси меня');
+  expect(prompt).toContain('ничего не перезаписывай');
+  expect(prompt).toContain('git --version');
 });

@@ -94,6 +94,7 @@
 
   function current() {
     var list = steps();
+    for (var at = 0; at < list.length; at += 1) if (list[at].id === state.at) return list[at];
     for (var i = 0; i < list.length; i += 1) {
       if (!state.done[list[i].id]) return list[i];
     }
@@ -111,7 +112,9 @@
     check: "Проверяем компьютер",
     workai: "Устанавливаем WorkAI",
     enter: "Регистрация в WorkAI",
-    extra: "Дополнительные программы",
+    git: "Устанавливаем Git",
+    python: "Устанавливаем Python",
+    materials: "Материалы «СеверПром»",
     files: "Создаём рабочую папку",
     ready: "Завершаем подготовку"
   };
@@ -119,7 +122,6 @@
   function stageId(step) {
     if (step.group === "chip") return "workai";
     if (step.group === "launch") return "enter";
-    if (step.group === "git" || step.group === "python") return "extra";
     return step.group;
   }
 
@@ -227,6 +229,8 @@
 
   function markDone(step) {
     state.done[step.id] = true;
+    var next = steps()[indexOf(step.id) + 1];
+    state.at = next ? next.id : "";
     save();
     draw();
   }
@@ -267,6 +271,7 @@
       figure.appendChild(el("figcaption", "", shot.alt));
       layout.appendChild(figure);
     }
+    if (step.copyPrompt) copy.appendChild(materialsPrompt());
     card.appendChild(layout);
     card.appendChild(el("p", "expect", "Результат: " + step.check));
 
@@ -277,6 +282,52 @@
       card.appendChild(details);
     }
     return card;
+  }
+
+  function preparationNavigation(currentStep) {
+    var bar = el("nav", "preparation-navigation");
+    bar.setAttribute("aria-label", "Этапы подготовки");
+    var labels = { workai: "WorkAI", enter: "Вход", git: "Git", python: "Python", files: "Рабочая папка", materials: "СеверПром", ready: "Проверка" };
+    stageOrder().forEach(function (group, index) {
+      var first = steps().filter(function (item) { return stageId(item) === group; })[0];
+      var button = el("button", "task-tab", (index + 1) + ". " + labels[group]);
+      button.type = "button";
+      if (currentStep && stageId(currentStep) === group) button.setAttribute("aria-current", "step");
+      button.addEventListener("click", function () { state.at = first.id; save(); draw(); });
+      bar.appendChild(button);
+    });
+    return bar;
+  }
+
+  function materialsPrompt() {
+    var box = el("div", "materials-prompt");
+    var copy = el("button", "btn", "Скачать СеверПром");
+    copy.type = "button";
+    var status = el("p", "copy-status");
+    status.setAttribute("role", "status");
+    var details = el("details");
+    details.appendChild(el("summary", "", "Текст запроса для агента"));
+    details.appendChild(el("pre", "prompt-text", window.SEVERPROM_PROMPT));
+    function copied() { status.textContent = "Запрос скопирован. Вставьте его в WorkAI и укажите папку, когда агент спросит."; }
+    function fallback() {
+      var area = el("textarea");
+      area.value = window.SEVERPROM_PROMPT;
+      document.body.appendChild(area);
+      area.select();
+      var ok = false;
+      try { ok = document.execCommand("copy"); } catch (e) {}
+      area.remove();
+      if (ok) copied();
+      else { details.open = true; status.textContent = "Не удалось скопировать. Выделите запрос ниже и скопируйте вручную."; }
+    }
+    copy.addEventListener("click", function () {
+      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(window.SEVERPROM_PROMPT).then(copied, fallback);
+      else fallback();
+    });
+    box.appendChild(copy);
+    box.appendChild(status);
+    box.appendChild(details);
+    return box;
   }
 
   function playerBar(step) {
@@ -294,7 +345,7 @@
         draw();
         return;
       }
-      delete state.done[list[place - 1].id];
+      state.at = list[place - 1].id;
       save();
       draw();
     });
@@ -317,6 +368,8 @@
         steps().forEach(function (item) {
           if (item.group === step.group) state.done[item.id] = "skipped";
         });
+        var next = steps()[indexOf(step.id) + 1];
+        state.at = next ? next.id : "";
         save();
         draw();
       });
@@ -348,11 +401,12 @@
 
   function chooseOs(os) {
     state.os = os;
+    state.at = "";
     state.unknown = false;
     state.asked = true;
     if (state.fast) {
       steps().forEach(function (item) {
-        if (item.group !== "files" && item.group !== "ready") state.done[item.id] = "skipped";
+        if (item.group !== "files" && item.group !== "materials" && item.group !== "ready") state.done[item.id] = "skipped";
       });
       state.fast = false;
     }
@@ -404,7 +458,7 @@
 
   function welcomeScreen() {
     setIntro(true);
-    root.appendChild(el("p", "", "Для занятий нужна программа WorkAI. Сначала её установка и регистрация. Git и Python — дополнительные: их ставят, только если попросил преподаватель."));
+    root.appendChild(el("p", "", "Для занятий нужна программа WorkAI. Подготовка включает установку и вход в WorkAI, Git, Python, создание рабочей папки и скачивание «СеверПром». Git нужен для скачивания материалов; Python — для практики с автоматизацией."));
     root.appendChild(el("p", "", "Инструкцию можно читать с телефона, а кнопки нажимать на компьютере. Страницу можно закрыть и вернуться позже: отметки останутся на этом устройстве."));
     root.appendChild(el("p", "", "Если что-то не выйдет, на шаге есть кнопка «Не получается?». Можно также написать преподавателю."));
     var start = el("button", "btn", "Начать подготовку");
@@ -474,7 +528,7 @@
       root.appendChild(el("p", "ok", last.praise));
     }
     root.appendChild(el("h1", "", "Компьютер готов к занятиям"));
-    root.appendChild(el("p", "ok", "Отметки сохранены на этом устройстве. Регистрация не нужна."));
+    root.appendChild(el("p", "ok", "Отметки сохранены на этом устройстве. Регистрация на сайте курса не нужна."));
     root.appendChild(el("p", "", "Отметки ставите вы сами. Они не заменяют проверку. Настоящая проверка такая: окно WorkAI открылось. Для Git и Python проверка — сообщение установщика, что установка закончилась."));
     var list = document.createElement("ul");
     steps().forEach(function (step) {
@@ -545,6 +599,7 @@
     var list = steps();
     var step = current();
     root.appendChild(playerSettings());
+    root.appendChild(preparationNavigation(step));
     if (resumeOnOpen && step) {
       root.appendChild(el("p", "resume", "Вы остановились на этапе «" + stageMeta(step).title + "». Продолжайте с сохранённого места."));
       resumeOnOpen = false;
@@ -557,13 +612,6 @@
     var position = indexOf(step.id) + 1;
     root.appendChild(renderStep(step, position, list.length, false));
     root.appendChild(playerBar(step));
-    var meter = el("p", "stage-meter");
-    var meta = stageMeta(step);
-    for (var mark = 1; mark <= meta.total; mark += 1) {
-      meter.appendChild(el("span", mark < meta.n ? "is-done" : (mark === meta.n ? "is-now" : "")));
-    }
-    meter.setAttribute("aria-hidden", "true");
-    root.insertBefore(meter, root.querySelector("article"));
     focusHeading();
   }
 
