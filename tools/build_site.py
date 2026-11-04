@@ -104,8 +104,8 @@ try {
 </script>"""
     partners = """
 <div class="partners">
-  <a href="https://omsk.top-academy.ru/" target="_blank" rel="noopener"><img src="images/partners/top-academy.svg" alt=""><span>Академия ТОП <small>Омск</small></span></a>
-  <a href="https://topitcollege.ru/omsk" target="_blank" rel="noopener"><img src="images/partners/top-college.png" alt=""><span>ТОП Колледж <small>Омск</small></span></a>
+  <a href="https://omsk.top-academy.ru/" target="_blank" rel="noopener"><img src="images/partners/top-academy.svg" alt=""><span>Компьютерная Академия ТОП</span></a>
+  <a href="https://topitcollege.ru/omsk" target="_blank" rel="noopener"><img src="images/partners/top-college.png" alt=""><span>ТОП IT Колледж</span></a>
   <a href="https://itclastersib.ru/" target="_blank" rel="noopener"><img src="images/partners/it-cluster.png" alt=""><span>ИТ-Кластер <small>Сибири</small></span></a>
 </div>"""
     code_box = """
