@@ -119,6 +119,37 @@ h2 { font-size: 1.45rem; }
 
 .lead { font-size: 1.15rem; max-width: 42rem; }
 
+.crumb {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.15rem 0.4rem;
+  margin: 0 0 1rem;
+  color: #3d4d66;
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.2;
+}
+.crumb a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: var(--color-blue);
+  font-weight: 700;
+  text-decoration: none;
+  border-bottom: 2px solid transparent;
+}
+.crumb a:hover { border-bottom-color: var(--color-blue); }
+.crumb .sep {
+  width: 0.45rem;
+  height: 0.45rem;
+  border-top: 2.5px solid currentColor;
+  border-right: 2.5px solid currentColor;
+  transform: rotate(45deg);
+  flex: none;
+}
+.crumb [aria-current="page"] { color: var(--color-ink); }
+
 .btn, button.btn, a.btn {
   display: inline-flex;
   align-items: center;

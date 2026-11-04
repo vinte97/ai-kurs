@@ -29,6 +29,14 @@ def esc(value):
     return html.escape(str(value), quote=True)
 
 
+def crumb(current, middle=None):
+    parts = ['<a href="index.html">Главная</a>']
+    if middle:
+        parts.append('<span class="sep" aria-hidden="true"></span><span>%s</span>' % esc(middle))
+    parts.append('<span class="sep" aria-hidden="true"></span><span aria-current="page">%s</span>' % esc(current))
+    return '<nav class="crumb" aria-label="Путь по сайту">%s</nav>' % "".join(parts)
+
+
 def normalize(phase):
     if phase in ("pre-course", "precourse", "", None):
         return "pre-course"
@@ -257,7 +265,7 @@ def day_page(course, phase, day):
   <p>Откройте меню и нажмите «Введите код».</p>
 </div>
 <div class="lesson">
-<p class="crumb"><a href="index.html">Главная</a> → День %d → Практика</p>
+%s
 <h1>День %d. %s</h1>
 <p class="lead">%s</p>
 <section id="overview"><h2>Чему научимся</h2><ul>%s</ul></section>
@@ -270,7 +278,7 @@ def day_page(course, phase, day):
 </div>
 """ % (
         day["number"],
-        day["number"],
+        crumb("Практика", "День %d" % day["number"]),
         day["number"],
         esc(day["title"]),
         esc(day["lead"]),
@@ -312,7 +320,7 @@ def home(course, phase):
 
 def prepare(phase):
     body = """
-<p class="crumb"><a href="index.html">Главная</a> → Подготовка</p>
+%s
 <div id="prep-intro">
 <h1>Подготовим ваш компьютер к занятиям</h1>
 <p class="lead">Пройдём несколько простых шагов. Мы покажем, куда нажимать и как проверить результат.</p>
@@ -322,7 +330,7 @@ def prepare(phase):
   <p>Для пошаговой подготовки включите скрипты в браузере.</p>
   <p><a href="https://workai.su/download">Страница загрузки WorkAI</a></p>
 </noscript>
-"""
+""" % crumb("Подготовка")
     return shell("Подготовка", "prepare.html", body, phase)
 
 
@@ -351,7 +359,7 @@ def extra(course, phase):
     faq = "".join("<details><summary>%s</summary><p>%s</p></details>" % (esc(item["q"]), esc(item["a"])) for item in course["faq"])
     links = "".join('<li><a href="%s">%s</a></li>' % (esc(item["href"]), esc(item["title"])) for item in course["links"])
     body = """
-<p class="crumb"><a href="index.html">Главная</a> → Дополнительно</p>
+%s
 <h1>Дополнительно</h1>
 <section id="library"><h2>Готовые запросы</h2><p>Те же тексты, что внутри открытых дней. Здесь они собраны вместе.</p>%s%s</section>
 <section id="glossary"><h2>Словарь</h2><dl>%s</dl></section>
@@ -362,7 +370,7 @@ def extra(course, phase):
 <p>Откройте файл двойным нажатием: два быстрых нажатия подряд.</p>
 <p><a class="btn" href="qr/home.svg">Код главной страницы</a> <a class="btn secondary" href="qr/prepare.svg">Код подготовки</a></p>
 </section>
-""" % (filters, library, glossary, faq, links)
+""" % (crumb("Дополнительно"), filters, library, glossary, faq, links)
     return shell("Дополнительно", "extra.html", body, phase)
 
 
