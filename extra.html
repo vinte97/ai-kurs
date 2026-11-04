@@ -117,10 +117,25 @@ try {
   <p class="hint"><strong>Подсказка.</strong> Если захотите проверить свой пример, берите выдуманный, не настоящий.</p>
 </article>
 
+<article class="prompt-card" id="prompt-d1-facts" data-topic="Документы">
+  <h3>Выделим только то, что есть в файле</h3>
+  <p>Запрос к учебным записям. Штраф и часы простоя в источник не входят.</p>
+  <pre id="text-d1-facts" class="prompt-text">По приложенному файлу перечисли только то, что прямо записано.
+Не добавляй часы простоя, штраф и новые фамилии.
+Если сведения нет, напиши «в записях нет».</pre>
+  <p><button class="btn copy-prompt" type="button" data-prompt-id="d1-facts">Скопировать запрос</button></p>
+  <p id="status-d1-facts" class="copy-status" role="status"></p>
+  <p>Перейдите в WorkAI, вставьте запрос в поле сообщения и отправьте его.</p>
+  <p><strong>Ожидаемый результат.</strong> Короткий список сведений из файла. Штраф не назван подтверждённым.</p>
+  <p><strong>Как проверить.</strong></p>
+  <ul><li>Есть остановка линии 2 в 14:10.</li><li>Причина остановки не выдана за известную.</li><li>Есть заказ PO-778 и срок 20 июня.</li><li>Штраф не назван подтверждённым фактом.</li></ul>
+  <p class="hint"><strong>Подсказка.</strong> Готовый ответ с ошибками лежит в том же файле. Его проверяет следующее задание.</p>
+</article>
+
 <article class="prompt-card" id="prompt-d1-document" data-topic="Документы">
-  <h3>Сверим ответ с файлом</h3>
-  <p>Запрос для файла с тремя записями. Штраф в источнике не подтверждён.</p>
-  <pre id="text-d1-document" class="prompt-text">Проверь готовый ответ по приложенному файлу.
+  <h3>Сверим чужой ответ с файлом</h3>
+  <p>Запись Б в файле — готовый ответ с ошибками. Записи А и В — источник.</p>
+  <pre id="text-d1-document" class="prompt-text">В приложенном файле есть готовый ответ — запись Б. Проверь его по записям А и В.
 Для каждой существенной фразы напиши: есть в записях или «в записях нет».
 Ничего не добавляй: ни часов простоя, ни штрафа, ни новых фамилий.</pre>
   <p><button class="btn copy-prompt" type="button" data-prompt-id="d1-document">Скопировать запрос</button></p>
@@ -257,7 +272,9 @@ try {
 </main>
 <script src="js/config.js"></script>
 <script src="js/prompts.js"></script>
+<script src="js/course.js"></script>
 <script src="js/steps.js"></script>
 <script src="js/portal.js"></script>
+<script src="js/lesson.js"></script>
 </body>
 </html>

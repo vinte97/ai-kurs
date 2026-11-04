@@ -59,6 +59,8 @@ try {
   <p>Откройте меню и нажмите «Введите код».</p>
 </div>
 <div class="lesson">
+<div id="lesson-app" data-day="1"></div>
+<div id="lesson-full">
 <nav class="crumb" aria-label="Путь по сайту"><a href="index.html">Главная</a><span class="sep" aria-hidden="true"></span><span>День 1</span><span class="sep" aria-hidden="true"></span><span aria-current="page">Практика</span></nav>
 <h1>День 1. Знакомство с ИИ и WorkAI</h1>
 <p class="lead">Сегодня вы научитесь отличать обычный разговор с ИИ от работы с файлом, беречь чужие данные и улучшать запрос.</p>
@@ -179,13 +181,44 @@ try {
 
   <p><button class="btn secondary task-done" type="button" data-task-id="safety">Готово</button>
   <span class="task-state" role="status"></span></p>
+  <p><a class="btn" href="#task-facts">Следующее задание</a></p>
+</article>
+
+<article class="exercise" id="task-facts">
+  <p class="note">Около 15 минут</p>
+  <h3>Задание 4. Выделите факты из файла</h3>
+  <p><strong>Что делаем.</strong> Скачаем учебный файл и попросим ИИ оставить только то, что в нём записано.</p>
+  <p><strong>Что понадобится.</strong></p>
+  <ul><li>Программа WorkAI.</li><li>Файл «Учебные записи для сравнения».</li></ul>
+  <p><strong>Материалы.</strong></p>
+  <p><a class="btn secondary" href="files/den1-zapiski.txt" download>Скачать</a> <a class="btn secondary" href="files/den1-zapiski.txt">Открыть</a></p>
+  <p><strong>Последовательность.</strong></p>
+  <ol><li>Скачайте файл.</li><li>Добавьте его к запросу в WorkAI.</li><li>Скопируйте запрос и отправьте.</li><li>Сверьте ответ со списком: штраф и часы простоя в источник не входят.</li></ol>
+  
+<article class="prompt-card" id="prompt-d1-facts" data-topic="Документы">
+  <h3>Выделим только то, что есть в файле</h3>
+  <p>Запрос к учебным записям. Штраф и часы простоя в источник не входят.</p>
+  <pre id="text-d1-facts" class="prompt-text">По приложенному файлу перечисли только то, что прямо записано.
+Не добавляй часы простоя, штраф и новые фамилии.
+Если сведения нет, напиши «в записях нет».</pre>
+  <p><button class="btn copy-prompt" type="button" data-prompt-id="d1-facts">Скопировать запрос</button></p>
+  <p id="status-d1-facts" class="copy-status" role="status"></p>
+  <p>Перейдите в WorkAI, вставьте запрос в поле сообщения и отправьте его.</p>
+  <p><strong>Ожидаемый результат.</strong> Короткий список сведений из файла. Штраф не назван подтверждённым.</p>
+  <p><strong>Как проверить.</strong></p>
+  <ul><li>Есть остановка линии 2 в 14:10.</li><li>Причина остановки не выдана за известную.</li><li>Есть заказ PO-778 и срок 20 июня.</li><li>Штраф не назван подтверждённым фактом.</li></ul>
+  <p class="hint"><strong>Подсказка.</strong> Готовый ответ с ошибками лежит в том же файле. Его проверяет следующее задание.</p>
+</article>
+
+  <p><button class="btn secondary task-done" type="button" data-task-id="facts">Готово</button>
+  <span class="task-state" role="status"></span></p>
   <p><a class="btn" href="#task-document">Следующее задание</a></p>
 </article>
 
 <article class="exercise" id="task-document">
   <p class="note">Около 20 минут</p>
-  <h3>Задание 4. Сверьте ответ с документом</h3>
-  <p><strong>Что делаем.</strong> Добавим файл и оставим только то, что в нём есть.</p>
+  <h3>Задание 5. Сверьте чужой ответ</h3>
+  <p><strong>Что делаем.</strong> В том же файле уже есть готовый ответ с ошибками. Это запись Б. Сверим её с записями А и В.</p>
   <p><strong>Что понадобится.</strong></p>
   <ul><li>Программа WorkAI.</li><li>Файл «Учебные записи для сравнения».</li></ul>
   <p><strong>Материалы.</strong></p>
@@ -194,9 +227,9 @@ try {
   <ol><li>Скачайте файл и откройте его.</li><li>Скопируйте запрос, вставьте его в WorkAI.</li><li>Добавьте скачанный файл к запросу.</li><li>Отправьте запрос и сверьте пометки со списком проверки.</li></ol>
   
 <article class="prompt-card" id="prompt-d1-document" data-topic="Документы">
-  <h3>Сверим ответ с файлом</h3>
-  <p>Запрос для файла с тремя записями. Штраф в источнике не подтверждён.</p>
-  <pre id="text-d1-document" class="prompt-text">Проверь готовый ответ по приложенному файлу.
+  <h3>Сверим чужой ответ с файлом</h3>
+  <p>Запись Б в файле — готовый ответ с ошибками. Записи А и В — источник.</p>
+  <pre id="text-d1-document" class="prompt-text">В приложенном файле есть готовый ответ — запись Б. Проверь его по записям А и В.
 Для каждой существенной фразы напиши: есть в записях или «в записях нет».
 Ничего не добавляй: ни часов простоя, ни штрафа, ни новых фамилий.</pre>
   <p><button class="btn copy-prompt" type="button" data-prompt-id="d1-document">Скопировать запрос</button></p>
@@ -213,15 +246,18 @@ try {
   <p><a class="btn" href="#check">Перейти к проверке</a></p>
 </article>
 </section>
-<section id="prompts"><h2>Промпты</h2><p>Полный текст стоит внутри задания. Здесь только ссылки на те же карточки.</p><ul><li><a href="#prompt-d1-letter">Попросим ИИ написать деловое письмо</a></li><li><a href="#prompt-d1-refine">Уточним роль, контекст и ограничения</a></li><li><a href="#prompt-d1-safety">Разделим, что можно отправлять</a></li><li><a href="#prompt-d1-document">Сверим ответ с файлом</a></li></ul></section>
-<section id="check"><h2>Проверка</h2><ul><li>Письмо короткое и вежливое.</li><li>Видно, что совещание перенесено со среды на четверг.</li><li>Время и место не выдуманы.</li><li>Во втором запросе вы сами заменили хотя бы одно условие.</li></ul><p><a class="btn secondary" href="index.html">На главную</a></p></section>
+<section id="prompts"><h2>Промпты</h2><p>Полный текст стоит внутри задания. Здесь только ссылки на те же карточки.</p><ul><li><a href="#prompt-d1-letter">Попросим ИИ написать деловое письмо</a></li><li><a href="#prompt-d1-refine">Уточним роль, контекст и ограничения</a></li><li><a href="#prompt-d1-safety">Разделим, что можно отправлять</a></li><li><a href="#prompt-d1-facts">Выделим только то, что есть в файле</a></li><li><a href="#prompt-d1-document">Сверим чужой ответ с файлом</a></li></ul></section>
+<section id="check"><h2>Проверка</h2><ul><li>Письмо короткое и вежливое.</li><li>Видно, что совещание перенесено со среды на четверг.</li><li>Время и место не выдуманы.</li><li>Во втором запросе вы сами заменили хотя бы одно условие.</li><li>В ответе по файлу штраф не назван подтверждённым.</li><li>Готовый ответ из записи Б сверен с записями А и В.</li></ul><p><a class="btn secondary" href="index.html">На главную</a></p></section>
 <section id="extra"><h2>Дополнительная практика</h2><p>Отправьте первый и второй запросы письма подряд и сравните, что изменилось после уточнения.</p></section>
+</div>
 </div>
 
 </main>
 <script src="js/config.js"></script>
 <script src="js/prompts.js"></script>
+<script src="js/course.js"></script>
 <script src="js/steps.js"></script>
 <script src="js/portal.js"></script>
+<script src="js/lesson.js"></script>
 </body>
 </html>

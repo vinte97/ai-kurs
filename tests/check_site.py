@@ -20,6 +20,10 @@ def main():
     errors = []
     text = "\n".join((ROOT / name).read_text(encoding="utf-8") for name in PUBLIC)
     text += (ROOT / "js" / "steps.js").read_text(encoding="utf-8")
+    text += (ROOT / "js" / "lesson.js").read_text(encoding="utf-8")
+    course_js = ROOT / "js" / "course.js"
+    if course_js.exists():
+        text += course_js.read_text(encoding="utf-8")
     for word in BANNED:
         if word in text:
             errors.append("public text contains " + word)
@@ -45,6 +49,9 @@ def main():
                 continue
             if not (ROOT / href).exists():
                 errors.append(name + " missing " + href)
+    check = subprocess.run(["node", "--check", str(ROOT / "js" / "lesson.js")], capture_output=True, text=True)
+    if check.returncode != 0:
+        errors.append(check.stderr)
     check = subprocess.run(["node", "--check", str(ROOT / "js" / "portal.js")], capture_output=True, text=True)
     if check.returncode != 0:
         errors.append(check.stderr)

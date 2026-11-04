@@ -140,8 +140,10 @@ try {
 </main>
 <script src="js/config.js"></script>
 <script src="js/prompts.js"></script>
+<script src="js/course.js"></script>
 <script src="js/steps.js"></script>
 <script src="js/portal.js"></script>
+<script src="js/lesson.js"></script>
 </body>
 </html>
 """ % (boot, esc(title), font, page_attr, partners, "\n  ".join(links), code_box, body)
@@ -265,6 +267,8 @@ def day_page(course, phase, day):
   <p>Откройте меню и нажмите «Введите код».</p>
 </div>
 <div class="lesson">
+<div id="lesson-app" data-day="%d"></div>
+<div id="lesson-full">
 %s
 <h1>День %d. %s</h1>
 <p class="lead">%s</p>
@@ -276,7 +280,9 @@ def day_page(course, phase, day):
 <section id="check"><h2>Проверка</h2><ul>%s</ul><p><a class="btn secondary" href="index.html">На главную</a></p></section>
 <section id="extra"><h2>Дополнительная практика</h2><p>%s</p></section>
 </div>
+</div>
 """ % (
+        day["number"],
         day["number"],
         crumb("Практика", "День %d" % day["number"]),
         day["number"],
@@ -386,10 +392,47 @@ def config_js(config, phase):
     return "window.SITE = %s;\n" % json.dumps(data, ensure_ascii=False, indent=2)
 
 
+def course_js(course, phase):
+    days = []
+    exercise_ids = []
+    for day in course["days"]:
+        if not open_day(phase, day["number"]):
+            continue
+        days.append(day)
+        exercise_ids.extend(day["exerciseIds"])
+    exercises = {key: course["exercises"][key] for key in exercise_ids}
+    prompts = [item for item in course["prompts"] if item["id"] in {item["promptId"] for item in exercises.values()}]
+    materials = {}
+    for prompt in prompts:
+        for key in prompt["requiredMaterials"]:
+            item = dict(course["materials"][key])
+            source = ROOT / "content" / item["file"]
+            item["bytes"] = source.stat().st_size if source.exists() else 0
+            materials[key] = item
+    payload = {"days": days, "exercises": exercises, "prompts": prompts, "materials": materials}
+    return "window.COURSE = %s;\n" % json.dumps(payload, ensure_ascii=False, indent=2)
+
+
 def prompts_js(course, phase):
     open_prompts = [item for item in course["prompts"] if open_day(phase, item["day"])]
     payload = {item["id"]: {"promptText": item["promptText"]} for item in open_prompts}
     return "window.COURSE_PROMPTS = %s;\n" % json.dumps(payload, ensure_ascii=False, indent=2)
+
+
+def write_task_codes(course, config):
+    try:
+        import segno
+    except ImportError:
+        return
+    base = (config.get("siteUrl") or "").rstrip("/")
+    if not base:
+        return
+    folder = ROOT / "qr"
+    folder.mkdir(exist_ok=True)
+    for day in course["days"]:
+        for key in day["exerciseIds"]:
+            url = "%s/day%d.html#task-%s" % (base, day["number"], key)
+            segno.make(url, error="m").save(str(folder / ("task-%s.svg" % key)), scale=6, border=2)
 
 
 def build(phase, out):
@@ -410,13 +453,15 @@ def build(phase, out):
     (out / "js").mkdir(exist_ok=True)
     (out / "js" / "config.js").write_text(config_js(config, phase), encoding="utf-8")
     (out / "js" / "prompts.js").write_text(prompts_js(course, phase), encoding="utf-8")
+    (out / "js" / "course.js").write_text(course_js(course, phase), encoding="utf-8")
+    write_task_codes(course, config)
     for folder in ("css", "qr", "images"):
         target = out / folder
         if target.resolve() != (ROOT / folder).resolve():
             if target.exists():
                 shutil.rmtree(target)
             shutil.copytree(ROOT / folder, target)
-    for name in ("steps.js", "portal.js"):
+    for name in ("steps.js", "portal.js", "lesson.js"):
         if out.resolve() != ROOT.resolve():
             shutil.copy(ROOT / "js" / name, out / "js" / name)
     files_out = out / "files"

@@ -314,9 +314,10 @@ section { margin-top: 1.75rem; }
   .card, .exercise, .prompt-card, .file-card, .day-card { padding: 0.9rem 1rem; }
   section { margin-top: 1.25rem; }
   .btn, button.btn, a.btn { width: 100%; margin-right: 0; }
-  .reading .btn, .wizard-tools .btn, .filters .btn, .crumb a { width: auto; }
+  .reading .btn, .wizard-tools .btn, .filters .btn, .crumb a, .lesson-switch .btn { width: auto; }
   .step-actions { flex-direction: column; align-items: stretch; }
   .step-actions .btn { width: 100%; }
+  .step-actions .btn:not(.secondary) { order: -1; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -380,6 +381,46 @@ figcaption { margin-top: 0.35rem; font-size: 0.95rem; }
 
 html[data-text="large"] { font-size: 21px; }
 html[data-text="xlarge"] { font-size: 25px; }
+html.js #lesson-full { display: none; }
+html.js.lesson-all #lesson-full { display: block; }
+.lesson-switch, .reading { display: flex; flex-wrap: wrap; gap: 0.4rem; align-items: center; }
+.lesson-switch { margin-bottom: 0.8rem; }
+.kicker { margin: 0; font-weight: 700; color: var(--color-blue); }
+.prompt-sheet, .check-box, .confirm-box, .help-box {
+  background: var(--color-white);
+  border: 2px solid var(--color-navy);
+  border-radius: 12px;
+  padding: 1rem;
+}
+.prompt-sheet pre, .file-preview { white-space: pre-wrap; margin: 0.6rem 0; }
+.field { display: block; margin: 0.7rem 0; font-weight: 700; }
+.field input {
+  display: block;
+  width: 100%;
+  min-height: 48px;
+  margin-top: 0.3rem;
+  padding: 0.4rem 0.7rem;
+  border: 2px solid var(--color-navy);
+  border-radius: 12px;
+  font: inherit;
+  font-weight: 500;
+}
+.choice-list { display: flex; flex-direction: column; gap: 0.4rem; }
+.choice-list .btn { width: 100%; max-width: 36rem; }
+.check-row { display: flex; gap: 0.7rem; align-items: flex-start; min-height: 48px; margin: 0.4rem 0; }
+.check-row input { width: 1.3rem; height: 1.3rem; margin-top: 0.2rem; }
+.manual, .file-note, .find-note { color: var(--color-muted); }
+.task-index { padding-left: 1.2rem; }
+.task-index li { margin: 0.4rem 0; }
+.step-split { display: block; }
+.help-box { margin-top: 0.8rem; }
+.reason.is-on { border-color: var(--color-blue); background: #e8f1ff; }
+@media (min-width: 1180px) {
+  .step-split.has-side { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1rem 1.25rem; align-items: start; }
+  .step-split.has-side .step-side { grid-column: 2; grid-row: 1 / span 3; }
+  .step-split.has-side .step-actions, .step-split.has-side .help-box { grid-column: 1; }
+}
+
 html[data-contrast="high"] {
   --color-ink: #0b1220;
   --color-muted: #1e293b;
