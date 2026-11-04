@@ -1,104 +1,108 @@
-const { test, expect } = require("@playwright/test");
-const fs = require("fs");
-const path = require("path");
-const { execFileSync } = require("child_process");
+const { test, expect } = require('@playwright/test');
+const fs = require('fs');
+const { execFileSync } = require('child_process');
+const course = JSON.parse(fs.readFileSync('content/course.json', 'utf8'));
 
-const course = JSON.parse(fs.readFileSync("content/course.json", "utf8"));
-const letter = course.prompts.find((item) => item.id === "d1-letter").promptText;
-
-test("home opens with the course welcome", async ({ page }) => {
-  await page.goto("/");
-  await expect(page.getByRole("heading", { level: 1 })).toContainText("Добро пожаловать");
-  await expect(page.getByRole("link", { name: "Продолжить обучение" })).toBeVisible();
+test.beforeEach(async ({ page }) => {
+  await page.addInitScript(() => localStorage.setItem('aikurs-open-day', '4'));
 });
 
-test("seven navigation items open", async ({ page }) => {
-  await page.goto("/");
-  const names = ["Главная", "Подготовка", "День 1", "День 2", "День 3", "День 4", "Дополнительно"];
-  for (const name of names) {
-    await page.goto("/");
-    await page.getByRole("navigation").getByRole("link", { name, exact: true }).click();
-    await expect(page.getByRole("navigation").getByRole("link", { name, exact: true })).toHaveAttribute("aria-current", "page");
-  }
+test('preparation keeps its stage after sidebar navigation and reload', async ({ page }) => {
+  await page.goto('/prepare.html');
+  await page.getByRole('button', { name: 'Начать подготовку', exact: true }).click();
+  await page.getByRole('button', { name: 'Windows', exact: true }).click();
+  await expect(page.locator('#wizard .official a')).toHaveText('Скачать WorkAI');
+  await expect(page.locator('#wizard .official a')).toHaveAttribute('href', 'https://workai.su/download');
+  await page.getByRole('button', { name: 'Далее', exact: true }).click();
+  await page.locator('#site-nav').getByRole('link', { name: 'Подготовка', exact: true }).click();
+  await expect(page.locator('#wizard h1')).toContainText('Регистрация');
+  await page.reload();
+  await expect(page.locator('#wizard h1')).toContainText('Регистрация');
+  await page.getByText('Компьютер: Windows', { exact: true }).click();
+  await page.getByRole('button', { name: 'Сменить компьютер', exact: true }).click();
+  await page.getByRole('button', { name: 'Mac', exact: true }).click();
+  await expect(page.locator('#wizard')).toContainText('инструкция для Mac');
 });
 
-test("day 1 shows the letter exercise", async ({ page }) => {
-  await page.goto("/day1.html");
-  await expect(page.locator("#task-letter")).toContainText("Напишем письмо");
-  await expect(page.locator("#text-d1-letter")).toHaveText(letter);
+test('task is complete on one page and next is independent of clipboard', async ({ page }) => {
+  await page.goto('/day1.html#task-letter');
+  const app = page.locator('#lesson-app');
+  await expect(app.locator('.prompt-text')).toHaveText(course.prompts.find(p => p.id === 'd1-letter').promptText);
+  await expect(app.getByRole('heading', { name: 'Проверьте результат', exact: true })).toBeVisible();
+  await expect(app.getByText('Я скопировал текст вручную')).toHaveCount(0);
+  await app.getByRole('button', { name: 'Завершить и продолжить', exact: true }).click();
+  await expect(page).toHaveURL(/#task-refine$/);
+  await page.reload();
+  await expect(app.getByRole('heading', { level: 1 })).toHaveText('Составьте собственный запрос');
+  await app.getByRole('button', { name: 'Задание 1: Подготовьте письмо коллегам', exact: true }).click();
+  await expect(page).toHaveURL(/#task-letter$/);
+  await expect(app.locator('.task-tab[aria-current="step"]')).toContainText('✓');
 });
 
-test("copy puts the full prompt on the clipboard", async ({ page, context }) => {
-  await context.grantPermissions(["clipboard-read", "clipboard-write"]);
-  await page.goto("/day1.html#task-letter");
-  await page.locator("#prompt-d1-letter").getByRole("button", { name: "Скопировать запрос" }).click();
-  await expect(page.locator("#prompt-d1-letter").getByRole("button", { name: "Скопировано!" })).toBeVisible();
-  const copied = await page.evaluate(() => navigator.clipboard.readText());
-  expect(copied).toBe(letter);
-});
-
-test("copy failure explains how to copy by hand", async ({ page }) => {
+test('copy failure leaves next available and explains manual copy', async ({ page }) => {
   await page.addInitScript(() => {
-    Object.defineProperty(navigator, "clipboard", {
-      configurable: true,
-      value: { writeText: () => Promise.reject(new Error("denied")) }
-    });
+    Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText: () => Promise.reject(new Error('denied')) } });
     document.execCommand = () => false;
   });
-  await page.goto("/day1.html");
-  await page.locator("#prompt-d1-letter").getByRole("button", { name: "Скопировать запрос" }).click();
-  await expect(page.locator("#text-d1-letter-status")).toContainText("Автокопирование не сработало");
-  await expect(page.locator("#prompt-d1-letter").getByRole("button", { name: "Скопировано!" })).toHaveCount(0);
+  await page.goto('/day1.html#task-letter');
+  const app = page.locator('#lesson-app');
+  await app.getByRole('button', { name: 'Скопировать запрос', exact: true }).click();
+  await expect(app.getByRole('status')).toContainText('скопируйте вручную');
+  await expect(app.getByRole('button', { name: 'Завершить и продолжить', exact: true })).toBeEnabled();
 });
 
-test("material links point at real files", async ({ page, request }) => {
-  await page.goto("/day1.html");
-  const hrefs = await page.locator("#materials a").evaluateAll((nodes) => nodes.map((node) => node.getAttribute("href")));
-  expect(hrefs.length).toBeGreaterThan(0);
-  for (const href of hrefs) {
-    const response = await request.get(href);
-    expect(response.status(), href).toBe(200);
-  }
-});
-
-test("phone menu opens and closes", async ({ page }) => {
-  await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto("/");
-  const menu = page.getByRole("button", { name: "Меню" });
-  await menu.click();
-  await expect(menu).toHaveAttribute("aria-expanded", "true");
-  await menu.click();
-  await expect(menu).toHaveAttribute("aria-expanded", "false");
-});
-
-test("precourse build leaves closed prompts out", () => {
-  const out = path.join("/tmp", "aikurs-precourse-pw");
-  execFileSync("python3", ["tools/build_site.py", "--phase", "precourse", "--out", out]);
-  const text = fs.readFileSync(path.join(out, "day1.html"), "utf8") + fs.readFileSync(path.join(out, "extra.html"), "utf8");
-  expect(text).not.toContain("еженедельное совещание");
-  expect(text).toContain("ещё не открыты");
-});
-
-test("exercise link survives reload", async ({ page }) => {
-  await page.goto("/day1.html#task-letter");
+test('builder edits and review marks survive reload', async ({ page }) => {
+  await page.goto('/day1.html#task-refine');
+  const app = page.locator('#lesson-app');
+  await app.getByLabel('Какой ответ нужен?', { exact: true }).fill('Три коротких абзаца');
+  await app.getByRole('checkbox').first().check();
   await page.reload();
-  await expect(page.locator("#task-letter")).toBeVisible();
-  expect(page.url()).toContain("#task-letter");
+  await expect(app.locator('.prompt-text')).toContainText('Три коротких абзаца');
+  await expect(app.getByRole('checkbox').first()).toBeChecked();
 });
 
-test("page does not grow a horizontal scrollbar when enlarged", async ({ page }) => {
-  await page.setViewportSize({ width: 1280, height: 800 });
-  await page.goto("/day1.html");
-  const overflow = await page.evaluate(() => {
-    document.body.style.zoom = "1.5";
-    return document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1;
-  });
-  expect(overflow).toBe(true);
+test('safety quiz requires answers and stores feedback', async ({ page }) => {
+  await page.goto('/day1.html#task-safety');
+  const app = page.locator('#lesson-app');
+  const next = app.getByRole('button', { name: 'Завершить и продолжить', exact: true });
+  await expect(next).toBeDisabled();
+  const choices = ['Можно использовать', 'Нельзя отправлять', 'Нельзя отправлять', 'Нужно сначала проверить'];
+  for (let i = 0; i < choices.length; i++) await app.locator('.quiz-question').nth(i).getByRole('button', { name: choices[i], exact: true }).click();
+  await expect(app.locator('.quiz-feedback')).toHaveCount(4);
+  await page.reload();
+  await expect(next).toBeEnabled();
+  await next.click();
+  await expect(page).toHaveURL(/#task-facts$/);
 });
 
-test("old section addresses still exist", async ({ request }) => {
-  for (const href of ["/", "/prepare.html", "/day1.html", "/day2.html", "/day3.html", "/day4.html", "/extra.html"]) {
-    const response = await request.get(href);
-    expect(response.status(), href).toBe(200);
-  }
+test('presentation materials are available and contain the agreed scenario', async ({ page, request }) => {
+  await page.goto('/day1.html#task-facts');
+  await expect(page.locator('#lesson-app a[download]')).toHaveAttribute('href', 'files/den1-zapiski.txt');
+  const notes = await request.get('/files/den1-zapiski.txt');
+  expect(notes.ok()).toBeTruthy();
+  expect(await notes.text()).toContain('Повестку присылают накануне');
+  await page.goto('/day1.html#task-document');
+  await expect(page.locator('#lesson-app a[download]')).toHaveAttribute('href', 'files/ofis.md');
+  expect((await request.get('/files/ofis.md')).ok()).toBeTruthy();
+});
+
+test('phone navigation and enlarged text fit the screen', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/day1.html#task-letter');
+  const menu = page.getByRole('button', { name: 'Меню', exact: true });
+  await menu.click();
+  await page.getByText('Вид и размер текста', { exact: true }).click();
+  await page.getByRole('button', { name: 'Очень крупный', exact: true }).click();
+  await page.keyboard.press('Escape');
+  await expect(menu).toHaveAttribute('aria-expanded', 'false');
+  expect(await page.evaluate(() => document.querySelector('#lesson-app').getBoundingClientRect().width <= innerWidth)).toBe(true);
+  await expect(page.locator('#lesson-app .task-navigation')).toBeVisible();
+});
+
+test('precourse build omits locked prompts and includes fonts', () => {
+  const out = '/tmp/aikurs-precourse-pw';
+  execFileSync('python3', ['tools/build_site.py', '--phase', 'precourse', '--out', out]);
+  const text = fs.readFileSync(out + '/js/course.js', 'utf8');
+  expect(text).not.toContain(course.prompts[0].promptText);
+  expect(fs.existsSync(out + '/fonts/inter-cyrillic-400-normal.woff2')).toBe(true);
 });

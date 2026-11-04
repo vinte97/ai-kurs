@@ -93,8 +93,12 @@ try {
   var n = parseInt(localStorage.getItem("aikurs-open-day") || "0", 10);
   if (!(n >= 1 && n <= 4)) n = 0;
   document.documentElement.setAttribute("data-open", String(n));
+  var theme = localStorage.getItem("aikurs-theme-v1") || "light";
+  if (theme !== "dark" && theme !== "system") theme = "light";
+  document.documentElement.setAttribute("data-theme", theme);
 } catch (e) {
   document.documentElement.setAttribute("data-open", "0");
+  document.documentElement.setAttribute("data-theme", "light");
 }
 </script>"""
     partners = """
@@ -130,6 +134,11 @@ try {
   <button class="nav-close" type="button">Закрыть</button>
   %s
   <p class="brand">ИИ для руководителей v2</p>
+  <div class="theme-switch" role="group" aria-label="Тема оформления">
+    <button type="button" data-theme-choice="light">Светлая</button>
+    <button type="button" data-theme-choice="dark">Тёмная</button>
+    <button type="button" data-theme-choice="system">Система</button>
+  </div>
   %s
   %s
 </nav>
@@ -327,7 +336,7 @@ def prepare(phase):
 %s
 <div id="prep-intro">
 <h1>Подготовим ваш компьютер к занятиям</h1>
-<p class="lead">Пройдём несколько простых шагов. Мы покажем, куда нажимать и как проверить результат.</p>
+<p class="lead">Установите WorkAI и войдите в аккаунт. Инструкция подстроится под Windows или Mac; прогресс сохранится на этом устройстве.</p>
 </div>
 <div id="wizard" aria-live="polite"></div>
 <noscript>
@@ -453,7 +462,7 @@ def build(phase, out):
     (out / "js" / "prompts.js").write_text(prompts_js(course, phase), encoding="utf-8")
     (out / "js" / "course.js").write_text(course_js(course, phase), encoding="utf-8")
     write_task_codes(course, config)
-    for folder in ("css", "qr", "images"):
+    for folder in ("css", "qr", "images", "fonts"):
         target = out / folder
         if target.resolve() != (ROOT / folder).resolve():
             if target.exists():

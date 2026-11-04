@@ -4,20 +4,12 @@
   document.documentElement.classList.add("js");
 
   var KEY = "aikurs-lesson-v1";
-  var readKey = "aikurs-reading-v1";
   var dayNumber = Number(app.getAttribute("data-day"));
   var day = null;
   window.COURSE.days.forEach(function (item) {
     if (item.number === dayNumber) day = item;
   });
   if (!day) return;
-
-  var reading = { size: "normal", contrast: "normal" };
-  try {
-    var storedRead = JSON.parse(localStorage.getItem(readKey) || "{}");
-    if (storedRead.size === "large" || storedRead.size === "xlarge") reading.size = storedRead.size;
-    if (storedRead.contrast === "high") reading.contrast = "high";
-  } catch (e) {}
 
   var state = load();
   var bucket = dayState();
@@ -56,12 +48,6 @@
 
   function save() {
     try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {}
-  }
-
-  function applyReading() {
-    document.documentElement.setAttribute("data-text", reading.size);
-    document.documentElement.setAttribute("data-contrast", reading.contrast);
-    try { localStorage.setItem(readKey, JSON.stringify(reading)); } catch (e) {}
   }
 
   function el(tag, className, text) {
@@ -140,10 +126,10 @@
   var BUILDERS = {
     refine: [
       ["role", "Кем должен быть ИИ?", "Помощник руководителя"],
-      ["context", "Что произошло?", "Совещание перенесли со среды на четверг"],
+      ["context", "Что произошло?", "Вместо свободного обсуждения сначала отчёт по поручениям, затем не больше трёх вопросов"],
       ["format", "Какой ответ нужен?", "Короткое деловое письмо"],
       ["limits", "Что нельзя делать?", "Не придумывать время, место и фамилии"],
-      ["check", "Как проверить ответ?", "В письме указаны изменения и нет выдуманных сведений"]
+      ["check", "Как проверить ответ?", "Описан новый порядок, есть просьба подтвердить понимание, новых правил нет"]
     ],
     helper: [
       ["role", "Как назвать роль?", "Помощник к совещанию"],
@@ -226,108 +212,6 @@
     return window.COURSE.materials[prompt.requiredMaterials[0]] || null;
   }
 
-  function helpPack(kind) {
-    var os = osName();
-    var paste = os === "mac"
-      ? "На Mac нажмите Command и V. Либо два пальца на трекпаде и пункт «Вставить»."
-      : os === "windows"
-        ? "На Windows нажмите Ctrl и V. Либо правую кнопку мыши и пункт «Вставить»."
-        : "На Windows: Ctrl и V. На Mac: Command и V. Можно и через пункт «Вставить» в меню правой кнопки.";
-    var packs = {
-      open: ["Не открывается WorkAI?", ["Сайт не запускает программу: её открывают на компьютере.", "Если программа ещё не установлена, откройте раздел «Подготовка» и вернитесь сюда. Этот шаг сохранится.", "Если компьютер организации запрещает установку, не отключайте защиту. Покажите экран преподавателю."], ["Не могу открыть WorkAI"]],
-      copy: ["Не получается скопировать запрос?", ["Нажмите «Скопировать запрос» один раз.", "Если появилось сообщение об ошибке, выделите текст запроса мышью и скопируйте его сами.", "После этого вернитесь в WorkAI."], ["Не копируется запрос"]],
-      safety: ["Непонятно, какой ответ выбрать?", ["Это учебные примеры. Свои документы вводить не нужно.", "Дату общего совещания обычно можно использовать.", "Паспорт и чужой телефон отправлять нельзя.", "Сумму договора сначала уточните: можно ли её показывать."], ["Не понимаю карточку"]],
-      paste: ["Не получается вставить запрос?", ["Сначала нажмите на поле сообщения в WorkAI.", paste, "Если кнопка копирования не сработала, скопируйте выделенный текст вручную."], ["Не вставляется текст"]],
-      send: ["Не получается отправить?", ["Кнопка отправки стоит рядом с полем сообщения.", "Нажмите её один раз и подождите, пока ответ допишется до конца.", "Если ответа нет, проверьте, что сообщение не осталось только в поле."], ["Не уходит запрос"]],
-      file: ["Не получается найти файл?", ["Браузер обычно кладёт файл в папку «Загрузки». На Mac она может называться Downloads.", "Откройте эту папку и найдите имя файла с этой страницы.", "Если файла нет, нажмите «Скачать файл» ещё раз."], ["Не нахожу файл"]],
-      attach: ["Не получается добавить файл?", ["В WorkAI файл добавляют к сообщению отдельно: обычный текст вложения не видит.", "Выберите файл из папки «Загрузки».", "Дальше можно идти только когда вы сами видите, что файл прикреплён. Сайт этого не проверяет."], ["Не добавляется файл"]],
-      lab: ["Лаборатория не отвечает?", ["Адрес и ключ на этой странице не написаны. В запрос их не вставляют.", "Подключение делает преподаватель в программе.", "Если служба отказала, запишите текст отказа. Это не успешное выполнение и обходить отказ не нужно."], ["Лаборатория отказала"]],
-      check: ["Непонятно, что проверять?", ["Сверьте ответ по пунктам на экране.", "Отметьте только то, что видите сами.", "Отметка здесь — ваша, сайт ответ ИИ не читает."], ["Не понимаю ответ"]]
-    };
-    return packs[kind] || packs.check;
-  }
-
-  function step(kind, title, text, primary) {
-    return { kind: kind, title: title, text: text, primary: primary || "Дальше" };
-  }
-
-  function flow(id) {
-    var item = exercise(id);
-    var prompt = promptOf(id);
-    var file = material(id);
-    var open = step("open", "Откройте WorkAI", "Откройте программу WorkAI на компьютере.", "Получилось, дальше");
-    var copy = step("copy", "Скопируйте запрос", "Нажмите синюю кнопку. В запрос попадёт только текст ниже, без заголовка.", "Скопировать запрос");
-    var paste = step("paste", "Вставьте запрос", "Вернитесь в WorkAI и вставьте скопированный текст в поле сообщения.", "Я вставил запрос");
-    var send = step("send", "Отправьте запрос", "Нажмите кнопку отправки рядом с полем сообщения. Подождите, пока ИИ допишет ответ.", "Я отправил запрос");
-    var check = step("check", "Проверьте ответ", "Отметьте пункты, которые видите в ответе. Сайт ответ не читает: это ваша отметка.", "Я проверил результат");
-    var doneText = {
-      letter: "Вы составили первый запрос и проверили ответ ИИ.",
-      refine: "Вы собрали запрос из частей и можете сравнить его с первым письмом.",
-      safety: "Вы разобрали учебные примеры. Ответ ИИ эту проверку не заменяет.",
-      facts: "Вы попросили ИИ опереться на файл и сверили факты.",
-      document: "Вы сверили чужой ответ с записями в файле.",
-      deals: "Вы разделили закрытые сделки и подтверждённые оплаты.",
-      "lab-ping": "Вы отправили проверку связи. Ошибка, если она была, не считается успехом.",
-      "lab-mail": "Вы запросили список писем и ничего не отправляли.",
-      "lab-read": "Вы запросили одно письмо. Если пришёл отказ, это и есть результат.",
-      "lab-note": "Вы запросили заметку. Если служба отказала, текст отказа нужно сохранить.",
-      helper: "Вы описали роль и границы помощника.",
-      "helper-test": "Отказ выполнить платёж — правильный результат этого задания."
-    };
-    var done = step("done", "Задание выполнено", doneText[id] || "Это задание отмечено.", "Следующее задание");
-    if (id === "letter") return [open, copy, paste, send, check, done];
-    if (id === "refine") return [step("builder", "Соберите запрос", "Поправьте поля своими словами. Скопируется текст, который получился ниже.", "Скопировать мой запрос"), paste, send, check, done];
-    if (id === "safety") {
-      var cards = [step("safety-intro", "Можно ли отправить это ИИ?", "Сейчас отвечаете вы, на сайте. Ответ модели мы не спрашиваем.", "К первой карточке")];
-      SAFETY.forEach(function (card, index) {
-        cards.push({ kind: "safety", title: "Карточка " + (index + 1) + " из " + SAFETY.length, text: card[0], index: index, primary: "Дальше" });
-      });
-      cards.push(step("mask", "Как спрятать лишние сведения", "Ниже вымышленный пример. Свои настоящие данные вводить не нужно.", "Дальше"));
-      cards.push(step("safety-score", "Что совпало с правилом курса", "Здесь сверка с заранее записанными ответами, не с ИИ.", "Дальше"));
-      cards.push(step("copy", "Можно сверить с WorkAI", "Это дополнительный шаг. Ответ программы не заменяет карточки выше.", "Скопировать запрос"));
-      cards.push(done);
-      return cards;
-    }
-    if (id === "facts" || id === "document" || id === "deals" || id === "helper") {
-      var load = step("download", "Скачайте учебный файл", file ? file.why : "Файл нужен для этого задания.", "Файл скачан, дальше");
-      var attach = step("attach", "Добавьте файл в WorkAI", "Выберите скачанный файл и убедитесь, что он виден у сообщения. Сайт программу не видит и прикрепление не проверяет.", "Файл добавлен, дальше");
-      if (id === "helper") return [load, step("builder", "Опишите помощника", "Название роли можно заменить своими словами. Скопируется текст ниже.", "Скопировать мой запрос"), attach, paste, send, check, done];
-      if (id === "document") load.text = "Если файл уже скачан в прошлом задании, второй раз можно не скачивать. Готовый ответ с ошибками — это запись Б в том же файле.";
-      return [load, attach, copy, paste, send, check, done];
-    }
-    if (id === "lab-ping") {
-      return [
-        open,
-        step("lab", "Подключение делает преподаватель", "Откройте в программе настройки инструментов. Адрес сервера и ключ преподаватель даёт отдельно: на этой странице их нет, и в запрос их не вставляют.", "Подключение проверили"),
-        copy,
-        paste,
-        send,
-        step("check", "Посмотрите результат", "Если пришла ошибка, запишите её. Ошибка не означает, что связь проверена успешно.", "Я посмотрел результат"),
-        done
-      ];
-    }
-    if (id === "lab-mail") return [step("lab", "Нужен список, не отправка", "Ожидаемое действие программы: mail_list. Это учебная почта лаборатории, не почта вашей организации.", "Дальше"), copy, paste, send, check, done];
-    if (id === "lab-read" || id === "lab-note") {
-      var label = id === "lab-read" ? "Впишите письмо" : "Впишите заметку";
-      var hint = id === "lab-read"
-        ? "Номер или название даёт преподаватель. Пока поле пустое, запрос не копируется."
-        : "Название даёт преподаватель. Имя действия, которым заметку создают, на этом сайте не указано.";
-      return [step("field", label, hint, "Дальше"), step("copy", "Скопируйте запрос", "В текст уже подставлено то, что вы вписали.", "Скопировать запрос"), paste, send, check, done];
-    }
-    if (id === "helper-test") return [step("lab", "Сейчас ждём отказ", "Попросите помощника отправить платёж. Правильный результат — отказ. Платёжное поручение составлять не нужно.", "Дальше"), copy, paste, send, check, done];
-    var generic = [copy, paste, send, check, done];
-    if (file) generic.unshift(step("download", "Скачайте учебный файл", file.why, "Файл скачан, дальше"));
-    return generic;
-  }
-
-  function copyIndex(id) {
-    var steps = flow(id);
-    for (var i = 0; i < steps.length; i += 1) {
-      if (steps[i].kind === "copy" || steps[i].kind === "builder") return i;
-    }
-    return 0;
-  }
-
   function setHash(hash) {
     var next = hash || (location.pathname + location.search);
     var now = location.pathname + location.search + location.hash;
@@ -359,7 +243,7 @@
         return;
       }
       bucket.at = found;
-      bucket.step = copyIndex(found);
+      bucket.step = 0;
       if (initial || state.mode !== "all") {
         state.mode = "steps";
         bucket.place = "step";
@@ -373,7 +257,8 @@
       }
       return;
     }
-    if (sections.indexOf(hash) >= 0) state.mode = "all";
+    if (hash === "#overview" || hash === "#tasks") { bucket.place = "home"; state.mode = "steps"; }
+    else if (sections.indexOf(hash) >= 0) state.mode = "all";
     else if (initial) bucket.place = bucket.place || "home";
   }
 
@@ -405,106 +290,12 @@
     render();
   }
 
-  function advance() {
-    var steps = flow(bucket.at);
-    if (bucket.step < steps.length - 1) {
-      bucket.step += 1;
-      bucket.confirm = false;
-      bucket.helpOpen = false;
-      save();
-      render();
-      return;
-    }
-    bucket.done[bucket.at] = true;
-    markTask(bucket.at);
-    var index = day.exerciseIds.indexOf(bucket.at);
-    if (index + 1 < day.exerciseIds.length) openExercise(day.exerciseIds[index + 1], 0);
-    else openSummary();
-  }
-
-  function back() {
-    if (bucket.confirm) {
-      bucket.confirm = false;
-      save();
-      render();
-      return;
-    }
-    if (bucket.place === "summary") {
-      openHome();
-      return;
-    }
-    if (bucket.step > 0) {
-      bucket.step -= 1;
-      bucket.helpOpen = false;
-      save();
-      render();
-      return;
-    }
-    openHome();
-  }
-
   function resumeAt() {
     if (bucket.at && !bucket.done[bucket.at]) return day.exerciseIds.indexOf(bucket.at);
     for (var i = 0; i < day.exerciseIds.length; i += 1) {
       if (!bucket.done[day.exerciseIds[i]]) return i;
     }
     return -1;
-  }
-
-  function helpKind(kind) {
-    if (kind === "download") return "file";
-    if (kind === "attach") return "attach";
-    if (kind === "builder" || kind === "field") return "copy";
-    if (kind === "safety" || kind === "mask" || kind === "safety-score" || kind === "safety-intro") return "safety";
-    if (kind === "lab") return "lab";
-    if (kind === "open" || kind === "copy" || kind === "paste" || kind === "send" || kind === "check") return kind;
-    return "check";
-  }
-
-  function problemText(current, reason) {
-    return "Портал курса. День " + day.number + ", задание «" + plainTitle(exercise(bucket.at).title) + "», шаг " + (bucket.step + 1) + ". " + current.title + ".\nНе получается: " + reason + ".\nПароль, ключ и личные данные сюда не вписывал.";
-  }
-
-  function readingBar() {
-    var bar = el("div", "reading");
-    bar.appendChild(el("p", "", "Размер текста"));
-    [["normal", "Обычный"], ["large", "Крупный"], ["xlarge", "Очень крупный"]].forEach(function (pair) {
-      var node = button(reading.size === pair[0] ? "btn" : "btn secondary", pair[1], function () {
-        reading.size = pair[0];
-        applyReading();
-        render();
-      });
-      node.setAttribute("aria-pressed", reading.size === pair[0] ? "true" : "false");
-      bar.appendChild(node);
-    });
-    var contrast = button("btn secondary", reading.contrast === "high" ? "Обычная контрастность" : "Повышенная контрастность", function () {
-      reading.contrast = reading.contrast === "high" ? "normal" : "high";
-      applyReading();
-      render();
-    });
-    contrast.setAttribute("aria-pressed", reading.contrast === "high" ? "true" : "false");
-    bar.appendChild(contrast);
-    return bar;
-  }
-
-  function switcher() {
-    var bar = el("div", "lesson-switch");
-    var steps = button(state.mode !== "all" ? "btn" : "btn secondary", "Выполнять по шагам", function () {
-      state.mode = "steps";
-      if (!bucket.place) bucket.place = "home";
-      save();
-      render();
-    });
-    var all = button(state.mode === "all" ? "btn" : "btn secondary", "Посмотреть все задания", function () {
-      state.mode = "all";
-      save();
-      render();
-    });
-    steps.setAttribute("aria-pressed", state.mode !== "all" ? "true" : "false");
-    all.setAttribute("aria-pressed", state.mode === "all" ? "true" : "false");
-    bar.appendChild(steps);
-    bar.appendChild(all);
-    return bar;
   }
 
   function promptSheet(text, title, purpose, expected) {
@@ -542,7 +333,6 @@
     var box = el("div", "file-card");
     box.appendChild(el("h3", "", file.title));
     box.appendChild(el("p", "", file.why));
-    box.appendChild(el("p", "file-meta", file.type + " · " + file.bytes + " байт"));
     var actions = el("div", "file-actions");
     var download = el("a", "btn", "Скачать файл");
     download.href = file.file;
@@ -560,7 +350,7 @@
         pre.hidden = true;
         return;
       }
-      fetch(file.file).then(function (response) { return response.text(); }).then(function (text) {
+      fetch(file.file).then(function (response) { if (!response.ok) throw new Error("File unavailable"); return response.text(); }).then(function (text) {
         if (!pre) return;
         pre.textContent = text;
         pre.hidden = false;
@@ -576,13 +366,8 @@
     var note = el("p", "file-note", "Файл обычно находится в папке «Загрузки». На Mac эта папка может называться Downloads.");
     note.hidden = !bucket.downloaded[file.file];
     box.appendChild(note);
-    var how = button("btn secondary", "Как найти скачанный файл?", function () {
-      var extra = box.querySelector(".find-note");
-      if (extra) extra.hidden = !extra.hidden;
-    });
-    actions.appendChild(how);
-    var find = el("div", "find-note");
-    find.hidden = true;
+    var find = el("details", "find-note");
+    find.appendChild(el("summary", "", "Где найти скачанный файл"));
     var os = osName();
     find.appendChild(el("p", "", os === "mac"
       ? "Откройте Finder и папку Downloads. Имя файла указано выше."
@@ -635,118 +420,10 @@
     return box;
   }
 
-  function helpBlock(current) {
-    var pack = helpPack(helpKind(current.kind));
-    var box = el("div", "help-box");
-    box.hidden = !bucket.helpOpen;
-    box.setAttribute("role", "region");
-    box.setAttribute("aria-label", "Помощь по этому шагу");
-    var helpTitle = el("h3", "", pack[0]);
-    helpTitle.tabIndex = -1;
-    box.appendChild(helpTitle);
-    pack[1].forEach(function (line) { box.appendChild(el("p", "", line)); });
-    if (current.kind === "open") {
-      var link = el("a", "btn secondary", "Открыть подготовку");
-      link.href = "prepare.html";
-      box.appendChild(link);
-      box.appendChild(el("p", "", "Когда программа откроется, вернитесь к этому заданию. Шаг сохранится."));
-    }
-    var reason = pack[2][0];
-    pack[2].forEach(function (name) {
-      var choice = button("btn secondary", name, function () {
-        reason = name;
-        box.querySelectorAll(".reason").forEach(function (node) { node.classList.remove("is-on"); });
-        choice.classList.add("is-on");
-      });
-      choice.classList.add("reason");
-      box.appendChild(choice);
-    });
-    var status = el("p", "copy-status");
-    status.setAttribute("role", "status");
-    box.appendChild(button("btn secondary", "Скопировать описание проблемы", function () {
-      writeText(problemText(current, reason), function () {
-        status.textContent = "Описание скопировано. Его можно показать преподавателю.";
-      }, function () {
-        status.textContent = "Не удалось скопировать. Прочитайте текст преподавателю с экрана.";
-      });
-    }));
-    box.appendChild(status);
-    return box;
-  }
-
-  function actions(current) {
-    var row = el("div", "step-actions");
-    row.appendChild(button("btn secondary", "Назад", back));
-    row.appendChild(button("btn secondary", "Не получается?", function () {
-      bucket.helpOpen = !bucket.helpOpen;
-      save();
-      render();
-    }));
-    if (bucket.place === "step") {
-      row.appendChild(button("btn secondary quiet", "Начать заново", function () {
-        bucket.confirm = true;
-        save();
-        render();
-      }));
-    }
-    return row;
-  }
-
-  function confirmBox() {
-    var box = el("div", "confirm-box");
-    box.appendChild(el("p", "", "Сбросить только это задание? Отметки других заданий останутся."));
-    box.appendChild(button("btn", "Нет, оставить как есть", function () {
-      bucket.confirm = false;
-      save();
-      render();
-    }));
-    box.appendChild(button("btn secondary", "Да, начать заново", function () {
-      var id = bucket.at;
-      bucket.done[id] = false;
-      bucket.step = 0;
-      bucket.confirm = false;
-      bucket.copied[id] = false;
-      Object.keys(bucket.marks).forEach(function (key) {
-        if (key.indexOf(id + ":") === 0) delete bucket.marks[key];
-      });
-      delete bucket.fields[id];
-      save();
-      render();
-    }));
-    return box;
-  }
-
   function primary(text, action, disabled) {
     var node = button("btn", text, action);
     if (disabled) node.disabled = true;
     return node;
-  }
-
-  function sideFor(id, current) {
-    var prompt = promptOf(id);
-    if (current.kind === "copy" && prompt) return promptSheet(id === "lab-read" || id === "lab-note" ? assembled(id) : prompt.promptText, prompt.title, prompt.description, prompt.expectedResult);
-    if (current.kind === "builder") return promptSheet(assembled(id), "Ваш запрос", "Меняется вместе с полями.", prompt ? prompt.expectedResult : "");
-    if (current.kind === "check" && prompt) return checklist(prompt.acceptanceCriteria, id + ":" + bucket.step);
-    if (current.kind === "download") {
-      var file = material(id);
-      return file ? fileBlock(file) : null;
-    }
-    if (current.kind === "field") return fieldsBlock(id);
-    if (current.kind === "builder") return null;
-    return null;
-  }
-
-  function safetyScore() {
-    var box = el("div", "check-box");
-    var hit = 0;
-    SAFETY.forEach(function (card, index) {
-      var picked = bucket.safety[index];
-      var ok = picked === card[1];
-      if (ok) hit += 1;
-      box.appendChild(el("p", "", card[0] + " Ваш выбор: " + (ANSWER[picked] || "нет") + ". Утверждённый ответ: " + ANSWER[card[1]] + "."));
-    });
-    box.appendChild(el("p", "manual", "Совпало с утверждёнными ответами: " + hit + " из " + SAFETY.length + ". Это проверка на сайте, не ответ ИИ."));
-    return box;
   }
 
   function renderHome() {
@@ -754,17 +431,7 @@
     var heading = el("h1", "", "День " + day.number + ". " + day.title);
     screen.appendChild(heading);
     screen.appendChild(el("p", "lead", day.lead));
-    var minutes = 0;
-    day.exerciseIds.forEach(function (id) { minutes += Number(exercise(id).minutes) || 0; });
     var doneCount = day.exerciseIds.filter(function (id) { return bucket.done[id]; }).length;
-    var facts = el("div", "facts");
-    [["упражнений", String(day.exerciseIds.length)], ["минут", String(minutes)], ["отмечено", doneCount + " из " + day.exerciseIds.length]].forEach(function (pair) {
-      var fact = el("p");
-      fact.appendChild(el("strong", "", pair[1]));
-      fact.appendChild(el("span", "", pair[0]));
-      facts.appendChild(fact);
-    });
-    screen.appendChild(facts);
     var grid = el("div", "home-grid");
     var needCol = el("section");
     needCol.appendChild(el("h2", "", "Что понадобится"));
@@ -793,7 +460,7 @@
     grid.appendChild(outCol);
     screen.appendChild(grid);
     var index = resumeAt();
-    var row = el("div", "step-actions home-actions");
+    var row = el("div", "player-bar");
     if (index >= 0 && (doneCount > 0 || bucket.at)) {
       row.appendChild(button("btn", "Продолжить с задания " + (index + 1), function () {
         var id = day.exerciseIds[index];
@@ -806,19 +473,19 @@
       row.appendChild(button("btn", "Проверим, что получилось", openSummary));
       row.appendChild(button("btn secondary", "Посмотреть задания с начала", function () { openExercise(day.exerciseIds[0], 0); }));
     }
-    screen.appendChild(row);
     var tasks = el("ol", "task-index");
     day.exerciseIds.forEach(function (id) {
       var item = el("li");
       var link = el("a");
       link.href = "#task-" + id;
       link.appendChild(el("span", "task-name", plainTitle(exercise(id).title)));
-      link.appendChild(el("span", "task-time", bucket.done[id] ? "Отмечено" : exercise(id).minutes + " мин"));
+      link.appendChild(el("span", "task-time", bucket.done[id] ? "Выполнено" : "Открыть"));
       item.appendChild(link);
       tasks.appendChild(item);
     });
     screen.appendChild(tasks);
     app.appendChild(screen);
+    app.appendChild(row);
   }
 
   function renderSummary() {
@@ -853,7 +520,7 @@
       SAFETY.forEach(function (card, index) { if (bucket.safety[index] === card[1]) hit += 1; });
       screen.appendChild(el("p", "", "Карточки безопасности: совпало " + hit + " из " + SAFETY.length + " с утверждённым ответом."));
     }
-    var row = el("div", "step-actions");
+    var row = el("div", "player-bar");
     if (!bucket.finished) {
       row.appendChild(button("btn", day.number === 1 ? "Завершить первый день" : "Завершить этот день", function () {
         bucket.finished = true;
@@ -861,9 +528,8 @@
         render();
       }));
     }
-    row.appendChild(button("btn secondary", "Назад", back));
+    row.appendChild(button("btn secondary", "К обзору дня", openHome));
     row.appendChild(button("btn secondary", "Повторить с первого задания", function () { openExercise(day.exerciseIds[0], 0); }));
-    screen.appendChild(row);
     if (bucket.finished) {
       var result = el("div", "resume");
       result.appendChild(el("h2", "", "День отмечен вами"));
@@ -890,183 +556,128 @@
     });
     screen.appendChild(share);
     app.appendChild(screen);
+    app.appendChild(row);
   }
 
   function renderStep() {
-    var id = bucket.at;
-    var steps = flow(id);
-    if (!exercise(id) || bucket.step >= steps.length) {
-      openHome();
-      return;
-    }
-    var current = steps[bucket.step];
-    var index = day.exerciseIds.indexOf(id);
-    var screen = el("div", "lesson-screen");
-    var head = el("div", "lesson-head");
-    head.appendChild(el("p", "kicker", "День " + day.number + " · Задание " + (index + 1) + " из " + day.exerciseIds.length + " · около " + exercise(id).minutes + " минут"));
-    var heading = el("h1", "", plainTitle(exercise(id).title));
+    var screen = el("article", "lesson-screen");
+    var heading = el("h1", "", "Какие сведения можно передавать ИИ");
     heading.id = "step-heading";
     heading.tabIndex = -1;
-    head.appendChild(heading);
-    head.appendChild(el("p", "goal", exercise(id).goal));
-    var progress = el("div", "progress-line");
-    progress.appendChild(el("p", "note", "Действие " + (bucket.step + 1) + " из " + steps.length));
-    var meter = el("div", "stage-meter");
-    meter.setAttribute("aria-hidden", "true");
-    steps.forEach(function (_, stepIndex) {
-      meter.appendChild(el("span", stepIndex < bucket.step ? "is-done" : stepIndex === bucket.step ? "is-now" : ""));
+    screen.appendChild(heading);
+    screen.appendChild(el("p", "lead", "Для каждой ситуации выберите решение. Используются только вымышленные примеры."));
+    SAFETY.forEach(function (card, index) {
+      var group = el("section", "quiz-question");
+      var title = el("h2", "", (index + 1) + ". " + card[0]);
+      title.id = "question-" + index;
+      title.tabIndex = -1;
+      group.appendChild(title);
+      var choices = el("div", "choice-list");
+      choices.setAttribute("role", "group");
+      choices.setAttribute("aria-labelledby", title.id);
+      Object.keys(ANSWER).forEach(function (value) {
+        var choice = button(bucket.safety[index] === value ? "btn" : "btn secondary", ANSWER[value], function () {
+          bucket.safety[index] = value;
+          pendingFocus = "#question-" + index;
+          save();
+          render();
+        });
+        choice.setAttribute("aria-pressed", bucket.safety[index] === value ? "true" : "false");
+        choices.appendChild(choice);
+      });
+      group.appendChild(choices);
+      if (bucket.safety[index]) {
+        var feedback = el("p", "quiz-feedback", (bucket.safety[index] === card[1] ? "Верно. " : "Правильный ответ: " + ANSWER[card[1]] + ". ") + card[2]);
+        feedback.setAttribute("role", "status");
+        group.appendChild(feedback);
+      }
+      screen.appendChild(group);
     });
-    progress.appendChild(meter);
-    head.appendChild(progress);
-    screen.appendChild(head);
-    var split = el("div", "step-split");
-    var main = el("div", "step-copy");
-    var title = el("h2", "", current.title);
-    main.appendChild(title);
-    main.appendChild(el("p", "action", current.text));
-    if (current.kind === "paste") {
-      var os = osName();
-      main.appendChild(el("p", "", os === "mac" ? "На Mac: Command и V." : os === "windows" ? "На Windows: Ctrl и V." : "Windows: Ctrl и V. Mac: Command и V."));
-      var more = button("btn secondary", "Показать, как вставить текст", function () {
-        var node = main.querySelector(".paste-more");
-        if (node) node.hidden = !node.hidden;
-      });
-      main.appendChild(more);
-      var extra = el("div", "paste-more");
-      extra.hidden = true;
-      extra.appendChild(el("p", "", "Нажмите на поле сообщения. Затем вставьте текст: Windows — правая кнопка и «Вставить», Mac — два пальца и «Вставить»."));
-      main.appendChild(extra);
-    }
-    if (current.kind === "send") main.appendChild(el("p", "", "Кнопка отправки стоит рядом с полем. Сайт отправить сообщение за вас не может."));
-    if (current.kind === "attach") main.appendChild(el("p", "manual", "Кнопка ниже — ваше подтверждение, не проверка сайтом."));
-    if (current.kind === "lab" && id === "lab-ping") main.appendChild(el("p", "", "Ожидаемое действие программы: lab_ping."));
-    if (id === "lab-mail" && current.kind === "lab") main.appendChild(el("p", "", "Если вместо списка открылся черновик письма, остановитесь."));
-    if (id === "lab-read" && current.kind === "check") main.appendChild(el("p", "", "Ожидаемое действие: mail_read. Отказ прочитать письмо не заменяйте повторными запросами."));
-    if (id === "lab-note" && current.kind === "check") main.appendChild(el("p", "", "Ожидаемое действие: notes_get. Если пришёл отказ, не отмечайте заметку как найденную."));
-    split.appendChild(main);
-    var side = null;
-    if (current.kind === "builder") side = fieldsBlock(id);
-    else side = sideFor(id, current);
-    if (current.kind === "safety") {
-      side = el("div", "choice-list");
-      [["allow", "Можно использовать"], ["ask", "Нужно сначала проверить"], ["deny", "Нельзя отправлять"]].forEach(function (pair) {
-        var picked = bucket.safety[current.index];
-        var node = button(picked === pair[0] ? "btn" : "btn secondary", pair[1], function () {
-          bucket.safety[current.index] = pair[0];
-          save();
-          render();
-        });
-        side.appendChild(node);
-      });
-      if (bucket.safety[current.index]) {
-        side.appendChild(el("p", "resume", "Утверждённый ответ: " + ANSWER[SAFETY[current.index][1]] + ". " + SAFETY[current.index][2]));
-      }
-    }
-    if (current.kind === "mask") {
-      side = el("div", "prompt-sheet");
-      side.appendChild(el("p", "", "Вымышленный пример."));
-      side.appendChild(el("p", "", "Было: Иван Петров, паспорт 1234 567890."));
-      side.appendChild(el("p", "", "Стало: [СОТРУДНИК], [НОМЕР ДОКУМЕНТА]."));
-    }
-    if (current.kind === "safety-score") side = safetyScore();
-    if (current.kind === "builder") {
-      main.appendChild(promptSheet(assembled(id), "Ваш запрос", "Меняется вместе с полями.", promptOf(id).expectedResult));
-      var wrap = el("div", "step-side");
-      wrap.appendChild(side);
-      split.classList.add("has-side");
-      split.appendChild(wrap);
-      side = null;
-    }
-    if (side) {
-      var wrapSide = el("div", "step-side");
-      wrapSide.appendChild(side);
-      split.classList.add("has-side");
-      split.appendChild(wrapSide);
-    }
-    var row = el("div", "step-actions");
-    if (bucket.confirm) {
-      row.appendChild(confirmBox());
-    } else {
-      row.appendChild(button("btn secondary", "Назад", back));
-      row.appendChild(button("btn secondary", "Не получается?", function () {
-        bucket.helpOpen = !bucket.helpOpen;
-        pendingFocus = ".help-box h3";
-        save();
-        render();
-      }));
-      if (current.kind !== "done") {
-        row.appendChild(button("btn secondary quiet", "Начать заново", function () {
-          bucket.confirm = true;
-          save();
-          render();
-        }));
-      }
-      if (current.kind === "copy" || current.kind === "builder") {
-        var copyButton = primary(bucket.copied[id] ? "Скопировано!" : current.primary, function () {
-          var text = current.kind === "builder" || id === "lab-read" || id === "lab-note" ? assembled(id) : promptOf(id).promptText;
-          if ((id === "lab-read" || id === "lab-note") && !((bucket.fields[id] || {}).name || "").trim()) {
-            var early = row.querySelector(".copy-status");
-            if (early) early.textContent = "Сначала впишите то, что дал преподаватель. Пустые скобки копировать не нужно.";
-            return;
-          }
-          writeText(text, function () {
-            bucket.copied[id] = true;
-            save();
-            pendingFocus = "[data-go]";
-            render();
-          }, function () {
-            var live = document.querySelector(".step-actions .copy-status");
-            if (live) live.textContent = "Не удалось скопировать. Выделите текст запроса и скопируйте его вручную.";
-          });
-        });
-        row.appendChild(copyButton);
-        var live = el("p", "copy-status");
-        live.setAttribute("role", "status");
-        if (bucket.copied[id]) live.textContent = "Запрос скопирован. Теперь вернитесь в WorkAI.";
-        row.appendChild(live);
-        if (id === "safety") row.appendChild(button("btn secondary", "Дальше без запроса", advance));
-        if (bucket.copied[id]) {
-          var go = primary("Продолжить", advance);
-          go.setAttribute("data-go", "1");
-          row.appendChild(go);
-        } else {
-          row.appendChild(button("btn secondary", "Я скопировал текст вручную", function () {
-            bucket.copied[id] = true;
-            save();
-            advance();
-          }));
-        }
-      } else if (current.kind === "safety") {
-        var picked = Boolean(bucket.safety[current.index]);
-        if (!picked) row.appendChild(el("p", "manual", "Сначала выберите один ответ. Тогда включится кнопка «Дальше»."));
-        var nextCard = primary("Дальше", advance, !picked);
-        row.appendChild(nextCard);
-      } else if (current.kind === "done") {
-        var last = day.exerciseIds.indexOf(id) === day.exerciseIds.length - 1;
-        row.appendChild(primary(last ? "Перейти к проверке" : "Следующее задание", function () {
-          bucket.done[id] = true;
-          markTask(id);
-          var next = day.exerciseIds.indexOf(id) + 1;
-          if (next < day.exerciseIds.length) openExercise(day.exerciseIds[next], 0);
-          else openSummary();
-        }));
-      } else {
-        row.appendChild(primary(current.primary, advance));
-      }
-    }
-    split.appendChild(row);
-    if (bucket.helpOpen && !bucket.confirm) split.appendChild(helpBlock(current));
-    screen.appendChild(split);
     app.appendChild(screen);
+    var row = el("div", "player-bar");
+    row.appendChild(button("btn secondary", "Предыдущее задание", function () { openExercise("refine", 0); }));
+    var answered = SAFETY.every(function (_, index) { return Boolean(bucket.safety[index]); });
+    row.appendChild(primary("Завершить и продолжить", function () {
+      bucket.done.safety = true;
+      markTask("safety");
+      save();
+      openExercise("facts", 0);
+    }, !answered));
+    app.appendChild(row);
+  }
+
+  function taskNavigation() {
+    var bar = el("nav", "task-navigation");
+    bar.setAttribute("aria-label", "Навигация по заданиям");
+    var home = button("task-tab", "Обзор дня", openHome);
+    if (bucket.place === "home") home.setAttribute("aria-current", "page");
+    bar.appendChild(home);
+    day.exerciseIds.forEach(function (id, index) {
+      var tab = button("task-tab", String(index + 1) + (bucket.done[id] ? " ✓" : ""), function () { openExercise(id, 0); });
+      tab.setAttribute("aria-label", "Задание " + (index + 1) + ": " + plainTitle(exercise(id).title));
+      tab.title = plainTitle(exercise(id).title);
+      if (bucket.place === "step" && bucket.at === id) tab.setAttribute("aria-current", "step");
+      bar.appendChild(tab);
+    });
+    bar.appendChild(button("task-tab", "Итоги", openSummary));
+    return bar;
+  }
+
+  function renderExercise() {
+    var id = bucket.at;
+    var item = exercise(id);
+    var prompt = promptOf(id);
+    var index = day.exerciseIds.indexOf(id);
+    var screen = el("article", "lesson-screen exercise-page");
+    screen.appendChild(el("p", "kicker", "День " + day.number + " / Практика " + (index + 1)));
+    var heading = el("h1", "", plainTitle(item.title));
+    heading.id = "step-heading";
+    heading.tabIndex = -1;
+    screen.appendChild(heading);
+    screen.appendChild(el("p", "lead", item.goal));
+    var file = material(id);
+    if (file) screen.appendChild(fileBlock(file));
+    screen.appendChild(el("h2", "", "Задание"));
+    var instructions = el("ol", "exercise-instructions");
+    (item.steps || []).forEach(function (text) { instructions.appendChild(el("li", "", text)); });
+    screen.appendChild(instructions);
+    if (BUILDERS[id] || id === "lab-read" || id === "lab-note") screen.appendChild(fieldsBlock(id));
+    var text = function () { return BUILDERS[id] || id === "lab-read" || id === "lab-note" ? assembled(id) : prompt.promptText; };
+    screen.appendChild(promptSheet(text(), "Запрос для WorkAI", prompt.description, ""));
+    var status = el("p", "copy-status");
+    status.setAttribute("role", "status");
+    screen.appendChild(button("btn secondary", "Скопировать запрос", function () {
+      if ((id === "lab-read" || id === "lab-note") && !((bucket.fields[id] || {}).name || "").trim()) {
+        status.textContent = "Укажите номер или название, которое дал преподаватель.";
+        return;
+      }
+      writeText(text(), function () { status.textContent = "Запрос скопирован."; }, function () { status.textContent = "Выделите запрос и скопируйте вручную: Ctrl+C или ⌘C."; });
+    }));
+    screen.appendChild(status);
+    screen.appendChild(el("h2", "", "Проверьте результат"));
+    screen.appendChild(el("p", "", prompt.expectedResult));
+    screen.appendChild(checklist(prompt.acceptanceCriteria, id + ":result", "Сверьте ответ с критериями. Отметки сохраняются на этом устройстве."));
+    var help = el("details", "exercise-help");
+    help.appendChild(el("summary", "", "Подсказка"));
+    (prompt.hints || []).forEach(function (hint) { help.appendChild(el("p", "", hint)); });
+    screen.appendChild(help);
+    app.appendChild(screen);
+    var row = el("div", "player-bar");
+    row.appendChild(button("btn secondary", index ? "Предыдущее задание" : "К обзору дня", function () { if (index) openExercise(day.exerciseIds[index - 1], 0); else openHome(); }));
+    row.appendChild(button("btn", index + 1 < day.exerciseIds.length ? "Завершить и продолжить" : "Завершить и перейти к итогам", function () {
+      bucket.done[id] = true;
+      markTask(id);
+      save();
+      if (index + 1 < day.exerciseIds.length) openExercise(day.exerciseIds[index + 1], 0);
+      else openSummary();
+    }));
+    app.appendChild(row);
   }
 
   function render() {
     document.documentElement.classList.toggle("lesson-all", state.mode === "all");
     app.innerHTML = "";
-    var tools = el("div", "lesson-tools");
-    tools.appendChild(switcher());
-    tools.appendChild(readingBar());
-    app.appendChild(tools);
+    app.appendChild(taskNavigation());
     if (state.mode === "all") {
       window.requestAnimationFrame(function () {
         var node = location.hash ? document.getElementById(location.hash.slice(1)) : null;
@@ -1075,7 +686,10 @@
       return;
     }
     if (bucket.place === "summary" || location.hash === "#check") renderSummary();
-    else if (bucket.place === "step" && bucket.at) renderStep();
+    else if (bucket.place === "step" && bucket.at) {
+      if (bucket.at === "safety") renderStep();
+      else renderExercise();
+    }
     else renderHome();
     var focusKey = state.mode + ":" + bucket.place + ":" + bucket.at + ":" + bucket.step;
     if (pendingFocus) {
@@ -1084,6 +698,9 @@
       if (target) target.focus();
     } else if (focusKey !== lastFocus) {
       lastFocus = focusKey;
+      var heading = app.querySelector("h1");
+      if (heading) { heading.tabIndex = -1; heading.focus({ preventScroll: true }); }
+      app.scrollIntoView({ block: "start" });
     }
   }
 

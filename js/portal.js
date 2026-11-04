@@ -23,7 +23,12 @@
   });
   if (nav) {
     nav.addEventListener("click", function (event) {
-      if (event.target.closest("a")) setMenu(false);
+      var link = event.target.closest("a");
+      if (link && link.getAttribute("aria-current") === "page" && root) {
+        event.preventDefault();
+        focusHeading();
+      }
+      if (link) setMenu(false);
     });
   }
   var readKey = "aikurs-reading-v1";
@@ -39,6 +44,13 @@
     try { localStorage.setItem(readKey, JSON.stringify(reading)); } catch (e) {}
   }
   applyReading();
+  if (nav) {
+    var preferences = el("details", "nav-preferences");
+    preferences.appendChild(el("summary", "", "Вид и размер текста"));
+    preferences.appendChild(readingBar());
+    nav.appendChild(preferences);
+  }
+  initTheme();
   initPrompts();
   initTasks();
   initFilters();
@@ -98,7 +110,7 @@
   var STAGE_TITLES = {
     check: "Проверяем компьютер",
     workai: "Устанавливаем WorkAI",
-    enter: "Входим в WorkAI",
+    enter: "Регистрация в WorkAI",
     extra: "Дополнительные программы",
     files: "Скачиваем учебные файлы",
     ready: "Завершаем подготовку"
@@ -143,11 +155,16 @@
 
   function actionLink(step) {
     if (!step.action) return null;
-    var link = el("a", "btn secondary", step.action.label);
+    var line = el("p", "official");
+    var link = document.createElement("a");
     link.href = step.action.href;
     link.target = "_blank";
     link.rel = "noopener";
-    return link;
+    link.textContent = step.action.label;
+    link.className = "btn download-action";
+    line.appendChild(link);
+
+    return line;
   }
 
   function systemName() {
@@ -219,11 +236,13 @@
     var meta = stageMeta(step);
     var heading = el(compact ? "h2" : "h1", "", meta.plain ? step.title : "Этап " + meta.n + " из " + meta.total + ". " + meta.title);
     card.appendChild(heading);
-    if (!meta.plain) card.appendChild(el("p", "progress", step.title + ". Действие " + meta.action + " из " + meta.actions + " в этом этапе."));
+    if (!meta.plain && meta.actions > 1) card.appendChild(el("p", "progress", step.title));
     if (step.why) card.appendChild(el("p", "", step.why));
     var layout = el("div", step.image ? "step-layout has-shot" : "step-layout");
     var copy = el("div");
     copy.appendChild(el("p", "action", step.do));
+    var link = actionLink(step);
+    if (link) copy.appendChild(link);
     copy.appendChild(el("p", "", step.where));
     layout.appendChild(copy);
     if (step.image) {
@@ -243,76 +262,64 @@
       layout.appendChild(figure);
     }
     card.appendChild(layout);
-    card.appendChild(el("p", "expect", "Что должно произойти. " + step.see));
-    card.appendChild(el("p", "", "Как понять, что получилось. " + step.check));
-    var link = actionLink(step);
-    if (link) card.appendChild(link);
-    if (step.choice && !compact) {
-      step.choice.forEach(function (item) {
-        var button = el("button", "btn", item.label);
-        button.type = "button";
-        button.addEventListener("click", function () {
-          state.chip = item.id;
-          markDone(step);
-        });
-        card.appendChild(button);
-      });
-    }
-    if (!compact) {
-      var actions = el("div", "step-actions");
-      var yes = el("button", "btn", "Получилось, дальше");
-      yes.type = "button";
-      if (!step.choice) {
-        yes.addEventListener("click", function () { markDone(step); });
-        actions.appendChild(yes);
-      }
-      var no = el("button", "btn secondary", "Не получается?");
-      no.type = "button";
-      var opened = false;
-      no.addEventListener("click", function () {
-        if (opened) return;
-        opened = true;
-        card.appendChild(helpBox(step));
-        no.setAttribute("aria-expanded", "true");
-      });
-      no.setAttribute("aria-expanded", "false");
-      actions.appendChild(no);
-      var back = el("button", "btn secondary", "Назад");
-      back.type = "button";
-      back.addEventListener("click", function () {
-        var list = steps();
-        var place = indexOf(step.id);
-        if (place <= 0) {
-          state.os = "";
-          save();
-          draw();
-          return;
-        }
-        delete state.done[list[place - 1].id];
-        save();
-        draw();
-      });
-      actions.appendChild(back);
-      if (step.skip) {
-        var skip = el("button", "btn secondary", "Пропустить этот блок");
-        skip.type = "button";
-        skip.addEventListener("click", function () {
-          steps().forEach(function (item) {
-            if (item.group === step.group) state.done[item.id] = "skipped";
-          });
-          save();
-          draw();
-        });
-        actions.appendChild(skip);
-      }
-      card.appendChild(actions);
-    } else {
+    card.appendChild(el("p", "expect", "Результат: " + step.check));
+
+    if (compact) {
       var details = document.createElement("details");
       details.appendChild(el("summary", "", "Если не получилось"));
       details.appendChild(helpBox(step));
       card.appendChild(details);
     }
     return card;
+  }
+
+  function playerBar(step) {
+    var bar = el("div", "player-bar");
+    bar.setAttribute("role", "toolbar");
+    bar.setAttribute("aria-label", "Управление шагом");
+    var back = el("button", "btn secondary", "Назад");
+    back.type = "button";
+    back.addEventListener("click", function () {
+      var list = steps();
+      var place = indexOf(step.id);
+      if (place <= 0) {
+        state.os = "";
+        save();
+        draw();
+        return;
+      }
+      delete state.done[list[place - 1].id];
+      save();
+      draw();
+    });
+    var no = el("button", "btn secondary", "Не получается?");
+    no.type = "button";
+    no.setAttribute("aria-expanded", "false");
+    no.addEventListener("click", function () {
+      var card = root.querySelector("article");
+      if (!card || card.querySelector(".help")) return;
+      card.appendChild(helpBox(step));
+      no.setAttribute("aria-expanded", "true");
+    });
+    bar.appendChild(back);
+    bar.appendChild(no);
+    if (step.skip) {
+      var skip = el("button", "btn secondary", "Пропустить этот блок");
+      skip.type = "button";
+      skip.addEventListener("click", function () {
+        steps().forEach(function (item) {
+          if (item.group === step.group) state.done[item.id] = "skipped";
+        });
+        save();
+        draw();
+      });
+      bar.appendChild(skip);
+    }
+    var yes = el("button", "btn", "Далее");
+    yes.type = "button";
+    yes.addEventListener("click", function () { markDone(step); });
+    bar.appendChild(yes);
+    return bar;
   }
 
   function setIntro(show) {
@@ -352,7 +359,7 @@
       button.addEventListener("click", function () {
         reading.size = pair[0];
         applyReading();
-        draw();
+        if (root) draw();
       });
       bar.appendChild(button);
     });
@@ -362,20 +369,15 @@
     contrast.addEventListener("click", function () {
       reading.contrast = reading.contrast === "high" ? "normal" : "high";
       applyReading();
-      draw();
+      if (root) draw();
     });
     bar.appendChild(contrast);
     return bar;
   }
 
-  function modeSwitch() {
-    var bar = el("div", "wizard-tools");
-    var detailed = el("button", state.mode === "detailed" ? "btn" : "btn secondary", "Подробно");
-    var brief = el("button", state.mode === "brief" ? "btn" : "btn secondary", "Кратко");
-    detailed.type = "button";
-    brief.type = "button";
-    detailed.addEventListener("click", function () { state.mode = "detailed"; save(); draw(); });
-    brief.addEventListener("click", function () { state.mode = "brief"; save(); draw(); });
+  function playerSettings() {
+    var wrap = el("details", "player-settings");
+    wrap.appendChild(el("summary", "", "Компьютер: " + systemName()));
     var change = el("button", "btn secondary", "Сменить компьютер");
     change.type = "button";
     change.addEventListener("click", function () {
@@ -385,20 +387,13 @@
       save();
       draw();
     });
-    var again = el("button", "btn secondary", "Начать сначала");
-    again.type = "button";
-    again.addEventListener("click", restart);
-    bar.appendChild(detailed);
-    bar.appendChild(brief);
-    bar.appendChild(change);
-    bar.appendChild(again);
-    bar.appendChild(readingBar());
-    return bar;
+    wrap.appendChild(change);
+    return wrap;
   }
 
   function welcomeScreen() {
     setIntro(true);
-    root.appendChild(el("p", "", "Впереди шесть этапов. Для занятий нужна программа WorkAI. Git и Python — дополнительные: их ставят, только если попросил преподаватель."));
+    root.appendChild(el("p", "", "Для занятий нужна программа WorkAI. Сначала её установка и регистрация. Git и Python — дополнительные: их ставят, только если попросил преподаватель."));
     root.appendChild(el("p", "", "Инструкцию можно читать с телефона, а кнопки нажимать на компьютере. Страницу можно закрыть и вернуться позже: отметки останутся на этом устройстве."));
     root.appendChild(el("p", "", "Если что-то не выйдет, на шаге есть кнопка «Не получается?». Можно также написать преподавателю."));
     var start = el("button", "btn", "Начать подготовку");
@@ -419,16 +414,16 @@
     });
     root.appendChild(start);
     root.appendChild(jump);
-    root.appendChild(readingBar());
+
   }
 
   function osScreen() {
     setIntro(false);
     root.appendChild(el("h1", "", "На каком компьютере вы будете заниматься?"));
     root.appendChild(el("p", "lead", "Дальше останется инструкция только для вашей системы."));
-    var windows = el("button", "btn os-choice", "Windows — например, Lenovo, ASUS, HP или Acer");
-    var mac = el("button", "btn os-choice", "Mac — компьютер Apple");
-    var unknown = el("button", "btn secondary os-choice", "Не знаю — помогите определить");
+    var windows = el("button", "btn os-choice", "Windows");
+    var mac = el("button", "btn os-choice", "Mac");
+    var unknown = el("button", "btn secondary os-choice", "Помогите определить");
     [windows, mac, unknown].forEach(function (button) { button.type = "button"; });
     windows.addEventListener("click", function () { chooseOs("windows"); });
     mac.addEventListener("click", function () { chooseOs("mac"); });
@@ -538,9 +533,9 @@
     setIntro(false);
     var list = steps();
     var step = current();
-    root.appendChild(modeSwitch());
+    root.appendChild(playerSettings());
     if (resumeOnOpen && step) {
-      root.appendChild(el("p", "resume", "Вы остановились на этапе «" + stageMeta(step).title + "». Можно продолжить или нажать «Начать сначала»."));
+      root.appendChild(el("p", "resume", "Вы остановились на этапе «" + stageMeta(step).title + "». Продолжайте с сохранённого места."));
       resumeOnOpen = false;
     }
     if (!step) {
@@ -548,17 +543,9 @@
       focusHeading();
       return;
     }
-    if (state.mode === "brief") {
-      drawBrief(list);
-      focusHeading();
-      return;
-    }
     var position = indexOf(step.id) + 1;
-    var previous = list[position - 2];
-    if (previous && previous.praise && state.done[previous.id] === true) {
-      root.appendChild(el("p", "ok", previous.praise));
-    }
     root.appendChild(renderStep(step, position, list.length, false));
+    root.appendChild(playerBar(step));
     var meter = el("p", "stage-meter");
     var meta = stageMeta(step);
     for (var mark = 1; mark <= meta.total; mark += 1) {
@@ -619,6 +606,24 @@
         return;
       }
       apply(found);
+    });
+  }
+
+  function initTheme() {
+    var key = "aikurs-theme-v1";
+    var current = document.documentElement.getAttribute("data-theme") || "light";
+    function paint(value) {
+      document.documentElement.setAttribute("data-theme", value);
+      try { localStorage.setItem(key, value); } catch (e) {}
+      document.querySelectorAll("[data-theme-choice]").forEach(function (button) {
+        button.setAttribute("aria-pressed", button.getAttribute("data-theme-choice") === value ? "true" : "false");
+      });
+    }
+    paint(current);
+    document.querySelectorAll("[data-theme-choice]").forEach(function (button) {
+      button.addEventListener("click", function () {
+        paint(button.getAttribute("data-theme-choice"));
+      });
     });
   }
 
