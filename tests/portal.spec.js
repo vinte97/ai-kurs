@@ -36,8 +36,8 @@ test('task is complete on one page and next is independent of clipboard', async 
   await app.getByRole('button', { name: 'Завершить и продолжить', exact: true }).click();
   await expect(page).toHaveURL(/#task-refine$/);
   await page.reload();
-  await expect(app.getByRole('heading', { level: 1 })).toHaveText('Составьте собственный запрос');
-  await app.getByRole('button', { name: 'Задание 1: Подготовьте письмо коллегам', exact: true }).click();
+  await expect(app.getByRole('heading', { level: 1 })).toHaveText('Практика 1. Новый порядок совещания');
+  await app.getByRole('button', { name: 'Задание 2: Пример. Соберём запрос вместе', exact: true }).click();
   await expect(page).toHaveURL(/#task-letter$/);
   await expect(app.locator('.task-tab[aria-current="step"]')).toContainText('✓');
 });
@@ -54,13 +54,16 @@ test('copy failure leaves next available and explains manual copy', async ({ pag
   await expect(app.getByRole('button', { name: 'Завершить и продолжить', exact: true })).toBeEnabled();
 });
 
-test('builder edits and review marks survive reload', async ({ page }) => {
+test('independent practice keeps the draft and hides the example until requested', async ({ page }) => {
   await page.goto('/day1.html#task-refine');
   const app = page.locator('#lesson-app');
-  await app.getByLabel('Какой ответ нужен?', { exact: true }).fill('Три коротких абзаца');
+  await expect(app.locator('.prompt-text')).toBeHidden();
+  await app.getByLabel('Ваш запрос по РКФОП', { exact: true }).fill('Мой запрос: три коротких абзаца');
   await app.getByRole('checkbox').first().check();
   await page.reload();
-  await expect(app.locator('.prompt-text')).toContainText('Три коротких абзаца');
+  await expect(app.getByLabel('Ваш запрос по РКФОП', { exact: true })).toHaveValue('Мой запрос: три коротких абзаца');
+  await app.getByText('Показать готовый пример запроса', { exact: true }).click();
+  await expect(app.locator('.prompt-text')).toBeVisible();
   await expect(app.getByRole('checkbox').first()).toBeChecked();
 });
 
@@ -73,30 +76,29 @@ test('safety quiz starts neutral, marks mistakes, and requires all correct answe
   const next = app.getByRole('button', { name: 'Завершить и продолжить', exact: true });
   await expect(next).toBeDisabled();
   await expect(app.locator('.choice-list [aria-pressed="true"]')).toHaveCount(0);
-  await app.locator('.quiz-question').first().getByRole('button', { name: 'Нельзя отправлять', exact: true }).click();
-  await expect(app.locator('.quiz-incorrect')).toHaveText('Нельзя отправлять');
+  await app.locator('.quiz-question').first().getByRole('button', { name: 'Передавать нельзя', exact: true }).click();
+  await expect(app.locator('.quiz-incorrect')).toHaveText('Передавать нельзя');
   await expect(app.locator('.quiz-feedback')).toContainText('Неверно');
   await expect(next).toBeDisabled();
-  const choices = ['Можно использовать' , 'Нельзя отправлять', 'Нельзя отправлять', 'Нужно сначала проверить'];
+  const day = course.days[0];
+  const choices = day.safetyCases.map(card => day.safetyAnswers[card[1]]);
   for (let i = 0; i < choices.length; i++) await app.locator('.quiz-question').nth(i).getByRole('button', { name: choices[i], exact: true }).click();
-  await expect(app.locator('.quiz-feedback')).toHaveCount(4);
-  await expect(app.locator('.quiz-correct')).toHaveCount(4);
+  await expect(app.locator('.quiz-feedback')).toHaveCount(6);
+  await expect(app.locator('.quiz-correct')).toHaveCount(6);
   await expect(app.locator('.quiz-incorrect')).toHaveCount(0);
   await page.reload();
   await expect(next).toBeEnabled();
   await next.click();
-  await expect(page).toHaveURL(/#task-facts$/);
+  await expect(page).toHaveURL(/#task-letter$/);
 });
 
-test('presentation materials are available and contain the agreed scenario', async ({ page, request }) => {
+test('day 1 handouts are available and old company links lead to the own-file practice', async ({ page, request }) => {
   await page.goto('/day1.html#task-facts');
-  await expect(page.locator('#lesson-app a[download]')).toHaveAttribute('href', 'files/den1-zapiski.txt');
-  const notes = await request.get('/files/den1-zapiski.txt');
-  expect(notes.ok()).toBeTruthy();
-  expect(await notes.text()).toContain('Повестку присылают накануне');
-  await page.goto('/day1.html#task-document');
-  await expect(page.locator('#lesson-app a[download]')).toHaveAttribute('href', 'files/ofis.md');
-  expect((await request.get('/files/ofis.md')).ok()).toBeTruthy();
+  await expect(page).toHaveURL(/#task-workday$/);
+  await expect(page.locator('#lesson-app')).toContainText('Мой рабочий день.txt');
+  for (const key of course.days[0].materials) expect((await request.get('/' + course.materials[key].file)).ok()).toBeTruthy();
+  await page.goto('/day1.html#materials');
+  await expect(page.locator('#lesson-app')).not.toContainText('СеверПром');
 });
 
 test('phone navigation and enlarged text fit the screen', async ({ page }) => {
@@ -166,4 +168,14 @@ test('Severprom button copies agent instructions without downloading in the brow
   expect(prompt).toContain('Сначала спроси меня');
   expect(prompt).toContain('ничего не перезаписывай');
   expect(prompt).toContain('git --version');
+});
+
+test('all presentation topics are available without the deck', async ({ page }) => {
+  await page.goto('/day1.html#guide');
+  await expect(page.locator('#lesson-app .reference-section')).toHaveCount(course.days[0].sections.length);
+  await expect(page.locator('#lesson-app')).toContainText('РКФОП');
+  await page.locator('#lesson-app .reference-contents').getByRole('link', { name: 'Практика 4: план с ограничениями и улучшением', exact: true }).click();
+  await expect(page).toHaveURL(/#learn-trip$/);
+  await page.reload();
+  await expect(page.locator('#lesson-app #learn-trip')).toContainText('80 000');
 });

@@ -688,7 +688,7 @@
 
   function initPrompts() {
     document.querySelectorAll(".copy-prompt").forEach(function (button) {
-      var original = "Скопировать запрос";
+      var original = button.textContent;
       button.addEventListener("click", function () {
         var id = button.getAttribute("data-prompt-id");
         var record = window.COURSE_PROMPTS && window.COURSE_PROMPTS[id];

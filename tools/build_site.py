@@ -83,7 +83,7 @@ def shell(title, current, body, phase):
             links.append('<p class="nav-soon" data-day-soon="%d">%s<span>%s</span><small>Позже</small></p>' % (day_number, mark, esc(label)))
             if shown and current == href:
                 links.append('<div class="subnav" data-day="%d">%s</div>' % (day_number, "".join(
-                    '<a href="%s#%s">%s</a>' % (current, item, esc(name)) for item, name in SUB
+                    '<a href="%s#%s">%s</a>' % (current, item, esc(name)) for item, name in (([("guide", "Материал дня")] + SUB) if current == "day1.html" else SUB)
                 )))
             continue
         target = "prepare.html#start" if href == "prepare.html" else href
@@ -168,7 +168,7 @@ def prompt_card(course, prompt):
   <pre id="%s" class="prompt-text">%s</pre>
   <p><button class="btn copy-prompt" type="button" data-prompt-id="%s">Скопировать запрос</button></p>
   <p id="status-%s" class="copy-status" role="status"></p>
-  <p>Перейдите в WorkAI, вставьте запрос в поле сообщения и отправьте его.</p>
+  <p>%s</p>
   <p><strong>Ожидаемый результат.</strong> %s</p>
   <p><strong>Как проверить.</strong></p>
   <ul>%s</ul>
@@ -183,6 +183,7 @@ def prompt_card(course, prompt):
         esc(prompt["promptText"]),
         esc(prompt["id"]),
         esc(prompt["id"]),
+        ("Скопируйте структуру в свой текстовый файл и заполните самостоятельно." if prompt.get("manual") else "Перейдите в WorkAI, вставьте запрос в поле сообщения и отправьте его."),
         esc(prompt["expectedResult"]),
         checks,
         hint,
@@ -199,9 +200,15 @@ def exercise_block(course, exercise_id, next_step):
         item = course["materials"][key]
         files.append('<a class="btn secondary" href="%s" download>Скачать</a> <a class="btn secondary" href="%s">Открыть</a>' % (esc(item["file"]), esc(item["file"])))
     file_html = "<p>%s</p>" % " ".join(files) if files else "<p>Отдельный файл для этого задания не нужен.</p>"
+    prompt_html = prompt_card(course, prompt)
+    if exercise.get("exampleHidden"):
+        prompt_html = '<details><summary>Показать готовый пример запроса</summary>%s</details>' % prompt_html
+    for pid in exercise.get("extraPromptIds", []):
+        prompt_html += prompt_card(course, next(item for item in course["prompts"] if item["id"] == pid))
+    timing = '<p class="note">Около %d минут</p>' % exercise["minutes"] if exercise["minutes"] else ""
     return """
 <article class="exercise" id="task-%s">
-  <p class="note">Около %d минут</p>
+%s
   <h3>%s</h3>
   <p><strong>Что делаем.</strong> %s</p>
   <p><strong>Что понадобится.</strong></p>
@@ -217,17 +224,36 @@ def exercise_block(course, exercise_id, next_step):
 </article>
 """ % (
         esc(exercise_id),
-        int(exercise["minutes"]),
+        timing,
         esc(exercise["title"]),
         esc(exercise["goal"]),
         needs,
         file_html,
         steps,
-        prompt_card(course, prompt),
+        prompt_html.strip(),
         esc(exercise_id),
         esc(next_step[0]),
         esc(next_step[1]),
     )
+
+
+def reference_sections(day):
+    blocks = []
+    for section in day.get("sections", []):
+        body = "".join("<p>%s</p>" % esc(text) for text in section["paragraphs"])
+        if section["points"]:
+            body += "<ul>%s</ul>" % "".join("<li>%s</li>" % esc(text) for text in section["points"])
+        if section.get("table"):
+            table = section["table"]
+            body += '<div class="reference-table"><table><thead><tr>%s</tr></thead><tbody>%s</tbody></table></div>' % (
+                "".join('<th scope="col">%s</th>' % esc(text) for text in table["headers"]),
+                "".join("<tr>%s</tr>" % "".join("<td>%s</td>" % esc(text) for text in row) for row in table["rows"]))
+        for example in section["examples"]:
+            body += "<h3>%s</h3><pre class=\"prompt-text\">%s</pre>" % (esc(example["title"]), esc(example["text"]))
+        body += "".join('<p><a href="%s">%s</a></p>' % (esc(item["url"]), esc(item["label"])) for item in section["links"])
+        body += "".join('<p><a href="#task-%s">К практике</a></p>' % esc(key) for key in section["tasks"])
+        blocks.append('<section id="learn-%s"><h2>%s</h2>%s</section>' % (esc(section["id"]), esc(section["title"]), body))
+    return "".join(blocks)
 
 
 def day_page(course, phase, day):
@@ -240,7 +266,7 @@ def day_page(course, phase, day):
 """ % (day["number"], esc(day["title"]))
         return shell("День %d" % day["number"], "day%d.html" % day["number"], body, phase)
     outcomes = "".join("<li>%s</li>" % esc(item) for item in day["outcomes"])
-    theory = "".join("<p>%s</p>" % esc(item) for item in day["theory"])
+    theory = "".join("<p>%s</p>" % esc(item) for item in day["theory"]) + ('<div id="guide">' + reference_sections(day) + "</div>" if day.get("sections") else "")
     files = []
     for key in day["materials"]:
         item = course["materials"][key]
@@ -409,10 +435,13 @@ def course_js(course, phase):
         days.append(day)
         exercise_ids.extend(day["exerciseIds"])
     exercises = {key: course["exercises"][key] for key in exercise_ids}
-    prompts = [item for item in course["prompts"] if item["id"] in {item["promptId"] for item in exercises.values()}]
+    prompt_ids = {item["promptId"] for item in exercises.values()}
+    for item in exercises.values():
+        prompt_ids.update(item.get("extraPromptIds", []))
+    prompts = [item for item in course["prompts"] if item["id"] in prompt_ids]
     materials = {}
-    for prompt in prompts:
-        for key in prompt["requiredMaterials"]:
+    for day in days:
+        for key in day["materials"]:
             item = dict(course["materials"][key])
             source = ROOT / "content" / item["file"]
             item["bytes"] = source.stat().st_size if source.exists() else 0

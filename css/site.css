@@ -718,3 +718,12 @@ main { padding-bottom: 3rem; }
 #wizard .preparation-navigation { display: flex; flex-wrap: wrap; gap: 0.45rem; padding: 0.7rem 0; margin-bottom: 1.2rem; border-bottom: 1px solid var(--color-line); }
 #wizard .materials-prompt { margin: 1.2rem 0; }
 #wizard .materials-prompt pre { white-space: pre-wrap; overflow-wrap: anywhere; font-size: 0.9rem; }
+#lesson-app .reference-contents { display: grid; gap: 0.5rem; margin: 1.2rem 0 2rem; }
+#lesson-app .reference-section { border-top: 1px solid var(--color-line); padding-top: 1.3rem; margin-top: 2rem; scroll-margin-top: 1rem; }
+.reference-table { max-width: 100%; overflow-x: auto; margin: 1rem 0; }
+.reference-table table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+.reference-table th, .reference-table td { text-align: left; vertical-align: top; padding: 0.7rem; border-bottom: 1px solid var(--color-line); }
+#lesson-app .reference-link { display: block; margin: 0.65rem 0; }
+#lesson-app .field textarea { width: 100%; min-height: 44px; padding: 0.7rem; border: 1px solid var(--color-line); border-radius: 8px; background: var(--color-surface); color: var(--color-ink); font: inherit; }
+#lesson-app .field textarea:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+#lesson-app .task-name { overflow-wrap: anywhere; }

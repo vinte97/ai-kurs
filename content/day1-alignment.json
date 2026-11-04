@@ -1,0 +1,163 @@
+{
+  "date": "2026-11-04",
+  "source": "presentation-review/source",
+  "slides": [
+    {
+      "id": "cover",
+      "title": "ИИ для руководителей",
+      "url": "day1.html#learn-start"
+    },
+    {
+      "id": "cluster",
+      "title": "Составители курса",
+      "url": "day1.html#learn-start"
+    },
+    {
+      "id": "teacher",
+      "title": "Преподаватель",
+      "url": "day1.html#learn-start"
+    },
+    {
+      "id": "route",
+      "title": "Четыре дня – четыре результата",
+      "url": "day1.html#learn-start"
+    },
+    {
+      "id": "worth",
+      "title": "Сколько времени уходит на:",
+      "url": "day1.html#learn-start"
+    },
+    {
+      "id": "pick",
+      "title": "Рейтинг использования ИИ-сервисов в офисной среде",
+      "url": "day1.html#learn-tools"
+    },
+    {
+      "id": "devices",
+      "title": "Два маршрута работы с ИИ",
+      "url": "day1.html#learn-tools"
+    },
+    {
+      "id": "law",
+      "title": "Персональные данные — это ответственность",
+      "url": "day1.html#learn-law"
+    },
+    {
+      "id": "flow",
+      "title": "Куда уходят данные из ChatGPT?",
+      "url": "day1.html#learn-data"
+    },
+    {
+      "id": "mask",
+      "title": "Как работает маскирование",
+      "url": "day1.html#learn-mask"
+    },
+    {
+      "id": "sort",
+      "title": "Опрос: что можно доверить ИИ",
+      "url": "day1.html#learn-mask"
+    },
+    {
+      "id": "kit",
+      "title": "Наши инструменты",
+      "url": "day1.html#learn-workspace"
+    },
+    {
+      "id": "setup",
+      "title": "Подготовим рабочее место",
+      "url": "day1.html#learn-workspace"
+    },
+    {
+      "id": "launch",
+      "title": "Первый запуск",
+      "url": "day1.html#learn-workspace"
+    },
+    {
+      "id": "break",
+      "title": "Перерыв",
+      "url": "day1.html#learn-workspace"
+    },
+    {
+      "id": "catalog",
+      "title": "Модели WorkAI: цена и задача",
+      "url": "day1.html#learn-models"
+    },
+    {
+      "id": "gap",
+      "title": "Почему ИИ не понимает нас с первого раза?",
+      "url": "day1.html#learn-rkfop"
+    },
+    {
+      "id": "analogy",
+      "title": "Хорошее поручение",
+      "url": "day1.html#learn-rkfop"
+    },
+    {
+      "id": "elements",
+      "title": "Метод РКФОП",
+      "url": "day1.html#learn-rkfop"
+    },
+    {
+      "id": "builder",
+      "title": "Соберём запрос вместе",
+      "url": "day1.html#learn-rkfop"
+    },
+    {
+      "id": "task",
+      "title": "Практика 1",
+      "url": "day1.html#learn-rkfop"
+    },
+    {
+      "id": "models",
+      "title": "Практика 2",
+      "url": "day1.html#learn-workday"
+    },
+    {
+      "id": "practice3",
+      "title": "Практика 3 · объясни так, чтобы меня поняли",
+      "url": "day1.html#learn-audiences"
+    },
+    {
+      "id": "practice4",
+      "title": "Практика 4 · преврати хаос в понятный план",
+      "url": "day1.html#learn-trip"
+    },
+    {
+      "id": "reflection",
+      "title": "Что забираете с собой?",
+      "url": "day1.html#learn-finish"
+    },
+    {
+      "id": "homework",
+      "title": "«Домашнее задание» · пять запросов — один результат",
+      "url": "day1.html#learn-finish"
+    },
+    {
+      "id": "close",
+      "title": "Спасибо за внимание! Завтра — день 2",
+      "url": "day1.html#learn-finish"
+    }
+  ],
+  "sourceHashes": {
+    "src/content/slides.ts": "0fb689bd487bdefa4e313ea4ff36b10e63f9b6fbfdb42dd13394d755a58e04c5",
+    "src/content/rkfop.ts": "3155e38513f6076ee518a867fb7cf56e3f3276b1246afb7c5d2eb561ac2c5bff",
+    "src/content/prompts.ts": "990d0bb2c8ba13f44f1969104ee4c19d6710240d20bad5af4c7393dd74fe6e67",
+    "src/content/day1.ts": "73167ac9dbf17784c9958fef06cc16db7de9ff9dcff44c392d805a4128246775",
+    "src/slides/day-1/ShowSlides.tsx": "ef106b12a421cc4d23b6f009867156df87ee9e0ec2f58af90be483305f7dad6c",
+    "src/slides/day-1/LessonSlides.tsx": "af0063a856cbc9b2adccdcd88b51cd79e71a9278e4dfa49332eb03f7032b9955",
+    "src/slides/day-1/FinalPractices.tsx": "d092d98dee7adf1b8f82dd67f3fa237be9ead9843ef72b6ba9e5e2ee111452df",
+    "src/slides/day-1/ModelCatalogSlide.tsx": "98a8799670c1a09dcc7ca29eae4bcb808f8e7cd14574af05d1173ae1339bac19",
+    "src/content/modelCatalog.ts": "e35f8f32651fbc6f60f0981a4d6d2743bb1bc95b3177212b3bbb745eb990598a",
+    "src/content/instructor.ts": "87bbd9be9c07bef6a094cccbfdfb6183be047301bef86700349cbe09ec823478",
+    "src/components/presentation/SlideCanvas.tsx": "a8a8fd987b3266541cae1989d38cbb87cb5c43073224fe2673cefac881978c8a"
+  },
+  "copiedFiles": {
+    "rkfop.md": "53b7bb3f743e153da3f4060ef1242a7bb7073a125135204b07209be231cb5870",
+    "interfejs.md": "1de334cb10aae560a5be4b039195a8b354cdddb649825e4d7a732d84a58cc78c"
+  },
+  "editorialDecisions": [
+    "По прямому указанию пользователя «СеверПром» в первом дне отсутствует. Во второй ситуации опроса название заменено на «Вымышленный учебный документ» без изменения правила.",
+    "Исходники показа обновлены во время сопоставления: актуальный маршрут содержит 27 экранов, блоки document/results/field/path/mcp из него исключены.",
+    "Старые ссылки #task-facts и #task-document переводят к практике с собственным рабочим днём; комплект company остаётся только в подготовке."
+  ]
+}
