@@ -47,10 +47,10 @@ def icon(kind, day=0):
         "home": "M4 11 12 4l8 7v9H4z",
         "prep": "M6 4h12v4H6zm0 6h12v10H6z",
         "more": "M5 7h14M5 12h14M5 17h14",
-        1: "M6 6h12v8H9l-3 3z",
-        2: "M8 3.5h6.2L18 7.2V20.5H8zM14.2 3.8V7.4H17.6",
-        3: "M8.2 9a2.2 2.2 0 1 0 0 4.4 2.2 2.2 0 0 0 0-4.4zM15.8 9a2.2 2.2 0 1 0 0 4.4 2.2 2.2 0 0 0 0-4.4zM10.4 11.2h3.2",
-        4: "M12 7.2a2.2 2.2 0 1 0 .01 0zM7.2 18.2c1.1-2.5 2.7-3.6 4.8-3.6s3.7 1.1 4.8 3.6",
+        1: "M5 5h14v14H5z",
+        2: "M5 5h14v14H5z",
+        3: "M5 5h14v14H5z",
+        4: "M5 5h14v14H5z",
     }
     path = paths[day] if kind == "day" else paths[kind]
     return '<svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="%s"></path></svg>' % path
