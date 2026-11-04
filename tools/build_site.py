@@ -100,9 +100,9 @@ try {
     font = "https://fonts.googleapis.com/css2?family=Manrope:wght@500;700&amp;display=swap"
     partners = """
 <div class="partners">
-  <a href="https://omsk.top-academy.ru/" target="_blank" rel="noopener"><img src="images/partners/top-academy.svg" alt=""><span>Академия ТОП<small>Омск</small></span></a>
-  <a href="https://topitcollege.ru/omsk" target="_blank" rel="noopener"><img src="images/partners/top-college.png" alt=""><span>ТОП Колледж<small>Омск</small></span></a>
-  <a href="https://itclastersib.ru/" target="_blank" rel="noopener"><img src="images/partners/it-cluster.png" alt=""><span>ИТ-Кластер<small>Сибири</small></span></a>
+  <a href="https://omsk.top-academy.ru/" target="_blank" rel="noopener"><img src="images/partners/top-academy.svg" alt=""><span>Академия ТОП <small>Омск</small></span></a>
+  <a href="https://topitcollege.ru/omsk" target="_blank" rel="noopener"><img src="images/partners/top-college.png" alt=""><span>ТОП Колледж <small>Омск</small></span></a>
+  <a href="https://itclastersib.ru/" target="_blank" rel="noopener"><img src="images/partners/it-cluster.png" alt=""><span>ИТ-Кластер <small>Сибири</small></span></a>
 </div>"""
     code_box = """
 <div class="nav-code">
