@@ -65,7 +65,9 @@ test('builder edits and review marks survive reload', async ({ page }) => {
 });
 
 test('safety quiz starts neutral, marks mistakes, and requires all correct answers', async ({ page }) => {
-  await page.addInitScript(() => localStorage.setItem('aikurs-lesson-v1', JSON.stringify({version: 1, mode: 'steps', days: {'1': {safety: {0: 'allow'}, done: {safety: true}}}})));
+  await page.addInitScript(() => {
+    if (!localStorage.getItem('aikurs-lesson-v1')) localStorage.setItem('aikurs-lesson-v1', JSON.stringify({version: 1, mode: 'steps', days: {'1': {safety: {0: 'allow'}, done: {safety: true}}}}));
+  });
   await page.goto('/day1.html#task-safety');
   const app = page.locator('#lesson-app');
   const next = app.getByRole('button', { name: 'Завершить и продолжить', exact: true });
