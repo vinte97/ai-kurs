@@ -512,7 +512,7 @@
     var pre = el("pre", "prompt-text");
     pre.textContent = text;
     sheet.appendChild(pre);
-    if (expected) sheet.appendChild(el("p", "", "Ожидаемый результат. " + expected));
+    if (expected) sheet.appendChild(el("p", "prompt-expect", "Ожидаемый результат. " + expected));
     return sheet;
   }
 
@@ -540,7 +540,8 @@
     var box = el("div", "file-card");
     box.appendChild(el("h3", "", file.title));
     box.appendChild(el("p", "", file.why));
-    box.appendChild(el("p", "", "Тип: " + file.type + ". Размер: " + file.bytes + " байт."));
+    box.appendChild(el("p", "file-meta", file.type + " · " + file.bytes + " байт"));
+    var actions = el("div", "file-actions");
     var download = el("a", "btn", "Скачать файл");
     download.href = file.file;
     download.setAttribute("download", "");
@@ -550,7 +551,7 @@
       var note = box.querySelector(".file-note");
       if (note) note.hidden = false;
     });
-    box.appendChild(download);
+    actions.appendChild(download);
     var view = button("btn secondary", "Посмотреть содержимое", function () {
       var pre = box.querySelector(".file-preview");
       if (pre && !pre.hidden && pre.textContent) {
@@ -565,7 +566,8 @@
         window.open(file.file, "_blank", "noopener");
       });
     });
-    box.appendChild(view);
+    actions.appendChild(view);
+    box.appendChild(actions);
     var preview = el("pre", "file-preview prompt-text");
     preview.hidden = true;
     box.appendChild(preview);
@@ -576,7 +578,7 @@
       var extra = box.querySelector(".find-note");
       if (extra) extra.hidden = !extra.hidden;
     });
-    box.appendChild(how);
+    actions.appendChild(how);
     var find = el("div", "find-note");
     find.hidden = true;
     var os = osName();
@@ -679,7 +681,7 @@
       render();
     }));
     if (bucket.place === "step") {
-      row.appendChild(button("btn secondary", "Начать заново", function () {
+      row.appendChild(button("btn secondary quiet", "Начать заново", function () {
         bucket.confirm = true;
         save();
         render();
@@ -753,8 +755,17 @@
     var minutes = 0;
     day.exerciseIds.forEach(function (id) { minutes += Number(exercise(id).minutes) || 0; });
     var doneCount = day.exerciseIds.filter(function (id) { return bucket.done[id]; }).length;
-    screen.appendChild(el("p", "", "Упражнений: " + day.exerciseIds.length + ". Около " + minutes + " минут практики. Вы отметили выполненные: " + doneCount + " из " + day.exerciseIds.length + "."));
-    screen.appendChild(el("h2", "", "Что понадобится"));
+    var facts = el("div", "facts");
+    [["упражнений", String(day.exerciseIds.length)], ["минут", String(minutes)], ["отмечено", doneCount + " из " + day.exerciseIds.length]].forEach(function (pair) {
+      var fact = el("p");
+      fact.appendChild(el("strong", "", pair[1]));
+      fact.appendChild(el("span", "", pair[0]));
+      facts.appendChild(fact);
+    });
+    screen.appendChild(facts);
+    var grid = el("div", "home-grid");
+    var needCol = el("section");
+    needCol.appendChild(el("h2", "", "Что понадобится"));
     var needs = [];
     day.exerciseIds.forEach(function (id) {
       (exercise(id).needs || []).forEach(function (line) {
@@ -763,13 +774,17 @@
     });
     var list = el("ul");
     needs.forEach(function (line) { list.appendChild(el("li", "", line)); });
-    screen.appendChild(list);
-    screen.appendChild(el("h2", "", "Что получится"));
+    needCol.appendChild(list);
+    var outCol = el("section");
+    outCol.appendChild(el("h2", "", "Что получится"));
     var outcomes = el("ul");
     (day.outcomes || []).forEach(function (line) { outcomes.appendChild(el("li", "", line)); });
-    screen.appendChild(outcomes);
+    outCol.appendChild(outcomes);
+    grid.appendChild(needCol);
+    grid.appendChild(outCol);
+    screen.appendChild(grid);
     var index = resumeAt();
-    var row = el("div", "step-actions");
+    var row = el("div", "step-actions home-actions");
     if (index >= 0 && (doneCount > 0 || bucket.at)) {
       row.appendChild(button("btn", "Продолжить с задания " + (index + 1), function () {
         var id = day.exerciseIds[index];
@@ -784,12 +799,13 @@
     }
     screen.appendChild(row);
     var tasks = el("ol", "task-index");
-    day.exerciseIds.forEach(function (id, number) {
+    day.exerciseIds.forEach(function (id) {
       var item = el("li");
-      var link = el("a", "", plainTitle(exercise(id).title));
+      var link = el("a");
       link.href = "#task-" + id;
+      link.appendChild(el("span", "task-name", plainTitle(exercise(id).title)));
+      link.appendChild(el("span", "task-time", bucket.done[id] ? "Отмечено" : exercise(id).minutes + " мин"));
       item.appendChild(link);
-      if (bucket.done[id]) item.appendChild(el("span", "manual", " Вы отметили задание."));
       tasks.appendChild(item);
     });
     screen.appendChild(tasks);
@@ -877,19 +893,23 @@
     var current = steps[bucket.step];
     var index = day.exerciseIds.indexOf(id);
     var screen = el("div", "lesson-screen");
-    screen.appendChild(el("p", "kicker", "День " + day.number + " · Задание " + (index + 1) + " из " + day.exerciseIds.length));
+    var head = el("div", "lesson-head");
+    head.appendChild(el("p", "kicker", "День " + day.number + " · Задание " + (index + 1) + " из " + day.exerciseIds.length + " · около " + exercise(id).minutes + " минут"));
     var heading = el("h1", "", plainTitle(exercise(id).title));
     heading.id = "step-heading";
     heading.tabIndex = -1;
-    screen.appendChild(heading);
-    screen.appendChild(el("p", "", exercise(id).goal));
-    screen.appendChild(el("p", "note", "Около " + exercise(id).minutes + " минут. Сейчас действие " + (bucket.step + 1) + " из " + steps.length + "."));
+    head.appendChild(heading);
+    head.appendChild(el("p", "goal", exercise(id).goal));
+    var progress = el("div", "progress-line");
+    progress.appendChild(el("p", "note", "Действие " + (bucket.step + 1) + " из " + steps.length));
     var meter = el("div", "stage-meter");
     meter.setAttribute("aria-hidden", "true");
     steps.forEach(function (_, stepIndex) {
       meter.appendChild(el("span", stepIndex < bucket.step ? "is-done" : stepIndex === bucket.step ? "is-now" : ""));
     });
-    screen.appendChild(meter);
+    progress.appendChild(meter);
+    head.appendChild(progress);
+    screen.appendChild(head);
     var split = el("div", "step-split");
     var main = el("div", "step-copy");
     var title = el("h2", "", current.title);
@@ -966,7 +986,7 @@
         render();
       }));
       if (current.kind !== "done") {
-        row.appendChild(button("btn secondary", "Начать заново", function () {
+        row.appendChild(button("btn secondary quiet", "Начать заново", function () {
           bucket.confirm = true;
           save();
           render();
@@ -1032,8 +1052,10 @@
   function render() {
     document.documentElement.classList.toggle("lesson-all", state.mode === "all");
     app.innerHTML = "";
-    app.appendChild(switcher());
-    app.appendChild(readingBar());
+    var tools = el("div", "lesson-tools");
+    tools.appendChild(switcher());
+    tools.appendChild(readingBar());
+    app.appendChild(tools);
     if (state.mode === "all") {
       window.requestAnimationFrame(function () {
         var node = location.hash ? document.getElementById(location.hash.slice(1)) : null;
