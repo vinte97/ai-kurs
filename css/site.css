@@ -114,8 +114,8 @@ main {
 
 h1, h2, h3 { line-height: 1.2; margin: 0 0 var(--space-3); }
 
-h1 { font-size: 2rem; }
-h2 { font-size: 1.45rem; }
+h1 { font-size: clamp(1.55rem, 1rem + 2vw, 2rem); }
+h2 { font-size: clamp(1.2rem, 0.9rem + 1vw, 1.45rem); }
 .note { font-size: 0.95rem; }
 
 .lead { font-size: 1.15rem; max-width: 42rem; }
@@ -181,17 +181,23 @@ h2 { font-size: 1.45rem; }
   border: 1px solid var(--color-line);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
-  padding: var(--space-4);
-  margin: var(--space-4) 0;
+  padding: 1.1rem 1.15rem;
+  margin: 0.85rem 0;
 }
 
-.day-map { display: grid; gap: var(--space-3); }
+.day-map { display: grid; gap: 0.85rem; }
 
 a.day-card { color: inherit; text-decoration: none; display: block; }
 
-@media (min-width: 801px) {
-  .day-map { grid-template-columns: 1fr 1fr; }
+img { max-width: 100%; height: auto; }
+
+.reading, .wizard-tools, .filters, .step-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
 }
+.reading .btn, .wizard-tools .btn, .filters .btn, .step-actions .btn { margin: 0; }
 
 .step-shot {
   display: block;
@@ -247,14 +253,26 @@ details { margin: 0.6rem 0; }
 
 summary { min-height: 44px; cursor: pointer; font-weight: 700; }
 
-section { margin-top: var(--space-5); }
+section { margin-top: 1.75rem; }
 
-@media (max-width: 800px) {
+@media (max-width: 1039px) {
   .menu-button, .nav-close { display: inline-flex; }
+  .menu-button {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    width: 100%;
+    margin: 0;
+    border: 0;
+    border-bottom: 1px solid var(--color-line);
+    border-radius: 0;
+    justify-content: flex-start;
+    background: var(--color-white);
+  }
   .nav-close {
-    min-height: 48px;
-    margin: 0 0 var(--space-3);
-    padding: 0.5rem 0.8rem;
+    min-height: 44px;
+    margin: 0 0 0.6rem;
+    padding: 0.4rem 0.75rem;
     border-radius: 12px;
     border: 2px solid var(--color-white);
     background: transparent;
@@ -266,17 +284,39 @@ section { margin-top: var(--space-5); }
     position: fixed;
     inset: 0;
     background: rgba(9, 20, 40, 0.45);
-    z-index: 1;
+    z-index: 3;
   }
   body.nav-open .nav-backdrop { display: block; }
+  body.nav-open { overflow: hidden; }
   .nav {
+    width: min(22rem, 100%);
     transform: translateX(-105%);
-    z-index: 2;
+    z-index: 4;
     transition: transform 0.2s ease;
   }
   body.nav-open .nav { transform: none; }
-  main { margin-left: 0; padding: 0.5rem 1rem 2.5rem; max-width: none; }
-  .btn, button.btn, a.btn { width: 100%; }
+  main {
+    margin-left: 0;
+    margin-right: auto;
+    padding: 1rem 1.15rem 2.5rem;
+    max-width: 46rem;
+  }
+}
+
+@media (min-width: 720px) {
+  .day-map { grid-template-columns: 1fr 1fr; }
+}
+
+@media (max-width: 700px) {
+  .menu-button { padding: 0.55rem 0.9rem; }
+  main { padding: 0.85rem 0.9rem 2rem; max-width: none; }
+  h1 { font-size: 1.55rem; }
+  .card, .exercise, .prompt-card, .file-card, .day-card { padding: 0.9rem 1rem; }
+  section { margin-top: 1.25rem; }
+  .btn, button.btn, a.btn { width: 100%; margin-right: 0; }
+  .reading .btn, .wizard-tools .btn, .filters .btn, .crumb a { width: auto; }
+  .step-actions { flex-direction: column; align-items: stretch; }
+  .step-actions .btn { width: 100%; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -349,7 +389,7 @@ html[data-contrast="high"] {
 html[data-contrast="high"] .btn.secondary,
 html[data-contrast="high"] .card { border-width: 2px; border-color: #102445; }
 
-@media (min-width: 1100px) {
+@media (min-width: 1280px) {
   .step-layout.has-shot { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1.25rem; align-items: start; }
 }
 
