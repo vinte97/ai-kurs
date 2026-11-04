@@ -42,14 +42,18 @@ def open_day(phase, number):
     return number <= int(phase.split("-")[1])
 
 
-def icon(kind):
+def icon(kind, day=0):
     paths = {
         "home": "M4 11 12 4l8 7v9H4z",
         "prep": "M6 4h12v4H6zm0 6h12v10H6z",
-        "day": "M5 5h14v14H5z",
         "more": "M5 7h14M5 12h14M5 17h14",
+        1: "M6 6h12v8H9l-3 3z",
+        2: "M8 3.5h6.2L18 7.2V20.5H8zM14.2 3.8V7.4H17.6",
+        3: "M8.2 9a2.2 2.2 0 1 0 0 4.4 2.2 2.2 0 0 0 0-4.4zM15.8 9a2.2 2.2 0 1 0 0 4.4 2.2 2.2 0 0 0 0-4.4zM10.4 11.2h3.2",
+        4: "M12 7.2a2.2 2.2 0 1 0 .01 0zM7.2 18.2c1.1-2.5 2.7-3.6 4.8-3.6s3.7 1.1 4.8 3.6",
     }
-    return '<svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="%s"></path></svg>' % paths[kind]
+    path = paths[day] if kind == "day" else paths[kind]
+    return '<svg class="nav-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="%s"></path></svg>' % path
 
 
 def load():
@@ -62,7 +66,7 @@ def shell(title, current, body, phase):
     links = []
     for href, label, kind in NAV:
         day_number = int(href[3]) if href.startswith("day") else 0
-        mark = icon(kind)
+        mark = icon(kind, day_number)
         current_attr = ' aria-current="page"' if href == current else ""
         if day_number:
             shown = open_day(phase, day_number)
@@ -86,14 +90,20 @@ try {
 }
 </script>"""
     font = "https://fonts.googleapis.com/css2?family=Manrope:wght@500;700&amp;display=swap"
+    partners = """
+<div class="partners">
+  <a href="https://omsk.top-academy.ru/" target="_blank" rel="noopener"><img src="images/partners/top-academy.svg" alt=""><span>Академия ТОП<small>Омск</small></span></a>
+  <a href="https://topitcollege.ru/omsk" target="_blank" rel="noopener"><img src="images/partners/top-college.png" alt=""><span>ТОП Колледж<small>Омск</small></span></a>
+  <a href="https://itclastersib.ru/" target="_blank" rel="noopener"><img src="images/partners/it-cluster.png" alt=""><span>ИТ-Кластер<small>Сибири</small></span></a>
+</div>"""
     code_box = """
 <div class="nav-code">
   <button class="nav-code-open" id="code-open" type="button" aria-expanded="false" aria-controls="code-form">Введите код</button>
   <form id="code-form" hidden>
     <input id="code-input" aria-label="Код" inputmode="numeric" autocomplete="off" maxlength="8">
     <button class="btn" type="submit">Открыть</button>
-    <p id="code-status" role="status"></p>
   </form>
+  <p id="code-status" role="status"></p>
 </div>"""
     return """<!DOCTYPE html>
 <html lang="ru">
@@ -112,7 +122,8 @@ try {
 <div class="nav-backdrop" hidden></div>
 <nav id="site-nav" class="nav" aria-label="Разделы">
   <button class="nav-close" type="button">Закрыть</button>
-  <p class="brand">ИИ для руководителей</p>
+  %s
+  <p class="brand">ИИ для руководителей v2</p>
   %s
   %s
 </nav>
@@ -125,7 +136,7 @@ try {
 <script src="js/portal.js"></script>
 </body>
 </html>
-""" % (boot, esc(title), font, page_attr, "\n  ".join(links), code_box, body)
+""" % (boot, esc(title), font, page_attr, partners, "\n  ".join(links), code_box, body)
 
 
 def prompt_card(course, prompt):
@@ -289,22 +300,24 @@ def home(course, phase):
             cards.append('<a class="day-card" data-day="%d" href="day%d.html"><h2>%s</h2><p>Можно открыть</p></a>' % (number, number, esc(title)))
         cards.append('<article class="day-card" data-day-soon="%d"><h2>%s</h2><p>Обзор программы. Задания откроются в день занятия.</p></article>' % (number, esc(title)))
     body = """
-<h1>ИИ для руководителей</h1>
+<h1>ИИ для руководителей v2</h1>
 <p class="lead">Практический курс: научитесь работать с ИИ, документами, данными и собственными помощниками.</p>
 <p>Все инструкции, файлы и задания находятся здесь. Начните с подготовки компьютера.</p>
 <p><a class="btn only-locked" href="prepare.html">Подготовить компьютер</a>
 <a class="btn only-open" id="continue-link" href="day1.html">Продолжить обучение</a></p>
 <div class="day-map">%s</div>
 """ % "".join(cards)
-    return shell("ИИ для руководителей", "index.html", body, phase)
+    return shell("ИИ для руководителей v2", "index.html", body, phase)
 
 
 def prepare(phase):
     body = """
 <p class="crumb"><a href="index.html">Главная</a> → Подготовка</p>
+<div id="prep-intro">
 <h1>Подготовим ваш компьютер к занятиям</h1>
-<p class="lead">Мы покажем все действия по порядку. Если что-то не получится, вы увидите подсказку.</p>
-<div id="wizard"></div>
+<p class="lead">Пройдём несколько простых шагов. Мы покажем, куда нажимать и как проверить результат.</p>
+</div>
+<div id="wizard" aria-live="polite"></div>
 <noscript>
   <p>Для пошаговой подготовки включите скрипты в браузере.</p>
   <p><a href="https://workai.su/download">Страница загрузки WorkAI</a></p>

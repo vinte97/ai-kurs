@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import json
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -37,11 +38,15 @@ def main():
     day_base = "http://127.0.0.1:4182"
     try:
         with sync_playwright() as playwright:
-            browser = playwright.chromium.launch()
+            launch = {}
+            if os.environ.get("PW_CHROME"):
+                launch["executable_path"] = os.environ["PW_CHROME"]
+            browser = playwright.chromium.launch(**launch)
             page = browser.new_page(viewport={"width": 1280, "height": 800})
             page.goto(BASE + "/")
-            check("A home", page.locator("h1").inner_text() == "ИИ для руководителей")
+            check("A home", page.locator("h1").inner_text() == "ИИ для руководителей v2")
             page.get_by_role("link", name="Подготовить компьютер").click()
+            page.get_by_role("button", name="Начать подготовку").click()
             page.get_by_role("button", name="Windows — например, Lenovo, ASUS, HP или Acer").click()
             check("A windows", "Это инструкция для Windows." in page.locator("#wizard").inner_text())
             page.get_by_role("button", name="Сменить компьютер").click()
@@ -60,6 +65,7 @@ def main():
             page.locator("#code-form").get_by_role("button", name="Открыть").click()
             check("D days", page.locator("nav a[href='day1.html']").is_visible() and page.locator("nav a[href='day2.html']").is_visible() and page.locator("nav a[href='day3.html']").is_hidden())
             check("D note", "1–2" in page.locator("#code-status").inner_text())
+            check("D field", page.locator("#code-form").is_hidden())
             page.goto(BASE + "/day3.html")
             check("D later", page.locator(".lesson").is_hidden() and page.locator(".day-lock").is_visible())
             page.reload()
