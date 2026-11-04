@@ -67,7 +67,8 @@ vm.runInContext(fs.readFileSync("js/steps.js", "utf8").replace("window.", "this.
 const tracks = sandbox.window.TRACKS;
 for (const name of Object.keys(tracks)) {
   tracks[name].forEach((step) => {
-    for (const key of ["do", "where", "see", "check", "help"]) {
+    if (!step.where && !(Array.isArray(step.instructions) && step.instructions.length && step.instructions.every(line => typeof line === "string" && line.trim()))) throw new Error(step.id + " missing instructions");
+    for (const key of ["do", "see", "check", "help"]) {
       if (!step[key] || (key === "help" && !step.help.length)) throw new Error(step.id + " missing " + key);
     }
   });

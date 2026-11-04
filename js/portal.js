@@ -26,7 +26,7 @@
       var link = event.target.closest("a");
       if (link && link.getAttribute("aria-current") === "page" && root) {
         event.preventDefault();
-        focusHeading();
+        restart();
       }
       if (link) setMenu(false);
     });
@@ -112,7 +112,7 @@
     workai: "Устанавливаем WorkAI",
     enter: "Регистрация в WorkAI",
     extra: "Дополнительные программы",
-    files: "Скачиваем учебные файлы",
+    files: "Создаём рабочую папку",
     ready: "Завершаем подготовку"
   };
 
@@ -243,7 +243,13 @@
     copy.appendChild(el("p", "action", step.do));
     var link = actionLink(step);
     if (link) copy.appendChild(link);
-    copy.appendChild(el("p", "", step.where));
+    if (step.instructions) {
+      var instructions = el("ol", "setup-instructions");
+      step.instructions.forEach(function (text) { instructions.appendChild(el("li", "", text)); });
+      copy.appendChild(instructions);
+    } else {
+      copy.appendChild(el("p", "", step.where));
+    }
     layout.appendChild(copy);
     if (step.image) {
       var shot = document.createElement("img");
@@ -292,7 +298,7 @@
       save();
       draw();
     });
-    var no = el("button", "btn secondary", "Не получается?");
+    var no = el("button", "btn help-action", "Не получается?");
     no.type = "button";
     no.setAttribute("aria-expanded", "false");
     no.addEventListener("click", function () {
@@ -301,8 +307,9 @@
       card.appendChild(helpBox(step));
       no.setAttribute("aria-expanded", "true");
     });
-    bar.appendChild(back);
-    bar.appendChild(no);
+    var navigation = el("div", "step-navigation");
+    var assistance = el("div", "step-assistance");
+    navigation.appendChild(back);
     if (step.skip) {
       var skip = el("button", "btn secondary", "Пропустить этот блок");
       skip.type = "button";
@@ -313,12 +320,15 @@
         save();
         draw();
       });
-      bar.appendChild(skip);
+      assistance.appendChild(skip);
     }
     var yes = el("button", "btn", "Далее");
     yes.type = "button";
     yes.addEventListener("click", function () { markDone(step); });
-    bar.appendChild(yes);
+    navigation.appendChild(yes);
+    assistance.appendChild(no);
+    bar.appendChild(navigation);
+    bar.appendChild(assistance);
     return bar;
   }
 
@@ -328,11 +338,12 @@
   }
 
   function restart() {
-    var mode = state.mode;
     state = fresh();
-    state.mode = mode;
+    history.replaceState(null, "", location.pathname + location.search);
     save();
     draw();
+    var heading = document.querySelector("#prep-intro h1");
+    if (heading) { heading.tabIndex = -1; heading.focus(); }
   }
 
   function chooseOs(os) {
@@ -713,5 +724,6 @@
     });
   }
 
-  draw();
+  if (location.hash === "#start") restart();
+  else draw();
 })();

@@ -86,7 +86,8 @@ def shell(title, current, body, phase):
                     '<a href="%s#%s">%s</a>' % (current, item, esc(name)) for item, name in SUB
                 )))
             continue
-        links.append('<a href="%s"%s>%s<span>%s</span></a>' % (href, current_attr, mark, esc(label)))
+        target = "prepare.html#start" if href == "prepare.html" else href
+        links.append('<a href="%s"%s>%s<span>%s</span></a>' % (target, current_attr, mark, esc(label)))
     page_attr = ' data-page="%s"' % current[3] if current.startswith("day") else ""
     boot = """<script>
 try {

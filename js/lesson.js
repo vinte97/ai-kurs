@@ -37,6 +37,12 @@
     current.done = current.done || {};
     current.marks = current.marks || {};
     current.safety = current.safety || {};
+    if (day.number === 1 && current.safetyVersion !== 2) {
+      current.safety = {};
+      current.safetyVersion = 2;
+      delete current.done.safety;
+      markTask("safety", false);
+    }
     current.fields = current.fields || {};
     current.summary = current.summary || {};
     current.downloaded = current.downloaded || {};
@@ -115,11 +121,11 @@
     else fallback();
   }
 
-  function markTask(id) {
+  function markTask(id, done) {
     var key = "aikurs-tasks-v1";
     var saved = {};
     try { saved = JSON.parse(localStorage.getItem(key) || "{}") || {}; } catch (e) { saved = {}; }
-    saved[id] = true;
+    saved[id] = done !== false;
     try { localStorage.setItem(key, JSON.stringify(saved)); } catch (e2) {}
   }
 
@@ -565,7 +571,7 @@
     heading.id = "step-heading";
     heading.tabIndex = -1;
     screen.appendChild(heading);
-    screen.appendChild(el("p", "lead", "Для каждой ситуации выберите решение. Используются только вымышленные примеры."));
+    screen.appendChild(el("p", "lead", "Выберите решение для каждой ситуации. Красный ответ нужно исправить, зелёный — верный. Все примеры вымышленные."));
     SAFETY.forEach(function (card, index) {
       var group = el("section", "quiz-question");
       var title = el("h2", "", (index + 1) + ". " + card[0]);
@@ -576,8 +582,14 @@
       choices.setAttribute("role", "group");
       choices.setAttribute("aria-labelledby", title.id);
       Object.keys(ANSWER).forEach(function (value) {
-        var choice = button(bucket.safety[index] === value ? "btn" : "btn secondary", ANSWER[value], function () {
+        var selected = bucket.safety[index] === value;
+        var color = selected ? (value === card[1] ? " quiz-correct" : " quiz-incorrect") : "";
+        var choice = button("btn secondary" + color, ANSWER[value], function () {
           bucket.safety[index] = value;
+          if (value !== card[1]) {
+            delete bucket.done.safety;
+            markTask("safety", false);
+          }
           pendingFocus = "#question-" + index;
           save();
           render();
@@ -587,7 +599,7 @@
       });
       group.appendChild(choices);
       if (bucket.safety[index]) {
-        var feedback = el("p", "quiz-feedback", (bucket.safety[index] === card[1] ? "Верно. " : "Правильный ответ: " + ANSWER[card[1]] + ". ") + card[2]);
+        var feedback = el("p", "quiz-feedback", (bucket.safety[index] === card[1] ? "Верно. " : "Неверно — попробуйте другой ответ. ") + card[2]);
         feedback.setAttribute("role", "status");
         group.appendChild(feedback);
       }
@@ -596,7 +608,7 @@
     app.appendChild(screen);
     var row = el("div", "player-bar");
     row.appendChild(button("btn secondary", "Предыдущее задание", function () { openExercise("refine", 0); }));
-    var answered = SAFETY.every(function (_, index) { return Boolean(bucket.safety[index]); });
+    var answered = SAFETY.every(function (card, index) { return bucket.safety[index] === card[1]; });
     row.appendChild(primary("Завершить и продолжить", function () {
       bucket.done.safety = true;
       markTask("safety");

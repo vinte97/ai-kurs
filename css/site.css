@@ -694,5 +694,24 @@ main { padding-bottom: 3rem; }
 }
 #lesson-app .quiz-question { padding: 1.2rem 0; border-bottom: 1px solid var(--color-line); }
 #lesson-app .quiz-question h2 { font-size: 1.1rem; }
-#lesson-app .quiz-question .choice-list { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+#lesson-app .quiz-question .choice-list { display: flex; flex-direction: row; flex-wrap: wrap; gap: 0.5rem; }
 #lesson-app .quiz-feedback { color: var(--color-muted); font-size: 0.95rem; }
+
+#wizard .player-bar { max-width: none; display: flex; align-items: flex-start; justify-content: space-between; gap: 0.8rem 1.5rem; }
+#wizard .step-navigation, #wizard .step-assistance { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; }
+#wizard .step-assistance { margin-left: auto; justify-content: flex-end; }
+#wizard .player-bar .btn { margin: 0; }
+#wizard .help-action { color: #fff; background: #b4232b; border-color: #b4232b; }
+#wizard .help-action:hover { background: #941b22; border-color: #941b22; }
+#wizard .setup-instructions { padding-left: 1.4rem; margin: 1rem 0; }
+#wizard .setup-instructions li { margin: 0.8rem 0; padding-left: 0.25rem; }
+@media (max-width: 600px) {
+  #wizard .step-navigation { flex-wrap: nowrap; }
+  #wizard .step-assistance { flex-basis: 100%; }
+}
+
+#lesson-app .quiz-question .choice-list .btn { width: auto; max-width: 100%; flex: 0 1 auto; }
+#lesson-app .quiz-question .quiz-correct, #lesson-app .quiz-question .quiz-correct:hover { background: #137333; color: #fff; border-color: #137333; }
+#lesson-app .quiz-question .quiz-incorrect, #lesson-app .quiz-question .quiz-incorrect:hover { background: #b4232b; color: #fff; border-color: #b4232b; }
+
+#lesson-app .quiz-question h2:focus { outline: none; }
