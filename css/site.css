@@ -29,10 +29,10 @@ body {
   margin: var(--space-3);
   min-height: 48px;
   padding: 0.6rem 1rem;
-  border: 2px solid var(--color-navy);
+  border: 1px solid var(--color-line);
   border-radius: 12px;
   background: var(--color-white);
-  color: var(--color-navy);
+  color: var(--color-ink);
   font: inherit;
   font-weight: 700;
 }
@@ -43,10 +43,12 @@ body {
   display: flex;
   flex-direction: column;
   width: var(--sidebar);
-  background: var(--color-deep);
-  color: var(--color-white);
+  background: rgba(245, 245, 247, 0.92);
+  color: var(--color-ink);
   padding: 0.85rem 0.7rem;
   overflow: auto;
+  border-right: 1px solid var(--color-line);
+  backdrop-filter: saturate(180%) blur(20px);
 }
 
 .brand {
@@ -64,7 +66,7 @@ body {
   min-height: 40px;
   margin: 0;
   padding: 0.2rem 0.55rem;
-  color: #9fb0c9;
+  color: var(--color-muted);
 }
 
 .nav-soon small { margin-left: auto; font-size: 0.85rem; }
@@ -77,18 +79,21 @@ body {
   min-height: 40px;
   margin: 0;
   padding: 0.2rem 0.55rem;
-  border-radius: 12px;
-  color: var(--color-white);
+  border-radius: 10px;
+  color: var(--color-ink);
   text-decoration: none;
-  font-weight: 650;
+  font-weight: 600;
 }
 
 .nav a[aria-current="page"],
 .nav a[aria-current="true"] {
   background: var(--color-blue);
+  color: var(--color-white);
 }
 
-.nav a:hover { background: rgba(255, 255, 255, 0.1); }
+.nav a:hover { background: rgba(0, 0, 0, 0.05); }
+.nav a[aria-current="page"]:hover,
+.nav a[aria-current="true"]:hover { background: var(--color-blue); color: var(--color-white); }
 
 .nav a:focus-visible,
 button:focus-visible,
@@ -103,7 +108,7 @@ a:focus-visible {
   min-height: 40px;
   font-weight: 550;
   font-size: 0.95rem;
-  color: #d5e4ff;
+  color: var(--color-muted);
 }
 
 main {
@@ -114,7 +119,7 @@ main {
 
 h1, h2, h3 { line-height: 1.2; margin: 0 0 var(--space-3); }
 
-h1 { font-size: clamp(1.55rem, 1rem + 2vw, 2rem); }
+h1 { font-size: clamp(1.7rem, 1.1rem + 2vw, 2.15rem); letter-spacing: -0.022em; font-weight: 700; }
 h2 { font-size: clamp(1.2rem, 0.9rem + 1vw, 1.45rem); }
 .note { font-size: 0.95rem; }
 
@@ -160,7 +165,7 @@ h2 { font-size: clamp(1.2rem, 0.9rem + 1vw, 1.45rem); }
   margin: 0.35rem 0.35rem 0.35rem 0;
   padding: 0.65rem 1rem;
   border-radius: 12px;
-  border: 2px solid var(--color-navy);
+  border: 1px solid transparent;
   background: var(--color-blue);
   color: var(--color-white);
   font: inherit;
@@ -170,15 +175,16 @@ h2 { font-size: clamp(1.2rem, 0.9rem + 1vw, 1.45rem); }
 }
 
 .btn.secondary, button.secondary {
-  background: var(--color-white);
-  color: var(--color-navy);
+  background: var(--color-fill);
+  color: var(--color-ink);
+  border-color: transparent;
 }
 
 .btn.is-copied { background: var(--color-ok); border-color: var(--color-ok); }
 
 .card, .exercise, .prompt-card, .file-card, .day-card {
   background: var(--color-white);
-  border: 1px solid var(--color-line);
+  border: 1px solid rgba(0, 0, 0, 0.06);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
   padding: 1.1rem 1.15rem;
@@ -274,9 +280,9 @@ section { margin-top: 1.75rem; }
     margin: 0 0 0.6rem;
     padding: 0.4rem 0.75rem;
     border-radius: 12px;
-    border: 2px solid var(--color-white);
-    background: transparent;
-    color: var(--color-white);
+    border: 1px solid var(--color-line);
+    background: var(--color-white);
+    color: var(--color-ink);
     font: inherit;
     font-weight: 700;
   }
@@ -386,18 +392,18 @@ html.js.lesson-all #lesson-full { display: block; }
 
 #lesson-app { --quiet: #3d4d66; }
 #lesson-app .btn { margin: 0; transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease; }
-#lesson-app .btn.secondary { background: var(--color-white); border-color: var(--color-line); color: var(--color-navy); }
-#lesson-app .btn.secondary:hover { background: var(--color-paper); border-color: #b7c8e0; }
+#lesson-app .btn.secondary { background: var(--color-fill); border-color: transparent; color: var(--color-ink); }
+#lesson-app .btn.secondary:hover { background: #dcdce1; border-color: transparent; }
 #lesson-app .btn.quiet { border-color: transparent; background: transparent; color: var(--quiet); }
 #lesson-app .btn.quiet:hover { background: transparent; color: var(--color-navy); }
 #lesson-app .lesson-tools { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 0.75rem 1rem; margin-bottom: 1rem; }
 #lesson-app .lesson-switch, #lesson-app .reading { display: flex; flex-wrap: wrap; align-items: center; gap: 0.35rem; margin: 0; }
-#lesson-app .lesson-switch { background: var(--color-white); border: 1px solid var(--color-line); border-radius: 14px; padding: 0.2rem; }
-#lesson-app .lesson-switch .btn { min-height: 44px; border: 0; background: transparent; color: var(--color-navy); border-radius: 11px; }
-#lesson-app .lesson-switch .btn:not(.secondary) { background: var(--color-navy); color: var(--color-white); }
+#lesson-app .lesson-switch { background: var(--color-fill); border: 0; border-radius: 12px; padding: 0.15rem; }
+#lesson-app .lesson-switch .btn { min-height: 44px; border: 0; background: transparent; color: var(--color-ink); border-radius: 10px; }
+#lesson-app .lesson-switch .btn:not(.secondary) { background: var(--color-white); color: var(--color-ink); box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12); }
 #lesson-app .reading p { margin: 0 0.2rem 0 0; color: var(--quiet); font-size: 0.92rem; }
 #lesson-app .reading .btn { min-height: 44px; padding: 0.35rem 0.75rem; border: 1px solid var(--color-line); background: var(--color-white); color: var(--color-navy); }
-#lesson-app .reading .btn:not(.secondary) { background: var(--color-navy); border-color: var(--color-navy); color: var(--color-white); }
+#lesson-app .reading .btn:not(.secondary) { background: var(--color-blue); border-color: transparent; color: var(--color-white); }
 #lesson-app .lesson-screen { background: var(--color-white); border: 1px solid var(--color-line); border-radius: 18px; box-shadow: var(--shadow); padding: 1.35rem 1.4rem 1.2rem; }
 #lesson-app .kicker { margin: 0 0 0.35rem; color: var(--quiet); font-size: 0.92rem; font-weight: 700; }
 #lesson-app .lesson-head { margin-bottom: 1.1rem; }
@@ -405,11 +411,10 @@ html.js.lesson-all #lesson-full { display: block; }
 #lesson-app .progress-line { display: flex; align-items: center; gap: 0.8rem; }
 #lesson-app .progress-line .note { margin: 0; white-space: nowrap; color: var(--quiet); font-weight: 700; }
 #lesson-app .stage-meter { display: flex; flex: 1; gap: 0.3rem; margin: 0; }
-#lesson-app .stage-meter span { width: auto; flex: 1; height: 0.35rem; background: #d5e0ee; }
+#lesson-app .stage-meter span { width: auto; flex: 1; height: 0.35rem; background: var(--color-fill); }
 #lesson-app .stage-meter .is-done, #lesson-app .stage-meter .is-now { height: 0.35rem; background: var(--color-blue); }
 #lesson-app .stage-meter .is-now { background: var(--color-navy); }
 #lesson-app h1 { margin-bottom: 0.45rem; }
-#lesson-app #step-heading:focus { outline: none; box-shadow: inset 3px 0 0 var(--color-blue); padding-left: 0.55rem; }
 #lesson-app h2 { margin: 0 0 0.35rem; font-size: 1.2rem; }
 #lesson-app .action { margin: 0.15rem 0 0; font-size: 1.05rem; font-weight: 500; }
 #lesson-app .facts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.7rem; margin: 1rem 0 1.15rem; }
@@ -446,7 +451,8 @@ html.js.lesson-all #lesson-full { display: block; }
 #lesson-app .task-index a::before { content: counter(task); flex: none; width: 1.8rem; height: 1.8rem; display: grid; place-items: center; border-radius: 999px; background: var(--color-paper); color: var(--color-navy); font-size: 0.85rem; }
 #lesson-app .task-index a:hover { color: var(--color-blue); }
 #lesson-app .task-time { margin-left: auto; color: var(--quiet); font-weight: 650; font-size: 0.92rem; }
-#lesson-app .help-box { margin-top: 0.8rem; background: #f4f8ff; }
+#lesson-app .help-box { margin-top: 0.8rem; background: var(--color-paper); }
+#lesson-app .step-actions .manual { flex-basis: 100%; margin: 0 0 0.2rem; }
 #lesson-app .reason.is-on { border-color: var(--color-blue); background: #e8f1ff; }
 #lesson-app details { margin-top: 1rem; }
 #lesson-app summary { color: var(--quiet); }
@@ -498,21 +504,21 @@ html[data-contrast="high"] .card { border-width: 2px; border-color: #102445; }
   border: 0;
   border-radius: 12px;
   background: transparent;
-  color: var(--color-white);
+  color: var(--color-ink);
   font: inherit;
   font-weight: 700;
   text-align: left;
   cursor: pointer;
 }
 
-.nav-code-open:hover { background: rgba(255, 255, 255, 0.1); }
+.nav-code-open:hover { background: rgba(0, 0, 0, 0.05); }
 
 .nav-code input {
   width: 100%;
   min-height: 48px;
   margin-top: 0.4rem;
   padding: 0.4rem 0.7rem;
-  border: 2px solid var(--color-white);
+  border: 1px solid var(--color-line);
   border-radius: 12px;
   background: var(--color-white);
   color: var(--color-ink);
@@ -521,7 +527,7 @@ html[data-contrast="high"] .card { border-width: 2px; border-color: #102445; }
 
 .nav-code .btn { width: 100%; }
 
-.nav-code #code-status { color: var(--color-white); min-height: 1.4rem; }
+.nav-code #code-status { color: var(--color-muted); min-height: 1.4rem; }
 
 [data-day-soon] { display: none; }
 

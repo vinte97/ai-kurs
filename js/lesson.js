@@ -236,6 +236,7 @@
     var packs = {
       open: ["Не открывается WorkAI?", ["Сайт не запускает программу: её открывают на компьютере.", "Если программа ещё не установлена, откройте раздел «Подготовка» и вернитесь сюда. Этот шаг сохранится.", "Если компьютер организации запрещает установку, не отключайте защиту. Покажите экран преподавателю."], ["Не могу открыть WorkAI"]],
       copy: ["Не получается скопировать запрос?", ["Нажмите «Скопировать запрос» один раз.", "Если появилось сообщение об ошибке, выделите текст запроса мышью и скопируйте его сами.", "После этого вернитесь в WorkAI."], ["Не копируется запрос"]],
+      safety: ["Непонятно, какой ответ выбрать?", ["Это учебные примеры. Свои документы вводить не нужно.", "Дату общего совещания обычно можно использовать.", "Паспорт и чужой телефон отправлять нельзя.", "Сумму договора сначала уточните: можно ли её показывать."], ["Не понимаю карточку"]],
       paste: ["Не получается вставить запрос?", ["Сначала нажмите на поле сообщения в WorkAI.", paste, "Если кнопка копирования не сработала, скопируйте выделенный текст вручную."], ["Не вставляется текст"]],
       send: ["Не получается отправить?", ["Кнопка отправки стоит рядом с полем сообщения.", "Нажмите её один раз и подождите, пока ответ допишется до конца.", "Если ответа нет, проверьте, что сообщение не осталось только в поле."], ["Не уходит запрос"]],
       file: ["Не получается найти файл?", ["Браузер обычно кладёт файл в папку «Загрузки». На Mac она может называться Downloads.", "Откройте эту папку и найдите имя файла с этой страницы.", "Если файла нет, нажмите «Скачать файл» ещё раз."], ["Не нахожу файл"]],
@@ -454,7 +455,8 @@
     if (kind === "download") return "file";
     if (kind === "attach") return "attach";
     if (kind === "builder" || kind === "field") return "copy";
-    if (kind === "lab" || kind === "safety" || kind === "mask" || kind === "safety-score" || kind === "safety-intro") return "lab";
+    if (kind === "safety" || kind === "mask" || kind === "safety-score" || kind === "safety-intro") return "safety";
+    if (kind === "lab") return "lab";
     if (kind === "open" || kind === "copy" || kind === "paste" || kind === "send" || kind === "check") return kind;
     return "check";
   }
@@ -767,8 +769,15 @@
     var needCol = el("section");
     needCol.appendChild(el("h2", "", "Что понадобится"));
     var needs = [];
+    var seenWork = false;
     day.exerciseIds.forEach(function (id) {
       (exercise(id).needs || []).forEach(function (line) {
+        if (line.indexOf("WorkAI") >= 0) {
+          if (seenWork) return;
+          seenWork = true;
+          needs.push("Программа WorkAI.");
+          return;
+        }
         if (needs.indexOf(line) < 0) needs.push(line);
       });
     });
@@ -1028,7 +1037,9 @@
           }));
         }
       } else if (current.kind === "safety") {
-        var nextCard = primary("Дальше", advance, !bucket.safety[current.index]);
+        var picked = Boolean(bucket.safety[current.index]);
+        if (!picked) row.appendChild(el("p", "manual", "Сначала выберите один ответ. Тогда включится кнопка «Дальше»."));
+        var nextCard = primary("Дальше", advance, !picked);
         row.appendChild(nextCard);
       } else if (current.kind === "done") {
         var last = day.exerciseIds.indexOf(id) === day.exerciseIds.length - 1;
@@ -1073,8 +1084,6 @@
       if (target) target.focus();
     } else if (focusKey !== lastFocus) {
       lastFocus = focusKey;
-      var head = document.getElementById("step-heading");
-      if (head) head.focus();
     }
   }
 

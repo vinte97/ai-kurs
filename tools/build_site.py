@@ -97,7 +97,6 @@ try {
   document.documentElement.setAttribute("data-open", "0");
 }
 </script>"""
-    font = "https://fonts.googleapis.com/css2?family=Manrope:wght@500;700&amp;display=swap"
     partners = """
 <div class="partners">
   <a href="https://omsk.top-academy.ru/" target="_blank" rel="noopener"><img src="images/partners/top-academy.svg" alt=""><span>Академия ТОП <small>Омск</small></span></a>
@@ -120,7 +119,6 @@ try {
 <meta name="viewport" content="width=device-width, initial-scale=1">
 %s
 <title>%s</title>
-<link rel="stylesheet" href="%s">
 <link rel="stylesheet" href="css/tokens.css">
 <link rel="stylesheet" href="css/site.css">
 </head>
@@ -146,7 +144,7 @@ try {
 <script src="js/lesson.js"></script>
 </body>
 </html>
-""" % (boot, esc(title), font, page_attr, partners, "\n  ".join(links), code_box, body)
+""" % (boot, esc(title), page_attr, partners, "\n  ".join(links), code_box, body)
 
 
 def prompt_card(course, prompt):
