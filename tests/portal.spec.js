@@ -145,7 +145,7 @@ test('preparation stages open independently and revisiting preserves marks', asy
   await page.getByRole('button', { name: 'Начать подготовку', exact: true }).click();
   await page.getByRole('button', { name: 'Windows', exact: true }).click();
   const stages = page.getByRole('navigation', { name: 'Этапы подготовки', exact: true });
-  await expect(stages.getByRole('button')).toHaveCount(7);
+  await expect(stages.getByRole('button')).toHaveCount(6);
   await page.getByRole('button', { name: 'Далее', exact: true }).click();
   await stages.getByRole('button', { name: '3. Git', exact: true }).click();
   await expect(page.locator('#wizard .official a')).toHaveAttribute('href', 'https://git-scm.com/install/windows');
@@ -154,20 +154,27 @@ test('preparation stages open independently and revisiting preserves marks', asy
   expect(await page.evaluate(() => JSON.parse(localStorage.getItem('aikurs-progress-v1')).done['w-workai'])).toBe(true);
 });
 
-test('Severprom button copies agent instructions without downloading in the browser', async ({ page, context }) => {
+test('day 2 copies safe company instructions from the open learning folder', async ({ page, context }) => {
   await context.grantPermissions(['clipboard-read', 'clipboard-write']);
-  await page.goto('/prepare.html#start');
-  await page.getByRole('button', { name: 'Начать подготовку', exact: true }).click();
-  await page.getByRole('button', { name: 'Windows', exact: true }).click();
-  await page.getByRole('button', { name: '6. СеверПром', exact: true }).click();
-  await page.getByRole('button', { name: 'Скачать СеверПром', exact: true }).click();
-  await expect(page.locator('#wizard .copy-status')).toContainText('Запрос скопирован');
+  await page.goto('/day2.html#task-d2-company');
+  await page.getByRole('button', { name: 'Получить СеверПром', exact: true }).click();
+  await expect(page.locator('#lesson-app .copy-status')).toContainText('Запрос скопирован');
   const prompt = await page.evaluate(() => navigator.clipboard.readText());
-  expect(prompt).toBe(await page.evaluate(() => window.SEVERPROM_PROMPT));
   expect(prompt).toContain('https://github.com/cursorstudent-course/company.git');
-  expect(prompt).toContain('Сначала спроси меня');
-  expect(prompt).toContain('ничего не перезаписывай');
-  expect(prompt).toContain('git --version');
+  expect(prompt).toContain('company уже существует');
+  expect(prompt).toContain('results рядом');
+  expect(prompt).toContain('Git и Python');
+});
+
+test('day 2 has staged practices and independent PDF instructions', async ({ page }) => {
+  await page.goto('/day2.html#task-d2-meeting');
+  await expect(page.locator('#lesson-app .prompt-sheet')).toHaveCount(3);
+  await expect(page.locator('#lesson-app')).toContainText('Результат этапа:');
+  await page.goto('/day2.html#task-d2-pdf');
+  await expect(page.locator('#lesson-app')).toContainText('не используй DOCX как источник');
+  await page.goto('/day2.html#task-d2-report');
+  await expect(page.locator('#lesson-app')).toContainText('Доклад/index.html');
+  await expect(page.locator('#lesson-app')).toContainText('двойным щелчком');
 });
 
 test('all presentation topics are available without the deck', async ({ page }) => {

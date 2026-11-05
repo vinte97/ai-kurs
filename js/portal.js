@@ -271,7 +271,6 @@
       figure.appendChild(el("figcaption", "", shot.alt));
       layout.appendChild(figure);
     }
-    if (step.copyPrompt) copy.appendChild(materialsPrompt());
     card.appendChild(layout);
     card.appendChild(el("p", "expect", "Результат: " + step.check));
 
@@ -299,36 +298,6 @@
     return bar;
   }
 
-  function materialsPrompt() {
-    var box = el("div", "materials-prompt");
-    var copy = el("button", "btn", "Скачать СеверПром");
-    copy.type = "button";
-    var status = el("p", "copy-status");
-    status.setAttribute("role", "status");
-    var details = el("details");
-    details.appendChild(el("summary", "", "Текст запроса для агента"));
-    details.appendChild(el("pre", "prompt-text", window.SEVERPROM_PROMPT));
-    function copied() { status.textContent = "Запрос скопирован. Вставьте его в WorkAI и укажите папку, когда агент спросит."; }
-    function fallback() {
-      var area = el("textarea");
-      area.value = window.SEVERPROM_PROMPT;
-      document.body.appendChild(area);
-      area.select();
-      var ok = false;
-      try { ok = document.execCommand("copy"); } catch (e) {}
-      area.remove();
-      if (ok) copied();
-      else { details.open = true; status.textContent = "Не удалось скопировать. Выделите запрос ниже и скопируйте вручную."; }
-    }
-    copy.addEventListener("click", function () {
-      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(window.SEVERPROM_PROMPT).then(copied, fallback);
-      else fallback();
-    });
-    box.appendChild(copy);
-    box.appendChild(status);
-    box.appendChild(details);
-    return box;
-  }
 
   function playerBar(step) {
     var bar = el("div", "player-bar");
@@ -458,7 +427,7 @@
 
   function welcomeScreen() {
     setIntro(true);
-    root.appendChild(el("p", "", "Для занятий нужна программа WorkAI. Подготовка включает установку и вход в WorkAI, Git, Python, создание рабочей папки и скачивание «СеверПром». Git нужен для скачивания материалов; Python — для практики с автоматизацией."));
+    root.appendChild(el("p", "", "Для занятий нужна программа WorkAI. Подготовка включает установку и вход в WorkAI, Git, Python и создание рабочей папки. Материалы «СеверПром» получим на дне 2. Git нужен для скачивания материалов; Python — для практики с автоматизацией."));
     root.appendChild(el("p", "", "Инструкцию можно читать с телефона, а кнопки нажимать на компьютере. Страницу можно закрыть и вернуться позже: отметки останутся на этом устройстве."));
     root.appendChild(el("p", "", "Если что-то не выйдет, на шаге есть кнопка «Не получается?». Можно также написать преподавателю."));
     var start = el("button", "btn", "Начать подготовку");
@@ -527,9 +496,9 @@
     if (last && last.praise && state.done[last.id] === true) {
       root.appendChild(el("p", "ok", last.praise));
     }
-    root.appendChild(el("h1", "", "Компьютер готов к занятиям"));
+    root.appendChild(el("h1", "", "Шаги подготовки отмечены"));
     root.appendChild(el("p", "ok", "Отметки сохранены на этом устройстве. Регистрация на сайте курса не нужна."));
-    root.appendChild(el("p", "", "Отметки ставите вы сами. Они не заменяют проверку. Настоящая проверка такая: окно WorkAI открылось. Для Git и Python проверка — сообщение установщика, что установка закончилась."));
+    root.appendChild(el("p", "", "Отметки не подтверждают установку. На дне 2 агент проверит доступность и версии Git и Python. Если инструмент недоступен, он остановится и объяснит, что нужно исправить."));
     var list = document.createElement("ul");
     steps().forEach(function (step) {
       if (!state.done[step.id]) return;

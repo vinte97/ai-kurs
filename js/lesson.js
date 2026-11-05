@@ -611,8 +611,9 @@
     bar.appendChild(home);
     if (day.sections) bar.appendChild(button("task-tab", "Материал дня", function () { setHash("#guide"); applyEntry(false); save(); render(); }));
     day.exerciseIds.forEach(function (id, index) {
-      var tab = button("task-tab", String(index + 1) + (bucket.done[id] ? " ✓" : ""), function () { openExercise(id, 0); });
-      tab.setAttribute("aria-label", "Задание " + (index + 1) + ": " + plainTitle(exercise(id).title));
+      var navLabel = day.number === 2 ? (id === "d2-company" ? "Старт" : String(index)) : String(index + 1);
+      var tab = button("task-tab", navLabel + (bucket.done[id] ? " ✓" : ""), function () { openExercise(id, 0); });
+      tab.setAttribute("aria-label", day.number === 2 ? exercise(id).title : "Задание " + (index + 1) + ": " + plainTitle(exercise(id).title));
       tab.title = plainTitle(exercise(id).title);
       if (bucket.place === "step" && bucket.at === id) tab.setAttribute("aria-current", "step");
       bar.appendChild(tab);
@@ -626,7 +627,7 @@
     var status = el("p", "copy-status");
     status.setAttribute("role", "status");
     box.appendChild(button("btn secondary", label || "Скопировать запрос", function () {
-      writeText(text, function () { status.textContent = "Скопировано."; }, function () { status.textContent = "Выделите текст выше и скопируйте вручную: Ctrl+C или ⌘C."; });
+      writeText(text, function () { status.textContent = "Скопировано."; }, function () { status.textContent = "Не удалось скопировать. Выделите текст выше и нажмите Ctrl+C или ⌘C."; });
     }));
     box.appendChild(status);
     return box;
@@ -634,10 +635,10 @@
 
   function renderGuide() {
     var screen = el("article", "lesson-screen day-reference");
-    screen.appendChild(el("h1", "", "День 1. Материал занятия"));
+    screen.appendChild(el("h1", "", "День " + day.number + ". Материал занятия"));
     screen.appendChild(el("p", "lead", "Теория, разобранные примеры и переходы к практике. Этот материал можно использовать без презентации."));
     var contents = el("nav", "reference-contents");
-    contents.setAttribute("aria-label", "Темы первого дня");
+    contents.setAttribute("aria-label", "Темы дня " + day.number);
     day.sections.forEach(function (section) {
       var link = el("a", "", section.title);
       link.href = "#learn-" + section.id;
@@ -681,7 +682,7 @@
 
   function renderResources() {
     var screen = el("article", "lesson-screen");
-    screen.appendChild(el("h1", "", bucket.place === "materials" ? "Материалы первого дня" : "Запросы и шаблоны первого дня"));
+    screen.appendChild(el("h1", "", bucket.place === "materials" ? "Материалы дня " + day.number : "Запросы и шаблоны дня " + day.number));
     if (bucket.place === "materials") day.materials.forEach(function (key) { screen.appendChild(fileBlock(window.COURSE.materials[key])); });
     else {
       var ids = [];
@@ -735,16 +736,30 @@
     status.setAttribute("role", "status");
     sheet.appendChild(button("btn secondary", item.copyLabel || "Скопировать запрос", function () {
       if ((id === "lab-read" || id === "lab-note") && !((bucket.fields[id] || {}).name || "").trim()) { status.textContent = "Укажите номер или название, которое дал преподаватель."; return; }
-      writeText(text(), function () { status.textContent = "Запрос скопирован."; }, function () { status.textContent = "Выделите текст выше и скопируйте вручную: Ctrl+C или ⌘C."; });
+      writeText(text(), function () { status.textContent = "Запрос скопирован."; }, function () { status.textContent = "Не удалось скопировать. Выделите текст выше и нажмите Ctrl+C или ⌘C."; });
     }));
     sheet.appendChild(status);
     if (item.exampleHidden) { var example = el("details"); example.appendChild(el("summary", "", "Показать готовый пример запроса")); example.appendChild(sheet); screen.appendChild(example); }
     else screen.appendChild(sheet);
-    (item.extraPromptIds || []).forEach(function (pid) { var extra = window.COURSE.prompts.filter(function (p) { return p.id === pid; })[0]; screen.appendChild(copySheet(extra.promptText, extra.title, extra.description)); });
+    if (item.staged) {
+      sheet.querySelector("h3").textContent = prompt.title;
+      screen.appendChild(el("p", "", "Результат этапа: " + prompt.expectedResult));
+      screen.appendChild(checklist(prompt.acceptanceCriteria, id + ":" + prompt.id + ":result", "Проверьте перед следующим запросом."));
+    }
+    (item.extraPromptIds || []).forEach(function (pid) {
+      var extra = window.COURSE.prompts.filter(function (p) { return p.id === pid; })[0];
+      screen.appendChild(copySheet(extra.promptText, extra.title, extra.description));
+      if (item.staged) {
+        screen.appendChild(el("p", "", "Результат этапа: " + extra.expectedResult));
+        screen.appendChild(checklist(extra.acceptanceCriteria, id + ":" + extra.id + ":result", "Проверьте перед следующим запросом."));
+      }
+    });
     (item.examples || []).forEach(function (example) { screen.appendChild(promptSheet(example.text, example.title, "Учебный пример, не гарантированный ответ модели.", "")); });
-    screen.appendChild(el("h2", "", "Проверьте результат"));
-    screen.appendChild(el("p", "", prompt.expectedResult));
-    screen.appendChild(checklist(prompt.acceptanceCriteria, id + ":" + prompt.id + ":result", "Сверьте результат с критериями. Отметки сохраняются на этом устройстве."));
+    if (!item.staged) {
+      screen.appendChild(el("h2", "", "Проверьте результат"));
+      screen.appendChild(el("p", "", prompt.expectedResult));
+      screen.appendChild(checklist(prompt.acceptanceCriteria, id + ":" + prompt.id + ":result", "Сверьте результат с критериями. Отметки сохраняются на этом устройстве."));
+    }
     var help = el("details", "exercise-help");
     help.appendChild(el("summary", "", "Подсказка"));
     (prompt.hints || []).forEach(function (hint) { help.appendChild(el("p", "", hint)); });

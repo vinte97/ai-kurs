@@ -75,10 +75,9 @@ for (const name of Object.keys(tracks)) {
 }
 for (const track of Object.values(tracks)) {
   const groups = [...new Set(track.map(step => step.group))];
-  if (groups.join(',') !== 'workai,launch,git,python,files,materials,ready') throw new Error('preparation stages are not separated');
-  if (!track.find(step => step.group === 'materials').copyPrompt) throw new Error('no Severprom copy action');
+  if (groups.join(',') !== 'workai,launch,git,python,files,ready') throw new Error('preparation stages are not separated');
 }
-if (!sandbox.window.SEVERPROM_PROMPT.includes('https://github.com/cursorstudent-course/company.git') || !sandbox.window.SEVERPROM_PROMPT.includes('Сначала спроси меня')) throw new Error('Severprom prompt must use the verified repository and ask for destination');
+if (sandbox.window.SEVERPROM_PROMPT) throw new Error('company download belongs to day 2');
 if (!sandbox.window.UNKNOWN_STEPS.length) throw new Error("no unknown steps");
 """
     probe_run = subprocess.run(["node", "-e", probe], cwd=ROOT, capture_output=True, text=True)
