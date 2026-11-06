@@ -12,7 +12,6 @@ BANNED = [
     "Разберись, почему встала линия",
     "token=",
     "127.0.0.1",
-    ".zip",
 ]
 
 
@@ -75,7 +74,12 @@ for (const name of Object.keys(tracks)) {
 }
 for (const track of Object.values(tracks)) {
   const groups = [...new Set(track.map(step => step.group))];
-  if (groups.join(',') !== 'workai,launch,git,python,files,ready') throw new Error('preparation stages are not separated');
+  if (groups.join(',') !== 'workai,launch,git,python,files,billing,ready') throw new Error('preparation stages are not separated');
+}
+for (const track of Object.values(tracks)) {
+  const billing = track.filter(step => step.group === 'billing');
+  if (billing.length !== 2 || !billing.every(step => step.image)) throw new Error('billing instructions need two screenshots');
+  if (billing[0].action.href !== 'https://workai.su/dashboard/billing' || !billing[1].skip) throw new Error('billing link or wait-for-code path missing');
 }
 if (sandbox.window.SEVERPROM_PROMPT) throw new Error('company download belongs to day 2');
 if (!sandbox.window.UNKNOWN_STEPS.length) throw new Error("no unknown steps");

@@ -116,6 +116,7 @@
     python: "Устанавливаем Python",
     materials: "Материалы «СеверПром»",
     files: "Создаём рабочую папку",
+    billing: "Промокод занятия",
     ready: "Завершаем подготовку"
   };
 
@@ -286,7 +287,7 @@
   function preparationNavigation(currentStep) {
     var bar = el("nav", "preparation-navigation");
     bar.setAttribute("aria-label", "Этапы подготовки");
-    var labels = { workai: "WorkAI", enter: "Вход", git: "Git", python: "Python", files: "Рабочая папка", materials: "СеверПром", ready: "Проверка" };
+    var labels = { workai: "WorkAI", enter: "Вход", git: "Git", python: "Python", files: "Рабочая папка", materials: "СеверПром", billing: "Промокод", ready: "Проверка" };
     stageOrder().forEach(function (group, index) {
       var first = steps().filter(function (item) { return stageId(item) === group; })[0];
       var button = el("button", "task-tab", (index + 1) + ". " + labels[group]);
@@ -375,7 +376,7 @@
     state.asked = true;
     if (state.fast) {
       steps().forEach(function (item) {
-        if (item.group !== "files" && item.group !== "materials" && item.group !== "ready") state.done[item.id] = "skipped";
+        if (item.group !== "files" && item.group !== "materials" && item.group !== "billing" && item.group !== "ready") state.done[item.id] = "skipped";
       });
       state.fast = false;
     }

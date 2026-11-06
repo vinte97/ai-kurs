@@ -3,6 +3,7 @@ import argparse
 import html
 import json
 import shutil
+import zipfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -160,12 +161,15 @@ try {
 def prompt_card(course, prompt):
     checks = "".join("<li>%s</li>" % esc(step) for step in prompt["acceptanceCriteria"])
     hint = esc(prompt["hints"][0]) if prompt["hints"] else ""
+    structure = ""
+    if prompt.get("promptParts"):
+        structure = '<details><summary>Структура РКФОП — пояснение, не копируется</summary><dl>' + "".join('<dt>%s</dt><dd>%s</dd>' % (esc(p["label"]), esc(p["text"])) for p in prompt["promptParts"]) + '</dl></details>'
     text_id = "text-" + prompt["id"]
     return """
 <article class="prompt-card" id="prompt-%s" data-topic="%s">
   <h3>%s</h3>
   <p>%s</p>
-  <pre id="%s" class="prompt-text">%s</pre>
+  %s<pre id="%s" class="prompt-text">%s</pre>
   <p><button class="btn copy-prompt" type="button" data-prompt-id="%s">Скопировать запрос</button></p>
   <p id="status-%s" class="copy-status" role="status"></p>
   <p>%s</p>
@@ -179,6 +183,7 @@ def prompt_card(course, prompt):
         esc(prompt.get("topic", "")),
         esc(prompt["title"]),
         esc(prompt["description"]),
+        structure,
         text_id,
         esc(prompt["promptText"]),
         esc(prompt["id"]),
@@ -472,8 +477,38 @@ def write_task_codes(course, config):
             segno.make(url, error="m").save(str(folder / ("task-%s.svg" % key)), scale=6, border=2)
 
 
+def write_day2_workbook(course):
+    day = course["days"][1]
+    prompts = {p["id"]: p for p in course["prompts"]}
+    folder = ROOT / "content" / "files"
+    workbook = ["# Моя тетрадь дня 2", "СеверПром — вымышленная организация; данные синтетические. Используйте только учебные материалы. Тетрадь хранится у вас, сайт её не собирает.", "Открытая учебная папка содержит две соседние папки: СеверПром (источники) и Результаты (ваши работы). Полный путь вводить и переименовывать системную Documents не нужно.", "Сохраните этот файл у себя, заполните после каждой практики. Все промпты есть на сайте и в day2-prompts.txt."]
+    texts = ["ДЕНЬ 2. ПОРУЧЕНИЯ ПО ПРАКТИКАМ И ЭТАПАМ"]
+    for key in day["exerciseIds"]:
+        exercise = course["exercises"][key]
+        workbook.extend(["## " + exercise["title"], exercise["goal"], "Вся практика: до %s минут, включая проверку." % exercise["minutes"], "### Входные материалы", "\n".join("- " + name for name in exercise["needs"])])
+        texts.append("\n" + exercise["title"])
+        for pid in [exercise["promptId"]] + exercise.get("extraPromptIds", []):
+            prompt = prompts[pid]
+            workbook.extend(["### " + prompt["title"], prompt["description"], "Результат в папке «Результаты»: " + prompt["expectedResult"], "Критерии: " + " ".join(prompt["acceptanceCriteria"])])
+            texts.append(prompt["title"] + "\n" + prompt["promptText"] + "\nРезультат: " + prompt["expectedResult"] + "\nПриёмка: " + " ".join(prompt["acceptanceCriteria"]))
+        for heading in ["Задача", "Мои запросы", "Что получил", "Что проверил", "Что исправил", "Вывод"]:
+            workbook.extend(["### " + heading, "_Заполните своими словами._"])
+    (folder / "day2-workbook.md").write_text("\n\n".join(workbook) + "\n", encoding="utf-8")
+    (folder / "day2-prompts.txt").write_text("\n\n".join(texts) + "\n", encoding="utf-8")
+    with zipfile.ZipFile(folder / "day2-workbook.zip", "w", compression=zipfile.ZIP_DEFLATED) as archive:
+        for key in day["materials"]:
+            path = course["materials"][key]["file"]
+            if path.endswith(".zip"):
+                continue
+            source = ROOT / "content" / path
+            info = zipfile.ZipInfo(str(Path(path).relative_to("files")), date_time=(2026, 11, 6, 0, 0, 0))
+            info.compress_type = zipfile.ZIP_DEFLATED
+            archive.writestr(info, source.read_bytes())
+
+
 def build(phase, out):
     course, config = load()
+    write_day2_workbook(course)
     phase = normalize(phase)
     if phase not in ("pre-course", "day-1", "day-2", "day-3", "day-4"):
         raise SystemExit("unknown phase")

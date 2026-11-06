@@ -284,10 +284,18 @@
     return -1;
   }
 
-  function promptSheet(text, title, purpose, expected) {
+  function promptSheet(text, title, purpose, expected, parts) {
     var sheet = el("div", "prompt-sheet");
     sheet.appendChild(el("h3", "", title || "Запрос"));
     if (purpose) sheet.appendChild(el("p", "", purpose));
+    if (parts && parts.length) {
+      var structure = el("details", "prompt-structure");
+      structure.appendChild(el("summary", "", "Структура РКФОП — пояснение, не копируется"));
+      var list = el("dl");
+      parts.forEach(function (part) { list.appendChild(el("dt", "", part.label)); list.appendChild(el("dd", "", part.text)); });
+      structure.appendChild(list);
+      sheet.appendChild(structure);
+    }
     var pre = el("pre", "prompt-text");
     pre.textContent = text;
     sheet.appendChild(pre);
@@ -344,7 +352,7 @@
         window.open(file.file, "_blank", "noopener");
       });
     });
-    actions.appendChild(view);
+    if (!file.file.endsWith(".zip")) actions.appendChild(view);
     box.appendChild(actions);
     var preview = el("pre", "file-preview prompt-text");
     preview.hidden = true;
@@ -421,6 +429,12 @@
       var guide = el("a", "btn", "Материал дня: теория и примеры");
       guide.href = "#guide";
       screen.appendChild(guide);
+    }
+    if (day.workbookMaterialId) {
+      var workbook = el("a", "btn secondary", "Скачать тетрадь Markdown");
+      workbook.href = window.COURSE.materials[day.workbookMaterialId].file;
+      workbook.setAttribute("download", "");
+      screen.appendChild(workbook);
     }
     var doneCount = day.exerciseIds.filter(function (id) { return bucket.done[id]; }).length;
     var grid = el("div", "home-grid");
@@ -622,8 +636,8 @@
     return bar;
   }
 
-  function copySheet(text, title, description, label) {
-    var box = promptSheet(text, title, description, "");
+  function copySheet(text, title, description, label, parts) {
+    var box = promptSheet(text, title, description, "", parts);
     var status = el("p", "copy-status");
     status.setAttribute("role", "status");
     box.appendChild(button("btn secondary", label || "Скопировать запрос", function () {
@@ -672,7 +686,7 @@
         wrap.appendChild(table);
         block.appendChild(wrap);
       }
-      section.examples.forEach(function (example) { block.appendChild(promptSheet(example.text, example.title, "Учебная заготовка, не живой ответ модели.", "")); });
+      section.examples.forEach(function (example) { block.appendChild(promptSheet(example.text, example.title, example.description || "Учебная заготовка, не живой ответ модели.", "")); });
       section.links.forEach(function (item) { var link = el("a", "reference-link", item.label); link.href = item.url; block.appendChild(link); });
       section.tasks.forEach(function (id) { var link = el("a", "btn secondary", exercise(id).title); link.href = "#task-" + id; block.appendChild(link); });
       screen.appendChild(block);
@@ -687,7 +701,7 @@
     else {
       var ids = [];
       day.exerciseIds.forEach(function (key) { var item = exercise(key); ids.push(item.promptId); (item.extraPromptIds || []).forEach(function (id) { ids.push(id); }); });
-      window.COURSE.prompts.filter(function (p) { return ids.indexOf(p.id) >= 0; }).forEach(function (prompt) { screen.appendChild(copySheet(prompt.promptText, prompt.title, prompt.description, prompt.manual ? "Скопировать текст" : "Скопировать запрос")); });
+      window.COURSE.prompts.filter(function (p) { return ids.indexOf(p.id) >= 0; }).forEach(function (prompt) { screen.appendChild(copySheet(prompt.promptText, prompt.title, prompt.description, prompt.manual ? "Скопировать текст" : "Скопировать запрос", prompt.promptParts)); });
     }
     app.appendChild(screen);
   }
@@ -704,6 +718,7 @@
     heading.tabIndex = -1;
     screen.appendChild(heading);
     screen.appendChild(el("p", "lead", item.goal));
+    if (item.staged) screen.appendChild(el("p", "note", "На всю практику — до " + item.minutes + " минут, включая проверку файла."));
     var file = prompt.requiredMaterials.length ? window.COURSE.materials[prompt.requiredMaterials[0]] : null;
     if (file) screen.appendChild(fileBlock(file));
     screen.appendChild(el("h2", "", "Что сделать"));
@@ -731,7 +746,7 @@
     }
     var text = function () { return BUILDERS[id] || id === "lab-read" || id === "lab-note" ? assembled(id) : prompt.promptText; };
     // The existing helper builder updates this sheet as the fields change.
-    var sheet = promptSheet(text(), item.promptHeading || "Запрос для WorkAI", prompt.description, "");
+    var sheet = promptSheet(text(), item.promptHeading || "Запрос для WorkAI", prompt.description, "", prompt.promptParts);
     var status = el("p", "copy-status");
     status.setAttribute("role", "status");
     sheet.appendChild(button("btn secondary", item.copyLabel || "Скопировать запрос", function () {

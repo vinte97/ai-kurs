@@ -145,7 +145,7 @@ test('preparation stages open independently and revisiting preserves marks', asy
   await page.getByRole('button', { name: 'Начать подготовку', exact: true }).click();
   await page.getByRole('button', { name: 'Windows', exact: true }).click();
   const stages = page.getByRole('navigation', { name: 'Этапы подготовки', exact: true });
-  await expect(stages.getByRole('button')).toHaveCount(6);
+  await expect(stages.getByRole('button')).toHaveCount(7);
   await page.getByRole('button', { name: 'Далее', exact: true }).click();
   await stages.getByRole('button', { name: '3. Git', exact: true }).click();
   await expect(page.locator('#wizard .official a')).toHaveAttribute('href', 'https://git-scm.com/install/windows');
@@ -161,9 +161,10 @@ test('day 2 copies safe company instructions from the open learning folder', asy
   await expect(page.locator('#lesson-app .copy-status')).toContainText('Запрос скопирован');
   const prompt = await page.evaluate(() => navigator.clipboard.readText());
   expect(prompt).toContain('https://github.com/cursorstudent-course/company.git');
-  expect(prompt).toContain('company уже существует');
-  expect(prompt).toContain('results рядом');
+  expect(prompt).toContain('«СеверПром» уже существует');
+  expect(prompt).toContain('Рядом создай папку «Результаты»');
   expect(prompt).toContain('Git и Python');
+  expect(prompt).not.toMatch(/Роль:|Контекст:|Формат:|Ограничения:|Приёмка:/);
 });
 
 test('day 2 has staged practices and independent PDF instructions', async ({ page }) => {
@@ -171,7 +172,7 @@ test('day 2 has staged practices and independent PDF instructions', async ({ pag
   await expect(page.locator('#lesson-app .prompt-sheet')).toHaveCount(3);
   await expect(page.locator('#lesson-app')).toContainText('Результат этапа:');
   await page.goto('/day2.html#task-d2-pdf');
-  await expect(page.locator('#lesson-app')).toContainText('не используй DOCX как источник');
+  await expect(page.locator('#lesson-app')).toContainText(/не используй DOCX как источник/i);
   await page.goto('/day2.html#task-d2-report');
   await expect(page.locator('#lesson-app')).toContainText('Доклад/index.html');
   await expect(page.locator('#lesson-app')).toContainText('двойным щелчком');
@@ -185,4 +186,31 @@ test('all presentation topics are available without the deck', async ({ page }) 
   await expect(page).toHaveURL(/#learn-trip$/);
   await page.reload();
   await expect(page.locator('#lesson-app #learn-trip')).toContainText('80 000');
+});
+
+
+test('preparation finishes with billing screenshots and can wait for a lesson code', async ({ page }) => {
+  await page.goto('/prepare.html#start');
+  await page.getByRole('button', { name: 'Начать подготовку', exact: true }).click();
+  await page.getByRole('button', { name: 'Windows', exact: true }).click();
+  await page.getByRole('button', { name: '6. Промокод', exact: true }).click();
+  await expect(page.locator('#wizard .official a')).toHaveAttribute('href', 'https://workai.su/dashboard/billing');
+  await expect(page.locator('#wizard .step-shot')).toHaveAttribute('src', 'images/workai-billing-menu.png');
+  await page.getByRole('button', { name: 'Далее', exact: true }).click();
+  await expect(page.locator('#wizard .step-shot')).toHaveAttribute('src', 'images/workai-promo-code.png');
+  await expect(page.locator('#wizard')).toContainText('на каждом уроке');
+  await page.getByRole('button', { name: 'Пропустить этот блок', exact: true }).click();
+  await expect(page.locator('#wizard h1')).toContainText('Завершаем подготовку');
+});
+
+
+test('workbook downloads include an archive without a text preview', async ({ page, request }) => {
+  await page.goto('/day2.html#materials');
+  const archive = page.locator('.file-card').filter({ hasText: 'Комплект тетради:' });
+  await expect(archive.getByRole('link', { name: 'Скачать файл', exact: true })).toHaveAttribute('href', 'files/day2-workbook.zip');
+  await expect(archive.getByRole('button', { name: 'Посмотреть содержимое', exact: true })).toHaveCount(0);
+  expect((await request.get('/files/day2-workbook.zip')).ok()).toBeTruthy();
+  await page.goto('/day2.html#task-d2-meeting');
+  await expect(page.locator('.prompt-structure')).toHaveCount(1);
+  await expect(page.locator('#lesson-app pre').first()).not.toContainText('Роль:');
 });
