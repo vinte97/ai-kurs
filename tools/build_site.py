@@ -84,7 +84,7 @@ def shell(title, current, body, phase):
             links.append('<p class="nav-soon" data-day-soon="%d">%s<span>%s</span><small>Позже</small></p>' % (day_number, mark, esc(label)))
             if shown and current == href:
                 links.append('<div class="subnav" data-day="%d">%s</div>' % (day_number, "".join(
-                    '<a href="%s#%s">%s</a>' % (current, item, esc(name)) for item, name in (([("guide", "Материал дня")] + SUB) if current == "day1.html" else SUB)
+                    '<a href="%s#%s">%s</a>' % (current, item, esc(name)) for item, name in (([("guide", "Материал дня")] + SUB) if current in ("day1.html", "day2.html", "day3.html") else SUB)
                 )))
             continue
         target = "prepare.html#start" if href == "prepare.html" else href
@@ -209,7 +209,11 @@ def exercise_block(course, exercise_id, next_step):
     if exercise.get("exampleHidden"):
         prompt_html = '<details><summary>Показать готовый пример запроса</summary>%s</details>' % prompt_html
     for pid in exercise.get("extraPromptIds", []):
-        prompt_html += prompt_card(course, next(item for item in course["prompts"] if item["id"] == pid))
+        extra = next(item for item in course["prompts"] if item["id"] == pid)
+        for key in extra["requiredMaterials"]:
+            material = course["materials"][key]
+            prompt_html += '<p><a href="%s" download>Скачать: %s</a></p>' % (esc(material["file"]), esc(material["title"]))
+        prompt_html += prompt_card(course, extra)
     timing = '<p class="note">Около %d минут</p>' % exercise["minutes"] if exercise["minutes"] else ""
     return """
 <article class="exercise" id="task-%s">
@@ -253,6 +257,8 @@ def reference_sections(day):
             body += '<div class="reference-table"><table><thead><tr>%s</tr></thead><tbody>%s</tbody></table></div>' % (
                 "".join('<th scope="col">%s</th>' % esc(text) for text in table["headers"]),
                 "".join("<tr>%s</tr>" % "".join("<td>%s</td>" % esc(text) for text in row) for row in table["rows"]))
+        for question in section.get("questions", []):
+            body += '<p>%s</p><details><summary>Показать разбор</summary><p>%s. %s</p></details>' % (esc(question["text"]), esc(question["options"][question["correct"]]), esc(question["explanation"]))
         for example in section["examples"]:
             body += "<h3>%s</h3><pre class=\"prompt-text\">%s</pre>" % (esc(example["title"]), esc(example["text"]))
         body += "".join('<p><a href="%s">%s</a></p>' % (esc(item["url"]), esc(item["label"])) for item in section["links"])
@@ -477,12 +483,14 @@ def write_task_codes(course, config):
             segno.make(url, error="m").save(str(folder / ("task-%s.svg" % key)), scale=6, border=2)
 
 
-def write_day2_workbook(course):
-    day = course["days"][1]
+def write_workbook(course, number):
+    day = course["days"][number - 1]
     prompts = {p["id"]: p for p in course["prompts"]}
     folder = ROOT / "content" / "files"
-    workbook = ["# Моя тетрадь дня 2", "СеверПром — вымышленная организация; данные синтетические. Используйте только учебные материалы. Тетрадь хранится у вас, сайт её не собирает.", "Открытая учебная папка содержит две соседние папки: СеверПром (источники) и Результаты (ваши работы). Полный путь вводить и переименовывать системную Documents не нужно.", "Сохраните этот файл у себя, заполните после каждой практики. Все промпты есть на сайте и в day2-prompts.txt."]
-    texts = ["ДЕНЬ 2. ПОРУЧЕНИЯ ПО ПРАКТИКАМ И ЭТАПАМ"]
+    workbook = ["# Моя тетрадь дня %d" % number, "СеверПром — вымышленная организация; данные синтетические. Используйте только учебные материалы. Тетрадь хранится у вас, сайт её не собирает.", "Открытая учебная папка содержит две соседние папки: СеверПром (источники) и Результаты (ваши работы). Полный путь вводить и переименовывать системную Documents не нужно.", "Сохраните этот файл у себя, заполните после каждой практики. Все промпты есть на сайте и в day%d-prompts.txt." % number]
+    texts = ["ДЕНЬ %d. ПОРУЧЕНИЯ ПО ПРАКТИКАМ И ЭТАПАМ" % number]
+    if number == 3:
+        workbook.append("Работы этого дня: Результаты/День_3. Токен в тетрадь не вписывайте. Неотработанные MCP-вызовы и демонстрационные примеры отмечайте явно.")
     for key in day["exerciseIds"]:
         exercise = course["exercises"][key]
         workbook.extend(["## " + exercise["title"], exercise["goal"], "Вся практика: до %s минут, включая проверку." % exercise["minutes"], "### Входные материалы", "\n".join("- " + name for name in exercise["needs"])])
@@ -493,22 +501,23 @@ def write_day2_workbook(course):
             texts.append(prompt["title"] + "\n" + prompt["promptText"] + "\nРезультат: " + prompt["expectedResult"] + "\nПриёмка: " + " ".join(prompt["acceptanceCriteria"]))
         for heading in ["Задача", "Мои запросы", "Что получил", "Что проверил", "Что исправил", "Вывод"]:
             workbook.extend(["### " + heading, "_Заполните своими словами._"])
-    (folder / "day2-workbook.md").write_text("\n\n".join(workbook) + "\n", encoding="utf-8")
-    (folder / "day2-prompts.txt").write_text("\n\n".join(texts) + "\n", encoding="utf-8")
-    with zipfile.ZipFile(folder / "day2-workbook.zip", "w", compression=zipfile.ZIP_DEFLATED) as archive:
+    (folder / ("day%d-workbook.md" % number)).write_text("\n\n".join(workbook) + "\n", encoding="utf-8")
+    (folder / ("day%d-prompts.txt" % number)).write_text("\n\n".join(texts) + "\n", encoding="utf-8")
+    with zipfile.ZipFile(folder / ("day%d-workbook.zip" % number), "w", compression=zipfile.ZIP_DEFLATED) as archive:
         for key in day["materials"]:
             path = course["materials"][key]["file"]
             if path.endswith(".zip"):
                 continue
             source = ROOT / "content" / path
-            info = zipfile.ZipInfo(str(Path(path).relative_to("files")), date_time=(2026, 11, 6, 0, 0, 0))
+            info = zipfile.ZipInfo(str(Path(path).relative_to("files")), date_time=(2026, 11, 6 if number == 2 else 8, 0, 0, 0))
             info.compress_type = zipfile.ZIP_DEFLATED
             archive.writestr(info, source.read_bytes())
 
 
 def build(phase, out):
     course, config = load()
-    write_day2_workbook(course)
+    write_workbook(course, 2)
+    write_workbook(course, 3)
     phase = normalize(phase)
     if phase not in ("pre-course", "day-1", "day-2", "day-3", "day-4"):
         raise SystemExit("unknown phase")

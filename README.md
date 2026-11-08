@@ -18,7 +18,7 @@ python3 -m http.server 4183
 ## Материалы
 
 `content/course.json` — тексты, задания, запросы, материалы. `tools/build_site.py`
-создаёт HTML, данные JS, TXT запросов, Markdown-тетрадь и ZIP-комплект дня 2.
+создаёт HTML, данные JS, TXT запросов, Markdown-тетради и ZIP-комплекты дней 2 и 3.
 Не редактируйте созданные `day2.html`, `js/course.js`, `js/prompts.js` и `files/*`
 вместо источников. В `js/steps.js` — подготовка Windows/macOS, включая промокод.
 
@@ -34,6 +34,7 @@ python3 -m http.server 4183
 python3 tests/check_site.py
 python3 tests/check_day1_alignment.py
 python3 tests/check_day2_alignment.py
+python3 tests/check_day3_alignment.py
 node --check tests/portal.spec.js
 ```
 
@@ -53,3 +54,13 @@ python3 tests/check_day2_alignment.py /tmp/severprom-site-check
 
 Только по отдельному разрешению: обычный коммит и push в main, без force-push.
 GitHub Actions собирает и публикует Pages. Локальная сборка сама ничего не публикует.
+
+## День 3 и MCP
+
+Источник показа: presentation-review-3/source/src/content/day3.ts.
+Соответствие — content/day3-alignment.json; отчёт — docs/DAY3_ALIGNMENT.md.
+В day3.html есть подключение клиента, диагностика чтением и пять практик.
+На клиенте не устанавливают MCP-сервер, Python или учебную базу. Токен вводят
+отдельно в настройках; сайт его не собирает. Материалы — files/day3-* и files/day3/.
+Памятка подготовки прав/сети — docs/DAY3_INSTRUCTOR.md, в ZIP ученика не включается.
+Доступность живого стенда и действующий IP не подтверждены сборкой сайта.

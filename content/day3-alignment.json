@@ -1,0 +1,161 @@
+{
+  "source": "presentation-review-3/source/src/content/day3.ts",
+  "sha256": "adc248eca3fdc141c8bcb3d948837a0f78a5c93b2d515eb3f04562459f95ebd6",
+  "slides": [
+    {
+      "id": "cover",
+      "title": "День 3. ИИ выходит за пределы папки",
+      "site": "day3.html#overview"
+    },
+    {
+      "id": "lesson3_2",
+      "title": "Вчера мы работали с файлами",
+      "site": "day3.html#learn-mcp"
+    },
+    {
+      "id": "lesson3_3",
+      "title": "Что делаем сегодня?",
+      "site": "day3.html#overview"
+    },
+    {
+      "id": "lesson3_4",
+      "title": "Откуда ИИ узнает о новых поручениях?",
+      "site": "day3.html#learn-mcp"
+    },
+    {
+      "id": "lesson3_5",
+      "title": "Один вопрос. Два способа работы",
+      "site": "day3.html#learn-mcp"
+    },
+    {
+      "id": "lesson3_6",
+      "title": "MCP: подключаем инструменты",
+      "site": "day3.html#learn-mcp"
+    },
+    {
+      "id": "lesson3_7",
+      "title": "Как проходит ваш запрос?",
+      "site": "day3.html#learn-mcp"
+    },
+    {
+      "id": "lesson3_8",
+      "title": "Что сможет наш ИИ?",
+      "site": "day3.html#learn-access"
+    },
+    {
+      "id": "lesson3_9",
+      "title": "Прочитать или изменить?",
+      "site": "day3.html#learn-access"
+    },
+    {
+      "id": "lesson3_10",
+      "title": "Три правила подключённых систем",
+      "site": "day3.html#learn-access"
+    },
+    {
+      "id": "lesson3_11",
+      "title": "Возвращаемся в СеверПром",
+      "site": "day3.html#learn-visit"
+    },
+    {
+      "id": "lesson3_12",
+      "title": "Наш сервер - отдельная программа",
+      "site": "day3.html#learn-setup"
+    },
+    {
+      "id": "lesson3_13",
+      "title": "Подключаем MCP к WorkAI",
+      "site": "day3.html#task-d3-connect"
+    },
+    {
+      "id": "lesson3_14",
+      "title": "Подключение есть. А вызов работает?",
+      "site": "day3.html#task-lab-ping"
+    },
+    {
+      "id": "lesson3_15",
+      "title": "Первое письмо из другой системы",
+      "site": "day3.html#task-d3-inbox"
+    },
+    {
+      "id": "lesson3_16",
+      "title": "Перерыв",
+      "site": "day3.html#learn-break"
+    },
+    {
+      "id": "lesson3_17",
+      "title": "Практика 1. Что нового в компании?",
+      "site": "day3.html#task-d3-inbox"
+    },
+    {
+      "id": "lesson3_18",
+      "title": "Проверяем сведения из почты",
+      "site": "day3.html#learn-visit"
+    },
+    {
+      "id": "lesson3_19",
+      "title": "Практика 2. Статус - не вся правда",
+      "site": "day3.html#task-d3-status"
+    },
+    {
+      "id": "lesson3_20",
+      "title": "Что означает «выполнено»?",
+      "site": "day3.html#learn-status"
+    },
+    {
+      "id": "lesson3_21",
+      "title": "Практика 3. Передай поручение коллеге",
+      "site": "day3.html#task-d3-draft"
+    },
+    {
+      "id": "lesson3_22",
+      "title": "Получили ответ. Что изменилось?",
+      "site": "day3.html#task-d3-update"
+    },
+    {
+      "id": "lesson3_23",
+      "title": "Практика 4. Когда агенту нельзя доверять",
+      "site": "day3.html#task-d3-limits"
+    },
+    {
+      "id": "lesson3_24",
+      "title": "Практика 5. Утренняя сводка директора",
+      "site": "day3.html#task-d3-brief"
+    },
+    {
+      "id": "lesson3_25",
+      "title": "Проверяем управленческий результат",
+      "site": "day3.html#check"
+    },
+    {
+      "id": "lesson3_26",
+      "title": "Сегодня ИИ получил инструменты",
+      "site": "day3.html#task-d3-reflection"
+    }
+  ],
+  "stage_map": {
+    "17": "d3-inbox",
+    "19": "d3-status",
+    "21": "d3-draft",
+    "23": "d3-limits",
+    "24": "d3-brief"
+  },
+  "server_contract": {
+    "file": "severprom-mcp-lab/src/severprom_lab/mcp_server.py",
+    "sha256": "bb13e2308a301f9548a0b46d0b2fc29b332b1e6c415b5b28f13df1b03cb4ec73"
+  },
+  "connection": {
+    "name": "СеверПром",
+    "transport": "Streamable HTTP",
+    "url": "http://192.168.0.106:8765/mcp",
+    "health": "http://192.168.0.106:8765/healthz",
+    "live_verified": false,
+    "health_check": "Тайм-аут с компьютера подготовки 8 ноября 2026; доступ с клиента не проверен."
+  },
+  "editorial": [
+    "Новая инструкция пользователя подключения важнее устаревшей готовности черновика: whoami и assignments уже есть в коде.",
+    "Начальная проверка только чтением; токены, сроки персональных доступов и подготовка прав вынесены в заметку преподавателю.",
+    "Отправка требует отдельного подтверждения; delivered_virtual не является обменом между участниками.",
+    "Пример ответа и подозрительное письмо помечены учебными и не выдаются за результаты MCP."
+  ]
+}

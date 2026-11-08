@@ -214,3 +214,46 @@ test('workbook downloads include an archive without a text preview', async ({ pa
   await expect(page.locator('.prompt-structure')).toHaveCount(1);
   await expect(page.locator('#lesson-app pre').first()).not.toContainText('Роль:');
 });
+
+test('day 3 connects a client without collecting a token and checks only reads', async ({ page }) => {
+  await page.goto('/day3.html#task-d3-connect');
+  const app = page.locator('#lesson-app');
+  await expect(app).toContainText('http://192.168.0.106:8765/mcp');
+  await expect(app).toContainText('Не устанавливай сервер, Python');
+  await expect(app.locator('input[type=password]')).toHaveCount(0);
+  await page.goto('/day3.html#task-lab-ping');
+  await expect(app).toContainText('whoami');
+  await expect(app).toContainText('assignments:read');
+  await expect(app).toContainText('assignment_id="TEST-999"');
+});
+
+test('day 3 reference quizzes start neutral and allow correction with feedback', async ({ page }) => {
+  await page.goto('/day3.html#learn-access');
+  const group = page.getByRole('group', { name: 'Прочитать список писем', exact: true });
+  await expect(group.locator('[aria-pressed=true]')).toHaveCount(0);
+  await group.getByRole('button', { name: 'Запись', exact: true }).click();
+  await expect(group.locator('.quiz-incorrect')).toHaveText('Запись');
+  await group.getByRole('button', { name: 'Чтение', exact: true }).click();
+  await expect(group.locator('.quiz-correct')).toHaveText('Чтение');
+  await page.reload();
+  await expect(group.locator('.quiz-correct')).toHaveText('Чтение');
+});
+
+test('day 3 old links resolve and new-program marks do not reuse the old lesson', async ({ page }) => {
+  await page.addInitScript(() => localStorage.setItem('aikurs-lesson-v1', JSON.stringify({version: 1, mode: 'steps', days: {'1': {done: {refine: true}}, '3': {at: 'lab-mail', done: {'lab-mail': true}, marks: {}, summary: {0: true}, finished: true}}})));
+  await page.goto('/day3.html#task-lab-read');
+  await expect(page).toHaveURL(/#task-d3-inbox$/);
+  const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('aikurs-lesson-v1')));
+  expect(saved.days['3'].done).toEqual({});
+  expect(saved.days['3'].contentVersion).toBe(1);
+  expect(saved.days['1'].done.refine).toBe(true);
+  await page.goto('/day3.html#task-d3-limits');
+  await expect(page.locator('#lesson-app a[download]')).toHaveAttribute('href', 'files/day3/Подозрительное_письмо.txt');
+});
+
+test('day 2 follows the current expense-report route', async ({ page }) => {
+  await page.goto('/day2.html#task-d2-report');
+  await expect(page.locator('#lesson-app h1')).toHaveText('Практика 4. Три слайда для доклада');
+  await expect(page.locator('#lesson-app')).toContainText('Результаты/08_Анализ_расходов.xlsx');
+  await expect(page.locator('#lesson-app')).toContainText('Результаты/09_Выводы_по_расходам.md');
+});

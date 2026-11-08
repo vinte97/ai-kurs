@@ -43,6 +43,15 @@
       delete current.done.safety;
       markTask("safety", false);
     }
+    if (day.number === 3 && current.contentVersion !== 1) {
+      current.at = "";
+      current.done = {};
+      current.marks = {};
+      current.summary = {};
+      current.finished = false;
+      current.contentVersion = 1;
+      ["lab-ping", "lab-mail", "lab-read", "lab-note"].forEach(function (id) { markTask(id, false); });
+    }
     current.fields = current.fields || {};
     current.summary = current.summary || {};
     current.downloaded = current.downloaded || {};
@@ -148,12 +157,6 @@
       "42 не названы полученными деньгами.",
       "Я назвал вопрос, которого файл не закрывает."
     ],
-    3: [
-      "Я не вставлял адрес и ключ в запрос.",
-      "Я отличаю ответ лаборатории от ошибки.",
-      "Список писем не превратился в отправку.",
-      "Отказ я записал и не пытался обойти."
-    ],
     4: [
       "Название роли написано мной.",
       "Платёж и кадровое решение остаются человеку.",
@@ -174,14 +177,6 @@
     var values = fieldValues(id);
     if (id === "helper") {
       return "По приложенной карточке собери правило помощника.\nРоль: " + values.role + ".\nЧто готовит: " + values.prepares + ".\nКакие файлы может видеть: " + values.sees + ".\nЧего не делает: " + values.refuses + ".\nПодпись, платёж и кадровое решение оставь человеку.\nПрограмму для этого писать не нужно.";
-    }
-    if (id === "lab-read") {
-      var mail = (bucket.fields["lab-read"] || {}).name || "";
-      return "Прочитай одно письмо учебной лаборатории.\nИспользуй инструмент mail_read.\nПисьмо: " + mail.trim() + ".\nНе пиши ответ отправителю и не отправляй ничего.";
-    }
-    if (id === "lab-note") {
-      var note = (bucket.fields["lab-note"] || {}).name || "";
-      return "Найди учебную заметку.\nИспользуй инструмент notes_get.\nНазвание: " + note.trim() + ".\nЕсли служба отказала, приведи текст отказа и не повторяй запрос.";
     }
     var prompt = promptOf(id);
     return prompt ? prompt.promptText : "";
@@ -389,22 +384,6 @@
       label.appendChild(input);
       box.appendChild(label);
     });
-    if (id === "lab-read" || id === "lab-note") {
-      var label = el("label", "field");
-      label.appendChild(el("span", "", id === "lab-read" ? "Номер или название письма" : "Название заметки"));
-      var input = document.createElement("input");
-      input.type = "text";
-      input.value = (bucket.fields[id] || {}).name || "";
-      input.placeholder = "Как сказал преподаватель";
-      input.addEventListener("input", function () {
-        bucket.fields[id] = { name: input.value };
-        var pre = app.querySelector(".prompt-sheet pre");
-        if (pre) pre.textContent = assembled(id);
-        save();
-      });
-      label.appendChild(input);
-      box.appendChild(label);
-    }
     var restore = button("btn secondary", "Восстановить исходный пример", function () {
       bucket.fields[id] = {};
       save();
@@ -625,9 +604,9 @@
     bar.appendChild(home);
     if (day.sections) bar.appendChild(button("task-tab", "Материал дня", function () { setHash("#guide"); applyEntry(false); save(); render(); }));
     day.exerciseIds.forEach(function (id, index) {
-      var navLabel = day.number === 2 ? (id === "d2-company" ? "Старт" : String(index)) : String(index + 1);
+      var navLabel = exercise(id).navLabel || (day.number === 2 ? (id === "d2-company" ? "Старт" : String(index)) : String(index + 1));
       var tab = button("task-tab", navLabel + (bucket.done[id] ? " ✓" : ""), function () { openExercise(id, 0); });
-      tab.setAttribute("aria-label", day.number === 2 ? exercise(id).title : "Задание " + (index + 1) + ": " + plainTitle(exercise(id).title));
+      tab.setAttribute("aria-label", (day.number === 2 || day.number === 3) ? exercise(id).title : "Задание " + (index + 1) + ": " + plainTitle(exercise(id).title));
       tab.title = plainTitle(exercise(id).title);
       if (bucket.place === "step" && bucket.at === id) tab.setAttribute("aria-current", "step");
       bar.appendChild(tab);
@@ -644,6 +623,42 @@
       writeText(text, function () { status.textContent = "Скопировано."; }, function () { status.textContent = "Не удалось скопировать. Выделите текст выше и нажмите Ctrl+C или ⌘C."; });
     }));
     box.appendChild(status);
+    return box;
+  }
+
+  function referenceQuestions(section) {
+    var box = el("div");
+    var key = "quiz:" + section.id;
+    var answers = bucket.fields[key] || {};
+    section.questions.forEach(function (question, index) {
+      var group = el("section", "quiz-question");
+      var heading = el("h3", "", question.text);
+      heading.id = "quiz-" + section.id + "-" + index;
+      heading.tabIndex = -1;
+      group.appendChild(heading);
+      var choices = el("div", "choice-list");
+      choices.setAttribute("role", "group");
+      choices.setAttribute("aria-label", question.text);
+      question.options.forEach(function (text, value) {
+        var selected = answers[index] === value;
+        var choice = button("btn secondary" + (selected ? (value === question.correct ? " quiz-correct" : " quiz-incorrect") : ""), text, function () {
+          answers[index] = value;
+          bucket.fields[key] = answers;
+          pendingFocus = "#" + heading.id;
+          save();
+          render();
+        });
+        choice.setAttribute("aria-pressed", String(selected));
+        choices.appendChild(choice);
+      });
+      group.appendChild(choices);
+      if (answers[index] != null) {
+        var feedback = el("p", "quiz-feedback", (answers[index] === question.correct ? "Верно. " : "Неверно — попробуйте другой ответ. ") + question.explanation);
+        feedback.setAttribute("role", "status");
+        group.appendChild(feedback);
+      }
+      box.appendChild(group);
+    });
     return box;
   }
 
@@ -687,6 +702,7 @@
         block.appendChild(wrap);
       }
       section.examples.forEach(function (example) { block.appendChild(promptSheet(example.text, example.title, example.description || "Учебная заготовка, не живой ответ модели.", "")); });
+      if (section.questions) block.appendChild(referenceQuestions(section));
       section.links.forEach(function (item) { var link = el("a", "reference-link", item.label); link.href = item.url; block.appendChild(link); });
       section.tasks.forEach(function (id) { var link = el("a", "btn secondary", exercise(id).title); link.href = "#task-" + id; block.appendChild(link); });
       screen.appendChild(block);
@@ -725,7 +741,7 @@
     var instructions = el("ol", "exercise-instructions");
     (item.steps || []).forEach(function (text) { instructions.appendChild(el("li", "", text)); });
     screen.appendChild(instructions);
-    if (BUILDERS[id] || id === "lab-read" || id === "lab-note") screen.appendChild(fieldsBlock(id));
+    if (BUILDERS[id]) screen.appendChild(fieldsBlock(id));
     if (item.compose) {
       var draft = el("textarea");
       draft.id = "own-prompt";
@@ -744,13 +760,12 @@
       }));
       screen.appendChild(draftStatus);
     }
-    var text = function () { return BUILDERS[id] || id === "lab-read" || id === "lab-note" ? assembled(id) : prompt.promptText; };
+    var text = function () { return BUILDERS[id] ? assembled(id) : prompt.promptText; };
     // The existing helper builder updates this sheet as the fields change.
     var sheet = promptSheet(text(), item.promptHeading || "Запрос для WorkAI", prompt.description, "", prompt.promptParts);
     var status = el("p", "copy-status");
     status.setAttribute("role", "status");
     sheet.appendChild(button("btn secondary", item.copyLabel || "Скопировать запрос", function () {
-      if ((id === "lab-read" || id === "lab-note") && !((bucket.fields[id] || {}).name || "").trim()) { status.textContent = "Укажите номер или название, которое дал преподаватель."; return; }
       writeText(text(), function () { status.textContent = "Запрос скопирован."; }, function () { status.textContent = "Не удалось скопировать. Выделите текст выше и нажмите Ctrl+C или ⌘C."; });
     }));
     sheet.appendChild(status);
@@ -763,6 +778,7 @@
     }
     (item.extraPromptIds || []).forEach(function (pid) {
       var extra = window.COURSE.prompts.filter(function (p) { return p.id === pid; })[0];
+      (extra.requiredMaterials || []).forEach(function (key) { screen.appendChild(fileBlock(window.COURSE.materials[key])); });
       screen.appendChild(copySheet(extra.promptText, extra.title, extra.description));
       if (item.staged) {
         screen.appendChild(el("p", "", "Результат этапа: " + extra.expectedResult));
