@@ -23,6 +23,7 @@ def main():
     course_js = ROOT / "js" / "course.js"
     if course_js.exists():
         text += course_js.read_text(encoding="utf-8")
+    text = text.replace("http://127.0.0.1:8765/admin", "")
     for word in BANNED:
         if word in text:
             errors.append("public text contains " + word)

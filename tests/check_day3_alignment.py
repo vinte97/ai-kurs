@@ -29,6 +29,8 @@ if source.exists():
         assert len(ids) == len(stages[slide])
         for pid, stage in zip(ids, stages[slide]):
             p = ps[pid]
+            if pid in {'d3-status-1', 'd3-limits-1'}:
+                continue  # Basic classroom build uses the notes archive in these stages.
             assert p['promptText'].startswith(stage['prompt'].replace('\\n', '\n'))
             assert p['acceptanceCriteria'] == [stage['check']]
 for key in d['exerciseIds']:
@@ -40,12 +42,15 @@ for key in d['exerciseIds']:
         assert not re.search(r'\b(?:Роль|Контекст|Формат|Ограничения|Приёмка):', p['promptText'])
         assert p['promptText'] in (ROOT / 'files/day3-prompts.txt').read_text()
 setup = ps['d3-connect-1']['promptText']
-for text in ['http://192.168.0.106:8765/mcp', 'Streamable HTTP', 'Authorization', 'Bearer <персональный токен>', 'student-XX', 'Не устанавливай сервер, Python', 'localhost', 'Host/Origin']:
+for text in ['MCP.json', 'http://<IP преподавателя>:8765/mcp', 'Streamable HTTP', 'Authorization', 'Basic', 'Base64', 'X-Display-Name', 'encodeURIComponent', 'severprom', 'whoami']:
     assert text in setup
-assert 'не проси прислать его в чат' in setup
+assert 'не сохраняй их или персональный MCP.json в общем репозитории' in setup
 check = ps['lab-ping-1']['promptText']
-for text in ['lab_ping', 'whoami', 'workspace_label', 'mail:read', 'notes:read', 'assignments:read', 'limit=5', 'list_assignments', 'VISIT-101–VISIT-105', 'assignment_id="TEST-999"', 'NOT_FOUND', 'Ничего не отправляй']:
+for text in ['lab_ping', 'whoami', 'profile.name', 'profile.email', 'limit=5', 'notes_search', 'include_knowledge=true']:
     assert text in check
+assert 'notes_search' in ps['d3-status-1']['promptText']
+assert 'notes_get' in ps['d3-limits-1']['promptText']
+assert 'зарегистрированного участника' in ps['d3-draft-3']['promptText']
 assert 'Сам этот запрос не является' in ps['d3-draft-3']['promptText']
 assert 'delivered_virtual' in ps['d3-draft-3']['promptText'] and 'request_id' in ps['d3-draft-3']['promptText']
 assert ps['d3-limits-2']['requiredMaterials'] == ['d3-suspicious']
@@ -62,7 +67,9 @@ with zipfile.ZipFile(ROOT / 'files/day3-workbook.zip') as z:
         assert not any(word in name.lower() for word in ['instructor', 'teacher', 'эталон', 'организатор'])
         assert z.read(name) == (ROOT / 'files' / name).read_bytes()
 public = '\n'.join((ROOT / path).read_text() for path in ['day3.html', 'files/day3-prompts.txt', 'files/day3-workbook.md'])
-assert '12:49' not in public and 'student-01' not in public
+for obsolete in ['Bearer', '192.168.0.106', 'student-XX', 'assignments:read', 'list_assignments', 'get_assignment']:
+    assert obsolete not in public, obsolete
+assert 'http://127.0.0.1:8765/admin' in (ROOT / 'day3.html').read_text()
 assert not m['connection']['live_verified']
 print('ok: all 26 slides mapped, 5 practices, client-only setup, read-only diagnostics, safe delivery and materials')
 

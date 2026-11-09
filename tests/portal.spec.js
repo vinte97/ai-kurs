@@ -215,16 +215,16 @@ test('workbook downloads include an archive without a text preview', async ({ pa
   await expect(page.locator('#lesson-app pre').first()).not.toContainText('Роль:');
 });
 
-test('day 3 connects a client without collecting a token and checks only reads', async ({ page }) => {
+test('day 3 connects a client with Basic and verifies the profile', async ({ page }) => {
   await page.goto('/day3.html#task-d3-connect');
   const app = page.locator('#lesson-app');
-  await expect(app).toContainText('http://192.168.0.106:8765/mcp');
+  await expect(app).toContainText('http://<IP преподавателя>:8765/mcp');
   await expect(app).toContainText('Не устанавливай сервер, Python');
   await expect(app.locator('input[type=password]')).toHaveCount(0);
   await page.goto('/day3.html#task-lab-ping');
   await expect(app).toContainText('whoami');
-  await expect(app).toContainText('assignments:read');
-  await expect(app).toContainText('assignment_id="TEST-999"');
+  await expect(app).toContainText('profile.email');
+  await expect(app).toContainText('include_knowledge=true');
 });
 
 test('day 3 reference quizzes start neutral and allow correction with feedback', async ({ page }) => {
