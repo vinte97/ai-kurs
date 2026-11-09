@@ -1,0 +1,20 @@
+{
+  "sources": {
+    "src/content/day4.ts": "6e8733469a6cf50b3a4119bc205e60d2aea71c6e6cbffcfe900a62e66cb64638",
+    "src/content/plan.ts": "1f69db77cd77fea2e6bc3fc9cd0d26e04a1532fabb0dea17eead5f3ab6a4e11f",
+    "public/materials/Тетрадь-дня-4.md": "f6b105b321daabdbde0685c8fa7bde301fbf902865eec5d6d78aea1007806b50",
+    "public/materials/Промпты-дня-4.txt": "2b5a60c85274eec641edc080f18a2988471f96496047aec46e8fd47a6f601e39",
+    "public/materials/Поручение-Конструктор.txt": "2a8d1ac3adf4cf6c1c0a3fc938d08f63faee0969822843845653f3d5f6b0d250",
+    "public/materials/Учебный-кейс.txt": "a2d0978a63b651f004583d7a5853aac19b6384007320344f3480f6b2aa9e8a21"
+  },
+  "practice_map": {
+    "lesson4_7": "d4-rules",
+    "lesson4_10": "d4-architect",
+    "lesson4_13": "d4-specialists",
+    "lesson4_15": "d4-sessions",
+    "lesson4_18": "d4-council",
+    "lesson4_21": "d4-own",
+    "lesson4_22": "d4-trials"
+  },
+  "prompt_count": 15
+}

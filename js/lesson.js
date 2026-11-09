@@ -138,15 +138,6 @@
     try { localStorage.setItem(key, JSON.stringify(saved)); } catch (e2) {}
   }
 
-  var BUILDERS = {
-    helper: [
-      ["role", "Как назвать роль?", "Помощник к совещанию"],
-      ["prepares", "Что он готовит?", "Короткую сводку к совещанию по файлам, которые дал человек"],
-      ["sees", "Какие файлы можно видеть?", "Только файлы, которые человек приложил к запросу"],
-      ["refuses", "Чего он не делает?", "Не подписывает письма, не отправляет платёж, не принимает кадровое решение"]
-    ]
-  };
-
   var SAFETY = day.safetyCases || [];
   var ANSWER = day.safetyAnswers || {};
 
@@ -156,31 +147,8 @@
       "В ответе есть 42, 31, 6 и 5.",
       "42 не названы полученными деньгами.",
       "Я назвал вопрос, которого файл не закрывает."
-    ],
-    4: [
-      "Название роли написано мной.",
-      "Платёж и кадровое решение остаются человеку.",
-      "Проверочный запрос не закончился отправкой платежа."
     ]
   };
-
-  function fieldValues(id) {
-    var saved = bucket.fields[id] || {};
-    var values = {};
-    (BUILDERS[id] || []).forEach(function (row) {
-      values[row[0]] = Object.prototype.hasOwnProperty.call(saved, row[0]) ? saved[row[0]] : row[2];
-    });
-    return values;
-  }
-
-  function assembled(id) {
-    var values = fieldValues(id);
-    if (id === "helper") {
-      return "По приложенной карточке собери правило помощника.\nРоль: " + values.role + ".\nЧто готовит: " + values.prepares + ".\nКакие файлы может видеть: " + values.sees + ".\nЧего не делает: " + values.refuses + ".\nПодпись, платёж и кадровое решение оставь человеку.\nПрограмму для этого писать не нужно.";
-    }
-    var prompt = promptOf(id);
-    return prompt ? prompt.promptText : "";
-  }
 
   function setHash(hash) {
     var next = hash || (location.pathname + location.search);
@@ -363,33 +331,6 @@
       : "Откройте проводник и папку «Загрузки». Имя файла указано выше."));
     find.appendChild(el("p", "", "Два быстрых нажатия по файлу открывают его. В WorkAI этот файл ещё нужно добавить отдельно."));
     box.appendChild(find);
-    return box;
-  }
-
-  function fieldsBlock(id) {
-    var box = el("div", "builder");
-    (BUILDERS[id] || []).forEach(function (row) {
-      var label = el("label", "field");
-      label.appendChild(el("span", "", row[1]));
-      var input = document.createElement("input");
-      input.type = "text";
-      input.value = fieldValues(id)[row[0]];
-      input.addEventListener("input", function () {
-        bucket.fields[id] = fieldValues(id);
-        bucket.fields[id][row[0]] = input.value;
-        var pre = app.querySelector(".prompt-sheet pre");
-        if (pre) pre.textContent = assembled(id);
-        save();
-      });
-      label.appendChild(input);
-      box.appendChild(label);
-    });
-    var restore = button("btn secondary", "Восстановить исходный пример", function () {
-      bucket.fields[id] = {};
-      save();
-      render();
-    });
-    box.appendChild(restore);
     return box;
   }
 
@@ -741,7 +682,6 @@
     var instructions = el("ol", "exercise-instructions");
     (item.steps || []).forEach(function (text) { instructions.appendChild(el("li", "", text)); });
     screen.appendChild(instructions);
-    if (BUILDERS[id]) screen.appendChild(fieldsBlock(id));
     if (item.compose) {
       var draft = el("textarea");
       draft.id = "own-prompt";
@@ -760,13 +700,11 @@
       }));
       screen.appendChild(draftStatus);
     }
-    var text = function () { return BUILDERS[id] ? assembled(id) : prompt.promptText; };
-    // The existing helper builder updates this sheet as the fields change.
-    var sheet = promptSheet(text(), item.promptHeading || "Запрос для WorkAI", prompt.description, "", prompt.promptParts);
+    var sheet = promptSheet(prompt.promptText, item.promptHeading || "Запрос для WorkAI", prompt.description, "", prompt.promptParts);
     var status = el("p", "copy-status");
     status.setAttribute("role", "status");
     sheet.appendChild(button("btn secondary", item.copyLabel || "Скопировать запрос", function () {
-      writeText(text(), function () { status.textContent = "Запрос скопирован."; }, function () { status.textContent = "Не удалось скопировать. Выделите текст выше и нажмите Ctrl+C или ⌘C."; });
+      writeText(prompt.promptText, function () { status.textContent = "Запрос скопирован."; }, function () { status.textContent = "Не удалось скопировать. Выделите текст выше и нажмите Ctrl+C или ⌘C."; });
     }));
     sheet.appendChild(status);
     if (item.exampleHidden) { var example = el("details"); example.appendChild(el("summary", "", "Показать готовый пример запроса")); example.appendChild(sheet); screen.appendChild(example); }

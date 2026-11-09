@@ -71,20 +71,22 @@ def load():
     return course, config
 
 
-def shell(title, current, body, phase):
+def shell(course, title, current, body, phase):
     links = []
     for href, label, kind in NAV:
         day_number = int(href[3]) if href.startswith("day") else 0
         mark = icon(kind, day_number)
         current_attr = ' aria-current="page"' if href == current else ""
         if day_number:
+            if day_number == 4:
+                label += " · " + course["days"][day_number - 1]["menu"]
             shown = open_day(phase, day_number)
             if shown:
                 links.append('<a data-day="%d" href="%s"%s>%s<span>%s</span></a>' % (day_number, href, current_attr, mark, esc(label)))
             links.append('<p class="nav-soon" data-day-soon="%d">%s<span>%s</span><small>Позже</small></p>' % (day_number, mark, esc(label)))
             if shown and current == href:
                 links.append('<div class="subnav" data-day="%d">%s</div>' % (day_number, "".join(
-                    '<a href="%s#%s">%s</a>' % (current, item, esc(name)) for item, name in (([("guide", "Материал дня")] + SUB) if current in ("day1.html", "day2.html", "day3.html") else SUB)
+                    '<a href="%s#%s">%s</a>' % (current, item, esc(name)) for item, name in (([("guide", "Материал дня")] + SUB) if current in ("day1.html", "day2.html", "day3.html", "day4.html") else SUB)
                 )))
             continue
         target = "prepare.html#start" if href == "prepare.html" else href
@@ -275,7 +277,7 @@ def day_page(course, phase, day):
 <p>Сейчас здесь нет заданий, запросов и файлов.</p>
 <p><a class="btn" href="prepare.html">Подготовить компьютер</a></p>
 """ % (day["number"], esc(day["title"]))
-        return shell("День %d" % day["number"], "day%d.html" % day["number"], body, phase)
+        return shell(course, "День %d" % day["number"], "day%d.html" % day["number"], body, phase)
     outcomes = "".join("<li>%s</li>" % esc(item) for item in day["outcomes"])
     theory = "".join("<p>%s</p>" % esc(item) for item in day["theory"]) + ('<div id="guide">' + reference_sections(day) + "</div>" if day.get("sections") else "")
     files = []
@@ -341,7 +343,7 @@ def day_page(course, phase, day):
         checks,
         esc(day["extra"]),
     )
-    return shell("День %d" % day["number"], "day%d.html" % day["number"], body, phase)
+    return shell(course, "День %d" % day["number"], "day%d.html" % day["number"], body, phase)
 
 
 def home(course, phase):
@@ -350,14 +352,14 @@ def home(course, phase):
         1: "Знакомство и первые задания",
         2: "Документы и анализ",
         3: "Агенты и инструменты",
-        4: "Собственный ИИ-помощник",
     }
     for day in course["days"]:
-        title = "День %d. %s" % (day["number"], titles[day["number"]])
+        title = "День %d. %s" % (day["number"], titles.get(day["number"], day["title"]))
         number = day["number"]
+        description = "<p>%s</p>" % esc(day["lead"]) if number == 4 else ""
         if open_day(phase, number):
-            cards.append('<a class="day-card" data-day="%d" href="day%d.html"><h2>%s</h2><p>Можно открыть</p></a>' % (number, number, esc(title)))
-        cards.append('<article class="day-card" data-day-soon="%d"><h2>%s</h2><p>Обзор программы. Задания откроются в день занятия.</p></article>' % (number, esc(title)))
+            cards.append('<a class="day-card" data-day="%d" href="day%d.html"><h2>%s</h2>%s<p>Можно открыть</p></a>' % (number, number, esc(title), description))
+        cards.append('<article class="day-card" data-day-soon="%d"><h2>%s</h2>%s<p>Обзор программы. Задания откроются в день занятия.</p></article>' % (number, esc(title), description))
     body = """
 <h1>ИИ для руководителей v2</h1>
 <p class="lead">Практический курс: научитесь работать с ИИ, документами, данными и собственными помощниками.</p>
@@ -366,10 +368,10 @@ def home(course, phase):
 <a class="btn only-open" id="continue-link" href="day1.html">Продолжить обучение</a></p>
 <div class="day-map">%s</div>
 """ % "".join(cards)
-    return shell("ИИ для руководителей v2", "index.html", body, phase)
+    return shell(course, "ИИ для руководителей v2", "index.html", body, phase)
 
 
-def prepare(phase):
+def prepare(course, phase):
     body = """
 %s
 <div id="prep-intro">
@@ -382,7 +384,7 @@ def prepare(phase):
   <p><a href="https://workai.su/download">Страница загрузки WorkAI</a></p>
 </noscript>
 """ % crumb("Подготовка")
-    return shell("Подготовка", "prepare.html", body, phase)
+    return shell(course, "Подготовка", "prepare.html", body, phase)
 
 
 def extra(course, phase):
@@ -422,7 +424,7 @@ def extra(course, phase):
 <p><a class="btn" href="qr/home.svg">Код главной страницы</a> <a class="btn secondary" href="qr/prepare.svg">Код подготовки</a></p>
 </section>
 """ % (crumb("Дополнительно"), filters, library, glossary, faq, links)
-    return shell("Дополнительно", "extra.html", body, phase)
+    return shell(course, "Дополнительно", "extra.html", body, phase)
 
 
 def config_js(config, phase):
@@ -524,7 +526,7 @@ def build(phase, out):
     out.mkdir(parents=True, exist_ok=True)
     pages = {
         "index.html": home(course, phase),
-        "prepare.html": prepare(phase),
+        "prepare.html": prepare(course, phase),
         "extra.html": extra(course, phase),
     }
     for day in course["days"]:
