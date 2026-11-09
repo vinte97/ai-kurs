@@ -44,6 +44,8 @@ for key in d['exerciseIds']:
 setup = ps['d3-connect-1']['promptText']
 for text in ['MCP.json', 'http://<IP преподавателя>:8765/mcp', 'Streamable HTTP', 'Authorization', 'Basic', 'Base64', 'X-Display-Name', 'encodeURIComponent', 'severprom', 'whoami']:
     assert text in setup
+assert 'Первым сообщением спроси' in setup.split('\n\n')[0]
+assert 'Дождись ответа, прежде чем менять MCP.json или подключаться' in setup
 assert 'не сохраняй их или персональный MCP.json в общем репозитории' in setup
 check = ps['lab-ping-1']['promptText']
 for text in ['lab_ping', 'whoami', 'profile.name', 'profile.email', 'limit=5', 'notes_search', 'include_knowledge=true']:
