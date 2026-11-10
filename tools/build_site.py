@@ -383,7 +383,7 @@ def prepare(course, phase):
 <div id="wizard" aria-live="polite"></div>
 <noscript>
   <p>Для пошаговой подготовки включите скрипты в браузере.</p>
-  <p><a href="https://workai.su/download">Страница загрузки WorkAI</a></p>
+  <p><a href="https://workai.su/signup?ref=WAI-TOPOMSK">Регистрация WorkAI</a></p>
 </noscript>
 """ % crumb("Подготовка")
     return shell(course, "Подготовка", "prepare.html", body, phase)

@@ -11,8 +11,8 @@ test('preparation resumes after reload and resets through the sidebar', async ({
   await page.goto('/prepare.html');
   await page.getByRole('button', { name: 'Начать подготовку', exact: true }).click();
   await page.getByRole('button', { name: 'Windows', exact: true }).click();
-  await expect(page.locator('#wizard .official a')).toHaveText('Скачать WorkAI');
-  await expect(page.locator('#wizard .official a')).toHaveAttribute('href', 'https://workai.su/download');
+  await expect(page.locator('#wizard .official a')).toHaveText('Открыть регистрацию WorkAI');
+  await expect(page.locator('#wizard .official a')).toHaveAttribute('href', 'https://workai.su/signup?ref=WAI-TOPOMSK');
   await page.getByRole('button', { name: 'Далее', exact: true }).click();
   await page.reload();
   await expect(page.locator('#wizard h1')).toContainText('Регистрация');
@@ -189,7 +189,7 @@ test('all presentation topics are available without the deck', async ({ page }) 
 });
 
 
-test('preparation finishes with billing screenshots and can wait for a lesson code', async ({ page }) => {
+test('preparation finishes with billing screenshots and shows the course promo code', async ({ page }) => {
   await page.goto('/prepare.html#start');
   await page.getByRole('button', { name: 'Начать подготовку', exact: true }).click();
   await page.getByRole('button', { name: 'Windows', exact: true }).click();
@@ -198,7 +198,7 @@ test('preparation finishes with billing screenshots and can wait for a lesson co
   await expect(page.locator('#wizard .step-shot')).toHaveAttribute('src', 'images/workai-billing-menu.png');
   await page.getByRole('button', { name: 'Далее', exact: true }).click();
   await expect(page.locator('#wizard .step-shot')).toHaveAttribute('src', 'images/workai-promo-code.png');
-  await expect(page.locator('#wizard')).toContainText('на каждом уроке');
+  await expect(page.locator('#wizard')).toContainText('WAI-TOPOMSK');
   await page.getByRole('button', { name: 'Пропустить этот блок', exact: true }).click();
   await expect(page.locator('#wizard h1')).toContainText('Завершаем подготовку');
 });
