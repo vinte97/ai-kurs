@@ -261,7 +261,12 @@
     }
     var pre = el("pre", "prompt-text");
     pre.textContent = text;
-    sheet.appendChild(pre);
+    if (day.number === 4 && text.length > 700) {
+      var preview = el("details", "prompt-preview");
+      preview.appendChild(el("summary", "", "Показать полный текст запроса"));
+      preview.appendChild(pre);
+      sheet.appendChild(preview);
+    } else sheet.appendChild(pre);
     if (expected) sheet.appendChild(el("p", "prompt-expect", "Ожидаемый результат. " + expected));
     return sheet;
   }
@@ -556,12 +561,17 @@
     return bar;
   }
 
+  function showPrompt(sheet) {
+    var preview = sheet.querySelector(".prompt-preview");
+    if (preview) preview.open = true;
+  }
+
   function copySheet(text, title, description, label, parts) {
     var box = promptSheet(text, title, description, "", parts);
     var status = el("p", "copy-status");
     status.setAttribute("role", "status");
     box.appendChild(button("btn secondary", label || "Скопировать запрос", function () {
-      writeText(text, function () { status.textContent = "Скопировано."; }, function () { status.textContent = "Не удалось скопировать. Выделите текст выше и нажмите Ctrl+C или ⌘C."; });
+      writeText(text, function () { status.textContent = "Скопировано."; }, function () { showPrompt(box); status.textContent = "Не удалось скопировать. Выделите текст выше и нажмите Ctrl+C или ⌘C."; });
     }));
     box.appendChild(status);
     return box;
@@ -675,7 +685,7 @@
     heading.tabIndex = -1;
     screen.appendChild(heading);
     screen.appendChild(el("p", "lead", item.goal));
-    if (item.staged) screen.appendChild(el("p", "note", "На всю практику — до " + item.minutes + " минут, включая проверку файла."));
+    if (item.staged) screen.appendChild(el("p", "note", "На всю практику — до " + item.minutes + (day.number === 4 ? " минут, включая проверку результата." : " минут, включая проверку файла.")));
     var file = prompt.requiredMaterials.length ? window.COURSE.materials[prompt.requiredMaterials[0]] : null;
     if (file) screen.appendChild(fileBlock(file));
     screen.appendChild(el("h2", "", "Что сделать"));
@@ -704,7 +714,7 @@
     var status = el("p", "copy-status");
     status.setAttribute("role", "status");
     sheet.appendChild(button("btn secondary", item.copyLabel || "Скопировать запрос", function () {
-      writeText(prompt.promptText, function () { status.textContent = "Запрос скопирован."; }, function () { status.textContent = "Не удалось скопировать. Выделите текст выше и нажмите Ctrl+C или ⌘C."; });
+      writeText(prompt.promptText, function () { status.textContent = "Запрос скопирован."; }, function () { showPrompt(sheet); status.textContent = "Не удалось скопировать. Выделите текст выше и нажмите Ctrl+C или ⌘C."; });
     }));
     sheet.appendChild(status);
     if (item.exampleHidden) { var example = el("details"); example.appendChild(el("summary", "", "Показать готовый пример запроса")); example.appendChild(sheet); screen.appendChild(example); }
@@ -716,7 +726,10 @@
     }
     (item.extraPromptIds || []).forEach(function (pid) {
       var extra = window.COURSE.prompts.filter(function (p) { return p.id === pid; })[0];
-      (extra.requiredMaterials || []).forEach(function (key) { screen.appendChild(fileBlock(window.COURSE.materials[key])); });
+      (extra.requiredMaterials || []).forEach(function (key) {
+        if (day.number === 4 && prompt.requiredMaterials[0] === key) return;
+        screen.appendChild(fileBlock(window.COURSE.materials[key]));
+      });
       screen.appendChild(copySheet(extra.promptText, extra.title, extra.description));
       if (item.staged) {
         screen.appendChild(el("p", "", "Результат этапа: " + extra.expectedResult));

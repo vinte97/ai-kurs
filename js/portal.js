@@ -675,6 +675,8 @@
         }
         function fail() {
           if (node) {
+            var preview = node.closest(".prompt-preview");
+            if (preview) preview.open = true;
             var range = document.createRange();
             range.selectNodeContents(node);
             var selection = window.getSelection();

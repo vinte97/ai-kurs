@@ -167,11 +167,14 @@ def prompt_card(course, prompt):
     if prompt.get("promptParts"):
         structure = '<details><summary>Структура РКФОП — пояснение, не копируется</summary><dl>' + "".join('<dt>%s</dt><dd>%s</dd>' % (esc(p["label"]), esc(p["text"])) for p in prompt["promptParts"]) + '</dl></details>'
     text_id = "text-" + prompt["id"]
+    text = '<pre id="%s" class="prompt-text">%s</pre>' % (esc(text_id), esc(prompt["promptText"]))
+    if prompt["day"] == 4 and len(prompt["promptText"]) > 700:
+        text = '<details class="prompt-preview"><summary>Показать полный текст запроса</summary>%s</details>' % text
     return """
 <article class="prompt-card" id="prompt-%s" data-topic="%s">
   <h3>%s</h3>
   <p>%s</p>
-  %s<pre id="%s" class="prompt-text">%s</pre>
+  %s%s
   <p><button class="btn copy-prompt" type="button" data-prompt-id="%s">Скопировать запрос</button></p>
   <p id="status-%s" class="copy-status" role="status"></p>
   <p>%s</p>
@@ -186,8 +189,7 @@ def prompt_card(course, prompt):
         esc(prompt["title"]),
         esc(prompt["description"]),
         structure,
-        text_id,
-        esc(prompt["promptText"]),
+        text,
         esc(prompt["id"]),
         esc(prompt["id"]),
         ("Скопируйте структуру в свой текстовый файл и заполните самостоятельно." if prompt.get("manual") else "Перейдите в WorkAI, вставьте запрос в поле сообщения и отправьте его."),
